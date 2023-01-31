@@ -1,7 +1,120 @@
-import networkx as nx
-import osmnx as ox
 import folium
 import matplotlib.pyplot as plt
+from neo4j import GraphDatabase, basic_auth
+import pandas as pd
+import osmnx as ox
+import networkx as nx
+import json
+from shapely.wkt import dumps
+
+
+def OSMGraphToNeo4j():
+    driver = GraphDatabase.driver("bolt://localhost:7687", auth=basic_auth("neo4j", "password"))
+    session = driver.session()
+
+    # Load data into a Pandas DataFrame
+    data = pd.read_csv("nodes.csv")
+
+    # Create nodes in Neo4j
+    for index, row in data.iterrows():
+        query = "CREATE (n:Node {id: {id}, latitude: {latitude}, longitude: {longitude}})"
+        session.run(query, id=row["id"], latitude=row["latitude"], longitude=row["longitude"])
+
+    # Create relationships in Neo4j
+    for index, row in data.iterrows():
+        query = "MATCH (n:Node), (m:Node) WHERE n.id = {id} AND m.id = {source_id} CREATE (m)-[:ROAD {length: {length}}]->(n)"
+        session.run(query, id=row["id"], source_id=row["source_id"], length=row["length"])
+
+    # Close the session and driver
+    session.close()
+    driver.close()
+
+def testNeo4j():
+    uri = "bolt://localhost"
+    driver = GraphDatabase.driver(uri, auth=("neo4j", "password"))
+    userName = "neo4j"
+
+    password = "test"
+
+    # Connect to the neo4j database server
+
+    graphDB_Driver = GraphDatabase.driver(uri, auth=(userName, password))
+
+    # CQL to query all the universities present in the graph
+
+    cqlNodeQuery = "MATCH (x:university) RETURN x"
+
+    # CQL to query the distances from Yale to some of the other Ivy League universities
+
+    cqlEdgeQuery = "MATCH (x:university {name:'Yale University'})-[r]->(y:university) RETURN y.name,r.miles"
+
+    # CQL to create a graph containing some of the Ivy League universities
+
+    cqlCreate = """CREATE (cornell:university { name: "Cornell University"}),
+
+    (yale:university { name: "Yale University"}),
+
+    (princeton:university { name: "Princeton University"}),
+
+    (harvard:university { name: "Harvard University"}),
+
+
+
+    (cornell)-[:connects_in {miles: 259}]->(yale),
+
+    (cornell)-[:connects_in {miles: 210}]->(princeton),
+
+    (cornell)-[:connects_in {miles: 327}]->(harvard),
+
+
+
+    (yale)-[:connects_in {miles: 259}]->(cornell),
+
+    (yale)-[:connects_in {miles: 133}]->(princeton),
+
+    (yale)-[:connects_in {miles: 133}]->(harvard),
+
+
+
+    (harvard)-[:connects_in {miles: 327}]->(cornell),
+
+    (harvard)-[:connects_in {miles: 133}]->(yale),
+
+    (harvard)-[:connects_in {miles: 260}]->(princeton),
+
+
+
+    (princeton)-[:connects_in {miles: 210}]->(cornell),
+
+    (princeton)-[:connects_in {miles: 133}]->(yale),
+
+    (princeton)-[:connects_in {miles: 260}]->(harvard)"""
+
+    # Execute the CQL query
+
+    with graphDB_Driver.session() as graphDB_Session:
+
+        # Create nodes
+
+        graphDB_Session.run(cqlCreate)
+
+        # Query the graph
+
+        nodes = graphDB_Session.run(cqlNodeQuery)
+
+        print("List of Ivy League universities present in the graph:")
+
+        for node in nodes:
+            print(node)
+
+        # Query the relationships present in the graph
+
+        nodes = graphDB_Session.run(cqlEdgeQuery)
+
+        print("Distance from Yale University to the other Ivy League universities present in the graph:")
+
+        for node in nodes:
+            print(node)
 
 def test():
     # specify origin and destination coordinates
@@ -28,14 +141,29 @@ def test():
     # display the map
     m
 
+def OSMGraphToCSV(g):
+    df = ox.graph_to_gdfs(G, nodes=True, edges=True)
+    print(df)
+    df.to_csv('nodes.csv')
 
 TEL_AVIV = (32.11, 32.07, 34.79, 34.75) # north, south, east, west
-POLEG = [32.2874, 32.2677, 34.8591, 34.8313] # north, south, east, west
+TEL_AVIV_MINI = (32.0974, 32.0926, 34.7768, 34.7735) # north, south, east, west
+POLEG = [32.2838, 32.2684, 34.8529, 34.8361] # north, south, east, west
 # define the bounding box for Tel Aviv
 north, south, east, west = 32.11, 32.07, 34.79, 34.75
 
 # download the road network data for Tel Aviv
 G = ox.graph_from_bbox(POLEG[0],POLEG[1],POLEG[2],POLEG[3], network_type='drive')
+#G = ox.graph_from_bbox(TEL_AVIV_MINI[0],TEL_AVIV_MINI[1],TEL_AVIV_MINI[2],TEL_AVIV_MINI[3], network_type='drive')
+# download the street network of the location as a graph
+for u, v, data in G.edges(data=True):
+    print(data)
+    #print(u)
+    #print(v)
+ox.plot_graph(G)
+OSMGraphToCSV(G)
+#OSMGraphToNeo4j()
+#testNeo4j()
 """
 # plot the road network
 
@@ -62,5 +190,5 @@ dir_graph = G.to_directed()
 ox.plot_graph(dir_graph)
 """
 
-test()
+#test()
 
