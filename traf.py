@@ -1,17 +1,6 @@
-import traci
+def reverse_dict_value(d, key):
+  d[key] = d[key][::-1]
 
-sumoBinary = "sumo"
-sumoCmd = [sumoBinary, "-c", "sumo.sumocfg"]
-
-traci.start(sumoCmd)
-
-# Perform some simulation steps
-for i in range(1000):
-    traci.simulationStep()
-
-# Retrieve some information from the simulation
-vehicle_count = traci.vehicle.getIDCount()
-vehicle_speed = traci.vehicle.getSpeed("veh0")
-
-# Stop the simulation
-traci.close()
+d = {"key1": "value1"}
+reverse_dict_value(d, "key1")
+print(d)
