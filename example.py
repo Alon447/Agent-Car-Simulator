@@ -1,23 +1,11 @@
-import networkx as nx
+import folium
 
-# create an empty graph
-from matplotlib import pyplot as plt
+# Create a map using OSM tiles
+map = folium.Map(location=[40.7128, -74.0060], zoom_start=12, tiles='OpenStreetMap')
 
-G = nx.Graph()
+# Add a marker to the map
+marker = folium.Marker(location=[40.7128, -74.0060], popup="New York City")
+marker.add_to(map)
 
-# add nodes (intersections) to the graph
-G.add_node("A")
-G.add_node("B")
-G.add_node("C")
-G.add_node("D")
-
-# add edges (roads) to the graph
-G.add_edge("A", "B")
-G.add_edge("B", "C")
-G.add_edge("C", "D")
-G.add_edge("D", "A")
-
-# visualize the graph
-G.number_of_nodes()
-plt.show()
-
+# Display the map
+map
