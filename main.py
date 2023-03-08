@@ -6,60 +6,7 @@ import osmnx as ox
 import networkx as nx
 import threading
 import time
-
-
-
-
-def test():
-    # specify origin and destination coordinates
-    origin = (37.7896239, -122.4011153)
-    destination = (37.7888889, -122.3991668)
-
-    # download the street network within a 1km buffer of the origin and destination
-    G = ox.graph_from_point(origin, dist=3000, network_type='drive')
-    G = ox.project_graph(G)
-
-    # calculate the shortest path
-    route = nx.shortest_path(G, origin, destination)
-
-    # create a folium map centered at the origin
-    m = folium.Map(location=origin, zoom_start=13)
-
-    # add the route to the map as a red line
-    folium.PolyLine(route, color='red', weight=2.5, opacity=1).add_to(m)
-
-    # add markers for the origin and destination
-    folium.Marker(origin, icon=folium.Icon(color='green')).add_to(m)
-    folium.Marker(destination, icon=folium.Icon(color='red')).add_to(m)
-
-    # display the map
-    m
-
-def test():
-    # specify origin and destination coordinates
-    origin = (37.7896239, -122.4011153)
-    destination = (37.7888889, -122.3991668)
-
-    # download the street network within a 1km buffer of the origin and destination
-    G = ox.graph_from_point(origin, dist=3000, network_type='drive')
-    G = ox.project_graph(G)
-
-    # calculate the shortest path
-    route = nx.shortest_path(G, origin, destination)
-
-    # create a folium map centered at the origin
-    m = folium.Map(location=origin, zoom_start=13)
-
-    # add the route to the map as a red line
-    folium.PolyLine(route, color='red', weight=2.5, opacity=1).add_to(m)
-
-    # add markers for the origin and destination
-    folium.Marker(origin, icon=folium.Icon(color='green')).add_to(m)
-    folium.Marker(destination, icon=folium.Icon(color='red')).add_to(m)
-
-    # display the map
-    m
-
+import l5kit as l5
 
 
 
@@ -73,11 +20,11 @@ def colorByType(g):
     #           'residential': green
     #           'living_street': yellow
     edge_colors = []
-    choice=int(input("Enter 1 for full map, 2 (or else) for minimal version: "))
+    choice = 1
     for i, edge in enumerate(g.edges):
-        if choice==1:
+        if choice == 1:
             if g.edges[edge]['highway'] in ('tertiary', 'tertiary_link'):
-                edge_colors.append('r')
+                edge_colors.append('orange')
             if g.edges[edge]['highway'] == 'residential':
                 edge_colors.append('g')
             if g.edges[edge]['highway'] == 'unclassified':
@@ -113,6 +60,7 @@ def colorByType(g):
     """
     return edge_colors
 
+
 """
 if g.edges[edge]['highway'] == 'unclassified':
     edge_colors.append('b')
@@ -123,12 +71,13 @@ else:
         edge_colors.append('black')
 """
 
-    #print(i)
+
+# print(i)
 
 
 def colorTrafficLights(g):
     # color the nodes that have traffic lights
-    nodeColor=[]
+    nodeColor = []
 
     for i, node in enumerate(g.nodes):
         if g.nodes[node].get('highway') == 'traffic_signals':
@@ -138,12 +87,14 @@ def colorTrafficLights(g):
 
     return nodeColor
 
+
 def colorNodesByStreetCount(g):
     # color the nodes that have traffic lights
-    nodeColor=[]
+    nodeColor = []
 
     for i, node in enumerate(g.nodes):
-        print(type(g.nodes[node].get('street_count')))
+        print(g.nodes[node].get('street_id'))
+        # print(type(g.nodes[node].get('street_count')))
         if g.nodes[node].get('street_count') == 1:
             nodeColor.append('red')
         elif g.nodes[node].get('street_count') == 2:
@@ -160,6 +111,8 @@ def colorNodesByStreetCount(g):
             nodeColor.append('w')
 
     return nodeColor
+
+
 """
 g2 = ox.load_graphml('./data/graphTLVFix.graphml')
 num_edges = len(g2.edges)
@@ -173,6 +126,7 @@ for i, edge in enumerate(g2.edges):
             edge_colors[i] = 'y'
 """
 
+
 def printGraphWithNamesFixed(G):
     # problem with lists, the names are already backwards so no need ro reverse them, at least for now.
     fig, ax = ox.plot_graph(G, bgcolor='k', edge_linewidth=3, node_size=0,
@@ -185,19 +139,6 @@ def printGraphWithNamesFixed(G):
                 edge['name'][i] = name
             text = edge['name']
         else:
-            edge['name']=edge['name'][::-1]
-            text = edge['name']
-        ax.annotate(text, (c.x, c.y), c='w')
-    plt.show()
-    return
-
-def printGraphWithNamesFixed2(G):
-    # no reversing for lists
-    for _, edge in ox.graph_to_gdfs(G, nodes=False).fillna('').iterrows():
-        c = edge['geometry'].centroid
-        if type(edge['name']) == list:
-            text = edge['name']
-        else:
             edge['name'] = edge['name'][::-1]
             text = edge['name']
         ax.annotate(text, (c.x, c.y), c='w')
@@ -205,14 +146,59 @@ def printGraphWithNamesFixed2(G):
     return
 
 
-g2 = ox.load_graphml('./data/graphTLVFix.graphml')
-edge_colors=colorByType(g2)
-node_choice=int(input("Enter 1 for traffic lights, 2 for street count: "))
-if node_choice == 1:
-    node_colors=colorTrafficLights(g2)
-else:
-    node_colors=colorNodesByStreetCount(g2)
-print(node_colors)
+def printGraphWithNamesFixed2(G):
+    # no reversing for lists
+    fig, ax = ox.plot_graph(G, bgcolor='k', edge_linewidth=3, node_size=0,
+                            show=False, close=False)
+    for _, edge in ox.graph_to_gdfs(G, nodes=False).fillna('').iterrows():
+        if edge['highway'] in ('secondary', 'secondary_link', 'trunk', 'trunk_link'):
+            c = edge['geometry'].centroid
+            if type(edge['name']) == list:
+                text = edge['name']
+            else:
+                edge['name'] = edge['name'][::-1]
+                text = edge['name']
+            ax.annotate(text, (c.x, c.y), c='w')
+    plt.show()
+    return
 
-fig, ax = ox.plot_graph(g2, bgcolor='k', edge_linewidth=3, node_size=10, edge_color=edge_colors,node_color=node_colors, show=False, close=False)
-printGraphWithNamesFixed2(g2)
+def printGraph(g2):
+    # print Tel Aviv's graph
+    edge_colors = colorByType(g2)
+    node_choice = int(input("Enter 1 for traffic lights, 2 for street count: "))
+    if node_choice == 1:
+        node_colors = colorTrafficLights(g2)
+    else:
+        node_colors = colorNodesByStreetCount(g2)
+    # print(node_colors)
+
+    fig, ax = ox.plot_graph(g2, bgcolor='black', edge_linewidth=3, node_size=10, edge_color=edge_colors,
+                            node_color=node_colors, show=False, close=False)
+    printGraphWithNamesFixed2(g2)
+
+g2 = ox.load_graphml('./data/graphTLVFix.graphml')
+edge_colors = colorByType(g2)
+
+orig1 = 352934665
+dest1 = 139712
+
+# print(g2)
+route1=ox.distance.shortest_path(g2, orig1, dest1, weight='length', cpus=1)
+
+ox.plot.plot_graph_route(g2, route1, route_color='r', route_linewidth=4, route_alpha=0.5, orig_dest_size=100, ax=None, edge_color=edge_colors)
+route_map = {'color': 'red', 'weight': 5, 'opacity': 0.7}
+my_map = folium.Map(location=[32.0926596, 34.7746982], zoom_start=13, tiles='CartoDB positron')
+
+ox.folium.plot_route_folium(g2, route1, route_map=route_map, popup_attribute=None, tiles='cartodbpositron', zoom=1, fit_bounds=True, map=my_map)
+route_streets=[]
+for i,node in enumerate(route1):
+    if i+1<len(route1):
+        next_node= route1[i+1]
+    for edge in g2.edges:
+        if edge[0]==node and edge[1]==next_node:
+            if g2.edges[edge]['name'] not in route_streets:
+                print(g2.edges[edge]['name'])
+                route_streets.append(g2.edges[edge]['name'])
+                break
+
+print(route_streets)

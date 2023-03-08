@@ -23,11 +23,15 @@
   <key id="d2" for="graph" attr.name="crs" attr.type="string" />
   <key id="d1" for="graph" attr.name="created_with" attr.type="string" />
   <key id="d0" for="graph" attr.name="created_date" attr.type="string" />
+  <key id="d100" for="node" attr.name="street_id" attr.type="string" />
+
   <graph edgedefault="directed">
     <node id="139707">
       <data key="d4">32.095357</data>
       <data key="d5">34.7784921</data>
       <data key="d6">3</data>
+      <data key="d100">100</data>
+
     </node>
     <node id="139708">
       <data key="d4">32.0950516</data>
