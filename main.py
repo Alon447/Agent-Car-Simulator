@@ -6,8 +6,8 @@ import osmnx as ox
 import networkx as nx
 import threading
 import time
-import l5kit as l5
-
+#import l5kit as l5
+import generate_car_routes as gcr
 
 
 def colorByType(g):
@@ -179,14 +179,16 @@ def printGraph(g2):
 g2 = ox.load_graphml('./data/graphTLVFix.graphml')
 edge_colors = colorByType(g2)
 
-orig1 = 352934665
-dest1 = 139712
+orig1 = 340368898
+dest1 = 139708
 
 # print(g2)
 route1=ox.distance.shortest_path(g2, orig1, dest1, weight='length', cpus=1)
-
+gcr.create_state_dictionary(g2, 10, [route1])
 ox.plot.plot_graph_route(g2, route1, route_color='r', route_linewidth=4, route_alpha=0.5, orig_dest_size=100, ax=None, edge_color=edge_colors)
 route_map = {'color': 'red', 'weight': 5, 'opacity': 0.7}
+
+"""
 my_map = folium.Map(location=[32.0926596, 34.7746982], zoom_start=13, tiles='CartoDB positron')
 
 ox.folium.plot_route_folium(g2, route1, route_map=route_map, popup_attribute=None, tiles='cartodbpositron', zoom=1, fit_bounds=True, map=my_map)
@@ -202,3 +204,5 @@ for i,node in enumerate(route1):
                 break
 
 print(route_streets)
+
+"""
