@@ -1,13 +1,13 @@
 
-
-
 class Cars:
-    def __init__(self, id, route,next_node_index, is_finished, travel_time):
+    def __init__(self, id, route ,next_node_index, is_finished, starting_time, travel_time):
         self.id = id
         self.route = route
-        self.next_node_index = route[0] # we need to decide if this parameter is a node or an index of a node in the route
+        self.next_node_index = 1 # the next node that the car will go to
         self.is_finished = False
+        self.starting_time = starting_time
         self.travel_time = 0
+        self.edges_route = []
         #  MAYBE WE NEED THE CARS TO STORE THE CURRENT EDGE AND THE NEXT EDGE. THE CURRENT EDGE TO CALCULATE THE TRAVEL TIME AND THE NEXT EDGE TO ASK TO MOVE TO THE EDGE IN THE NEXT TICK.
 
     def get_id(self):
@@ -32,14 +32,23 @@ class Cars:
         self.route = route
 
     def set_is_finished(self):
-        if len(self.route)==1: # means that the car is in the last node of the route
-            is_finished=True # after the car is finished i think we need to remove it
+        if len(self.route )==1: # means that the car is in the last node of the route
+            is_finished =True # after the car is finished i think we need to remove it
 
-    def update_travel_time(self):
-        self.travel_time += ??
+    def update_travel_time(self, finishing_time):
+        self.travel_time = finishing_time - self.starting_time
+
+    def create_edges_route(self, G):
+        edges_route = []
+        for i in range(len(self.route)-1):
+            current_edge = (self.route[i] ,self.route[ i +1] ,0)
+            edges_route.append(current_edge)
+        self.edges_route = edges_route
+        return edges_route
 
     def move_node(self):
-        self.next_node_index += 1 # I think this is a mistake, we need to move the car to the next node in the route, not to the next index in the route
+        self.next_node_index += 1
 
     def __str__(self):
-        return "id: " + self.id + "\n" + "route: " + str(self.route) + "\n" + "next node: " + str(self.route[self.next_node_index])
+        return "id: " + self.id + "\n" + "route: " + str(self.route) + "\n" + "next node: " + str \
+            (self.route[self.next_node_index])

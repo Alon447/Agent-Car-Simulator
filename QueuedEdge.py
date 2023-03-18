@@ -5,7 +5,7 @@ class QueuedEdge:
     def __init__(self, edge_graph_index, max_speed, cur_speed, reversed, cars_queue, next_queue, max_length):
         self.edge_graph_index = edge_graph_index
         self.max_speed = max_speed
-        self.cur_speed = cur_speed
+        self.cur_speed = max_speed
         self.reversed = reversed
         self.cars_queue = cars_queue #actually a list that will function similarly to a qeueu
         self.next_queue = cars_queue
@@ -39,16 +39,23 @@ class QueuedEdge:
     functions to update to the next state
     """
     def add_cars(self, cars):
-        self.next_queue = itertools.chain(self.cars_queue,cars)
+        self.next_queue = copy.deepcopy(self.cars_queue)
+        for i in range(len(cars)):
+            if (len(self.next_queue) == self.max_length):
+                return
+            self.next_queue.append(cars.pop(0))
 
     def remove_cars(self, num_cars):
         self.next_queue = self.cars_queue[num_cars:]
 
     def update(self):
         self.cars_queue = self.next_queue
-        self.next_queue = copy.copy(self.cars_queue)
+        self.next_queue = copy.deepcopy(self.cars_queue)
         # NOW WE NEED TO UPDATE THE SPEED ACCORDING TO THE QUEUE
-        self.cur_speed = ??
+        self.set_cur_speed()
+
+    def set_cur_speed(self):
+        self.cur_speed = self.max_speed*(1-(len(self.cars_queue)/self.max_length))
 
     def __str__(self):
         return "edge_graph_index: " + str(self.edge_graph_index) + "\n" + "max_speed: " \
