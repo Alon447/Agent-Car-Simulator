@@ -206,3 +206,6 @@ for i,node in enumerate(route1):
 print(route_streets)
 
 """
+for edge in g2.edges:
+    print(type(edge))
+    break
