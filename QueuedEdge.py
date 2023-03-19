@@ -5,11 +5,10 @@ import Cars
 
 class QueuedEdge:
 
-    def __init__(self, edge_graph_index, max_speed, cur_speed, reversed, cars_queue, next_queue, max_length):
+    def __init__(self, edge_graph_index, max_speed, cur_speed,  cars_queue, next_queue, max_length):
         self.edge_graph_index = edge_graph_index
         self.max_speed = max_speed
         self.cur_speed = max_speed
-        self.reversed = reversed
         self.cars_queue = cars_queue  # actually a list that will function similarly to a qeueu
         self.next_queue = cars_queue
         self.max_length = max_length  # we need to define a mex length for the queue
@@ -33,6 +32,8 @@ class QueuedEdge:
     def get_cars_queue(self):
         return self.cars_queue
 
+    def get_max_length(self):
+        return self.max_length
     # SETS
     def set_cur_speed(self, cur_speed):
         self.cur_speed = cur_speed
@@ -50,6 +51,7 @@ class QueuedEdge:
         self.next_queue = copy.deepcopy(self.cars_queue)
         for i in range(len(cars)):
             if (len(self.next_queue) == self.max_length):
+                print("The queue is full")
                 return
             self.next_queue.append(cars.pop(0))
 
@@ -76,7 +78,7 @@ class QueuedEdge:
         self.cars_queue = self.next_queue
         self.next_queue = copy.deepcopy(self.cars_queue)
         # NOW WE NEED TO UPDATE THE SPEED ACCORDING TO THE QUEUE
-        self.set_cur_speed()
+        #self.set_cur_speed()
 
     def set_cur_speed(self):
         # calculate the speed according to the queue and LWR model
@@ -84,5 +86,9 @@ class QueuedEdge:
 
     def __str__(self):
         return "edge_graph_index: " + str(self.edge_graph_index) + "\n" + "max_speed: " \
-               + str(self.max_speed) + "\n" + "cur_speed: " + str(self.cur_speed) + "\n" + "reversed: " \
-               + str(self.reversed) + "\n" + "cars_queue: " + str(self.cars_queue)
+               + str(self.max_speed) + "\n" + "cur_speed: " + str(self.cur_speed) +\
+               "\n" + "cars_queue: " + str(self.cars_queue) + "\n" + "next_queue: " + str(self.next_queue) + "\n" +\
+                "max_length: " + str(self.max_length) + "\n"
+
+    def __repr__(self):
+        return self.__str__()
