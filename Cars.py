@@ -11,6 +11,7 @@ class Cars:
         self.next_edge_index = 1 # the next edge that the car will go to
         #  MAYBE WE NEED THE CARS TO STORE THE CURRENT EDGE AND THE NEXT EDGE. THE CURRENT EDGE TO CALCULATE THE TRAVEL TIME AND THE NEXT EDGE TO ASK TO MOVE TO THE EDGE IN THE NEXT TICK.
 
+    # GETS
     def get_id(self):
         return self.id
 
@@ -29,6 +30,7 @@ class Cars:
     def is_finished(self):
         return self.is_finished
 
+    # SETS
     def set_next_node_index(self, next_node_index):
         self.next_node_index = next_node_index
 
@@ -40,9 +42,11 @@ class Cars:
             is_finished =True # after the car is finished i think we need to remove it
 
     def update_travel_time(self, finishing_time):
+        #  Calculate the travel time of the car
         self.travel_time = finishing_time - self.starting_time
 
     def create_edges_route(self, G):
+        # Create the edges route of the car from the route that contains the nodes
         edges_route = []
         for i in range(len(self.route)-1):
             current_edge = (self.route[i] ,self.route[ i +1] ,0)

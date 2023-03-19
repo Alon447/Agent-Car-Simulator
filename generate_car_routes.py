@@ -13,6 +13,7 @@ def gen_route(G, time, start, end, chosen_weight):
     return route
 
 def gen_random_route(G, chosen_weight):
+    # get random start and end nodes, and generate a route between them accoring to the chosen weight
     node_lst = (list(G.nodes))
     start = random.choice(node_lst)
     node_lst.remove(start)

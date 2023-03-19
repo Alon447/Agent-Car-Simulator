@@ -12,6 +12,7 @@ class QueuedEdge:
         self.next_queue = cars_queue
         self.max_length = max_length # we need to define a mex length for the queue
 
+    # GETS
     def get_edge_graph_index(self):
         return self.edge_graph_index
 
@@ -30,6 +31,7 @@ class QueuedEdge:
     def get_cars_queue(self):
         return self.cars_queue
 
+    # SETS
     def set_cur_speed(self, cur_speed):
         self.cur_speed = cur_speed
 
@@ -40,6 +42,8 @@ class QueuedEdge:
     functions to update to the next state
     """
     def add_cars(self, cars):
+        # Tries to add the cars to the next queue
+        # we need to address what to do to the cars that can't be added
         self.next_queue = copy.deepcopy(self.cars_queue)
         for i in range(len(cars)):
             if (len(self.next_queue) == self.max_length):
@@ -47,6 +51,7 @@ class QueuedEdge:
             self.next_queue.append(cars.pop(0))
 
     def remove_cars(self, num_cars):
+        # Removes the cars from the queue if they can move to next edge
         cars_list = copy.deepcopy(self.cars_queue[:num_cars-1])
         for i,car in enumerate(cars_list):
             if not self.try_move_car(car):
@@ -55,7 +60,7 @@ class QueuedEdge:
 
     def try_move_car(self, car, next_edge):
         """
-
+        MAYBE THIS FUNCTION SHOULD BE IN ANOTHER CLASS
         :param car: a car to move to the next edge
         :return: boolean: true if the car was moved to the next edge, false otherwise
         """
@@ -63,6 +68,7 @@ class QueuedEdge:
             return False
         self.next_queue.append(car)
         return True
+
     def update(self):
         self.cars_queue = self.next_queue
         self.next_queue = copy.deepcopy(self.cars_queue)
@@ -70,6 +76,7 @@ class QueuedEdge:
         self.set_cur_speed()
 
     def set_cur_speed(self):
+        # calculate the speed according to the queue and LWR model
         self.cur_speed = self.max_speed*(1-(len(self.cars_queue)/self.max_length))
 
     def __str__(self):
