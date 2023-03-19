@@ -1,16 +1,18 @@
 import itertools
 import copy
 import Cars
+
+
 class QueuedEdge:
-    all
+
     def __init__(self, edge_graph_index, max_speed, cur_speed, reversed, cars_queue, next_queue, max_length):
         self.edge_graph_index = edge_graph_index
         self.max_speed = max_speed
         self.cur_speed = max_speed
         self.reversed = reversed
-        self.cars_queue = cars_queue #actually a list that will function similarly to a qeueu
+        self.cars_queue = cars_queue  # actually a list that will function similarly to a qeueu
         self.next_queue = cars_queue
-        self.max_length = max_length # we need to define a mex length for the queue
+        self.max_length = max_length  # we need to define a mex length for the queue
 
     # GETS
     def get_edge_graph_index(self):
@@ -41,6 +43,7 @@ class QueuedEdge:
     """
     functions to update to the next state
     """
+
     def add_cars(self, cars):
         # Tries to add the cars to the next queue
         # we need to address what to do to the cars that can't be added
@@ -52,8 +55,8 @@ class QueuedEdge:
 
     def remove_cars(self, num_cars):
         # Removes the cars from the queue if they can move to next edge
-        cars_list = copy.deepcopy(self.cars_queue[:num_cars-1])
-        for i,car in enumerate(cars_list):
+        cars_list = copy.deepcopy(self.cars_queue[:num_cars - 1])
+        for i, car in enumerate(cars_list):
             if not self.try_move_car(car):
                 break
         self.next_queue = self.cars_queue[i:]
@@ -77,9 +80,9 @@ class QueuedEdge:
 
     def set_cur_speed(self):
         # calculate the speed according to the queue and LWR model
-        self.cur_speed = self.max_speed*(1-(len(self.cars_queue)/self.max_length))
+        self.cur_speed = self.max_speed * (1 - (len(self.cars_queue) / self.max_length))
 
     def __str__(self):
         return "edge_graph_index: " + str(self.edge_graph_index) + "\n" + "max_speed: " \
-            + str(self.max_speed) + "\n" + "cur_speed: " + str(self.cur_speed) + "\n" + "reversed: " \
-            + str(self.reversed) + "\n" + "cars_queue: " + str(self.cars_queue)
+               + str(self.max_speed) + "\n" + "cur_speed: " + str(self.cur_speed) + "\n" + "reversed: " \
+               + str(self.reversed) + "\n" + "cars_queue: " + str(self.cars_queue)

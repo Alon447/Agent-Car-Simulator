@@ -193,7 +193,13 @@ if __name__ == '__main__':
 
     # print(g2)
     route1=ox.distance.shortest_path(g2, orig1, dest1, weight='length', cpus=1)
-    gcr.create_state_dictionary(g2, 10, [route1])
+    edges_route = []
+    for i in range(len(route1) - 1):
+        current_edge = (route1[i], route1[i + 1], 0)
+        edges_route.append(current_edge)
+    #gcr.create_state_dictionary(g2, 10, [route1])
+    print(route1)
+    print(edges_route)
     ox.plot.plot_graph_route(g2, route1, route_color='r', route_linewidth=4, route_alpha=0.5, orig_dest_size=100, ax=None, edge_color=edge_colors)
     route_map = {'color': 'red', 'weight': 5, 'opacity': 0.7}
 

@@ -2,13 +2,14 @@
 class Cars:
     def __init__(self, id, route ,next_node_index, is_finished, starting_time, travel_time):
         self.id = id
-        self.route = route
+        self.route = route # nodes route
+        self.edges_route = []
         self.next_node_index = 1 # the next node that the car will go to
+        self.next_edge_index = 1 # the next edge that the car will go to
         self.is_finished = False
         self.starting_time = starting_time
         self.travel_time = 0
-        self.edges_route = []
-        self.next_edge_index = 1 # the next edge that the car will go to
+
         #  MAYBE WE NEED THE CARS TO STORE THE CURRENT EDGE AND THE NEXT EDGE. THE CURRENT EDGE TO CALCULATE THE TRAVEL TIME AND THE NEXT EDGE TO ASK TO MOVE TO THE EDGE IN THE NEXT TICK.
 
     # GETS
@@ -49,7 +50,7 @@ class Cars:
         # Create the edges route of the car from the route that contains the nodes
         edges_route = []
         for i in range(len(self.route)-1):
-            current_edge = (self.route[i] ,self.route[ i +1] ,0)
+            current_edge = (self.route[i] ,self.route[i +1] ,0)
             edges_route.append(current_edge)
         self.edges_route = edges_route
         return edges_route
