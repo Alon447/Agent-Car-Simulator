@@ -1,7 +1,8 @@
 import itertools
 import copy
+import Cars
 class QueuedEdge:
-
+    all
     def __init__(self, edge_graph_index, max_speed, cur_speed, reversed, cars_queue, next_queue, max_length):
         self.edge_graph_index = edge_graph_index
         self.max_speed = max_speed
@@ -46,8 +47,22 @@ class QueuedEdge:
             self.next_queue.append(cars.pop(0))
 
     def remove_cars(self, num_cars):
-        self.next_queue = self.cars_queue[num_cars:]
+        cars_list = copy.deepcopy(self.cars_queue[:num_cars-1])
+        for i,car in enumerate(cars_list):
+            if not self.try_move_car(car):
+                break
+        self.next_queue = self.cars_queue[i:]
 
+    def try_move_car(self, car, next_edge):
+        """
+
+        :param car: a car to move to the next edge
+        :return: boolean: true if the car was moved to the next edge, false otherwise
+        """
+        if next_:
+            return False
+        self.next_queue.append(car)
+        return True
     def update(self):
         self.cars_queue = self.next_queue
         self.next_queue = copy.deepcopy(self.cars_queue)

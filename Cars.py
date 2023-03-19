@@ -8,6 +8,7 @@ class Cars:
         self.starting_time = starting_time
         self.travel_time = 0
         self.edges_route = []
+        self.next_edge_index = 1 # the next edge that the car will go to
         #  MAYBE WE NEED THE CARS TO STORE THE CURRENT EDGE AND THE NEXT EDGE. THE CURRENT EDGE TO CALCULATE THE TRAVEL TIME AND THE NEXT EDGE TO ASK TO MOVE TO THE EDGE IN THE NEXT TICK.
 
     def get_id(self):
@@ -16,8 +17,11 @@ class Cars:
     def get_route(self):
         return self.route
 
-    def get_next_node_index(self):
-        return self.next_node_index
+    def get_next_node(self):
+        return self.route[self.next_node_index]
+
+    def get_next_edge(self):
+        return self.edges_route[self.next_edge_index]
 
     def get_travel_time(self):
         return self.travel_time
@@ -46,8 +50,9 @@ class Cars:
         self.edges_route = edges_route
         return edges_route
 
-    def move_node(self):
+    def move_next(self):
         self.next_node_index += 1
+        self.next_edge_index += 1
 
     def __str__(self):
         return "id: " + self.id + "\n" + "route: " + str(self.route) + "\n" + "next node: " + str \

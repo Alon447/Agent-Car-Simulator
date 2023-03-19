@@ -8,9 +8,10 @@ import threading
 import time
 #import l5kit as l5
 import generate_car_routes as gcr
+import Cars
+import QueuedEdge as QE
 
-
-def colorByType(g):
+def color_by_type(g):
     # specify the colors for each highway type
     # colors = {'motorway': white
     #           'trunk': pink
@@ -75,7 +76,7 @@ else:
 # print(i)
 
 
-def colorTrafficLights(g):
+def color_traffic_lights(g):
     # color the nodes that have traffic lights
     nodeColor = []
 
@@ -88,7 +89,7 @@ def colorTrafficLights(g):
     return nodeColor
 
 
-def colorNodesByStreetCount(g):
+def color_nodes_by_street_count(g):
     # color the nodes that have traffic lights
     nodeColor = []
 
@@ -127,7 +128,7 @@ for i, edge in enumerate(g2.edges):
 """
 
 
-def printGraphWithNamesFixed(G):
+def print_graph_with_names_fixed(G):
     # problem with lists, the names are already backwards so no need ro reverse them, at least for now.
     fig, ax = ox.plot_graph(G, bgcolor='k', edge_linewidth=3, node_size=0,
                             show=False, close=False)
@@ -146,7 +147,7 @@ def printGraphWithNamesFixed(G):
     return
 
 
-def printGraphWithNamesFixed2(G):
+def print_graph_with_names_fixed_2(G):
     # no reversing for lists
     fig, ax = ox.plot_graph(G, bgcolor='k', edge_linewidth=3, node_size=0,
                             show=False, close=False)
@@ -162,50 +163,60 @@ def printGraphWithNamesFixed2(G):
     plt.show()
     return
 
-def printGraph(g2):
+
+
+def print_graph(g2):
     # print Tel Aviv's graph
-    edge_colors = colorByType(g2)
+    edge_colors = color_by_type(g2)
     node_choice = int(input("Enter 1 for traffic lights, 2 for street count: "))
     if node_choice == 1:
-        node_colors = colorTrafficLights(g2)
+        node_colors = color_traffic_lights(g2)
     else:
-        node_colors = colorNodesByStreetCount(g2)
+        node_colors = color_nodes_by_street_count(g2)
     # print(node_colors)
 
     fig, ax = ox.plot_graph(g2, bgcolor='black', edge_linewidth=3, node_size=10, edge_color=edge_colors,
                             node_color=node_colors, show=False, close=False)
-    printGraphWithNamesFixed2(g2)
+    print_graph_with_names_fixed_2(g2)
 
-g2 = ox.load_graphml('./data/graphTLVFix.graphml')
-edge_colors = colorByType(g2)
+def test_route():
 
-orig1 = 340368898
-dest1 = 139708
 
-# print(g2)
-route1=ox.distance.shortest_path(g2, orig1, dest1, weight='length', cpus=1)
-gcr.create_state_dictionary(g2, 10, [route1])
-ox.plot.plot_graph_route(g2, route1, route_color='r', route_linewidth=4, route_alpha=0.5, orig_dest_size=100, ax=None, edge_color=edge_colors)
-route_map = {'color': 'red', 'weight': 5, 'opacity': 0.7}
+    return
 
-"""
-my_map = folium.Map(location=[32.0926596, 34.7746982], zoom_start=13, tiles='CartoDB positron')
+if __name__ == '__main__':
+    g2 = ox.load_graphml('./data/graphTLVFix.graphml')
+    edge_colors = color_by_type(g2)
 
-ox.folium.plot_route_folium(g2, route1, route_map=route_map, popup_attribute=None, tiles='cartodbpositron', zoom=1, fit_bounds=True, map=my_map)
-route_streets=[]
-for i,node in enumerate(route1):
-    if i+1<len(route1):
-        next_node= route1[i+1]
-    for edge in g2.edges:
-        if edge[0]==node and edge[1]==next_node:
-            if g2.edges[edge]['name'] not in route_streets:
-                print(g2.edges[edge]['name'])
-                route_streets.append(g2.edges[edge]['name'])
-                break
+    orig1 = 340368898
+    dest1 = 139708
 
-print(route_streets)
+    # print(g2)
+    route1=ox.distance.shortest_path(g2, orig1, dest1, weight='length', cpus=1)
+    gcr.create_state_dictionary(g2, 10, [route1])
+    ox.plot.plot_graph_route(g2, route1, route_color='r', route_linewidth=4, route_alpha=0.5, orig_dest_size=100, ax=None, edge_color=edge_colors)
+    route_map = {'color': 'red', 'weight': 5, 'opacity': 0.7}
 
-"""
-for edge in g2.edges:
-    print(type(edge))
-    break
+    """
+    my_map = folium.Map(location=[32.0926596, 34.7746982], zoom_start=13, tiles='CartoDB positron')
+    
+    ox.folium.plot_route_folium(g2, route1, route_map=route_map, popup_attribute=None, tiles='cartodbpositron', zoom=1, fit_bounds=True, map=my_map)
+    route_streets=[]
+    for i,node in enumerate(route1):
+        if i+1<len(route1):
+            next_node= route1[i+1]
+        for edge in g2.edges:
+            if edge[0]==node and edge[1]==next_node:
+                if g2.edges[edge]['name'] not in route_streets:
+                    print(g2.edges[edge]['name'])
+                    route_streets.append(g2.edges[edge]['name'])
+                    break
+    
+    print(route_streets)
+    
+    """
+    for node in g2.nodes:
+        print(type(node))
+        break
+
+

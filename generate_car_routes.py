@@ -6,10 +6,20 @@ import osmnx as ox
 import networkx as nx
 import threading
 import time
+import random
 
 def gen_route(G, time, start, end, chosen_weight):
     route = nx.shortest_path(G, source=start, target=end, weight=chosen_weight)
     return route
+
+def gen_random_route(G, chosen_weight):
+    node_lst = (list(G.nodes))
+    start = random.choice(node_lst)
+    node_lst.remove(start)
+    end = random.choice(node_lst)
+    route = nx.shortest_path(G, source=start, target=end, weight=chosen_weight)
+    return route
+
 
 def get_next_traffic_state(G, time, route_list, current_state):
     """
