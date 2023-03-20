@@ -1,17 +1,16 @@
+import datetime
 
 class Cars:
-    def __init__(self, id):
+    def __init__(self, id, route = [340368898, 2469720080, 290614029, 340318789, 2469720099, 340318978, 340309691, 336081282, 336081749, 139708]):
         self.id = id
-        """
-        , route ,next_node_index, is_finished, starting_time, travel_time
         self.route = route # nodes route
-        self.edges_route = []
+        self.edges_route = self.create_edges_route() # edges route
         self.next_node_index = 1 # the next node that the car will go to
         self.next_edge_index = 1 # the next edge that the car will go to
         self.is_finished = False
-        self.starting_time = starting_time
+        self.starting_time = datetime.datetime.now()
         self.travel_time = 0
-        """
+
         #  MAYBE WE NEED THE CARS TO STORE THE CURRENT EDGE AND THE NEXT EDGE. THE CURRENT EDGE TO CALCULATE THE TRAVEL TIME AND THE NEXT EDGE TO ASK TO MOVE TO THE EDGE IN THE NEXT TICK.
 
     # GETS
@@ -48,7 +47,7 @@ class Cars:
         #  Calculate the travel time of the car
         self.travel_time = finishing_time - self.starting_time
 
-    def create_edges_route(self, G):
+    def create_edges_route(self):
         # Create the edges route of the car from the route that contains the nodes
         edges_route = []
         for i in range(len(self.route)-1):

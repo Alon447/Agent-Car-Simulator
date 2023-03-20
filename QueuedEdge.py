@@ -51,7 +51,9 @@ class QueuedEdge:
         self.next_queue = copy.deepcopy(self.cars_queue)
         for i in range(len(cars)):
             if (len(self.next_queue) == self.max_length):
-                print("The queue is full")
+                print("********************")
+                print("THE QUEUE IS FULL")
+                print("********************")
                 return
             self.next_queue.append(cars.pop(0))
 
