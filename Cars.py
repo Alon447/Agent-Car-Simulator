@@ -60,6 +60,7 @@ class Cars:
         self.next_node_index += 1
         self.next_edge_index += 1
 
+
     def __str__(self):
         return "id: " + str(self.id) + "\n"
 

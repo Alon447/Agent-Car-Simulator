@@ -10,9 +10,7 @@ class QueuedEdgeArr:
 
     def __init__(self, G):
         self.queued_edges = []  # initialize an empty list to hold the QueuedEdge objects
-
         for edge in G.edges:
-
             len = G.edges[edge]['length']
             # if the road is shorter than the length of a car, we mark it by max_length=-1
             if len < 5:
@@ -43,13 +41,15 @@ class QueuedEdgeArr:
     def get_cars_next_edge(self, car):
         # param: car is a Car object
         # return: QueuedEdge object that is the next edge of the car
-        return (car.get_next_edge())
+        return car.get_next_edge()
 
     def try_move_car(self, car):
-        # Tries to move the car to the next edge
-        # param: car is a Car object
-        # Returns True if the car can move, False otherwise
-        next_edge = self.get_cars_next_edge(car)
+        """
+        Tries to move the car to the next edge
+        param: car is a Car object
+        Returns True if the car can move, False otherwise
+        """
+        next_edge = car.get_next_edge()
         if next_edge is None:
             print("NEXT EDGE IS NONE")
             return False
