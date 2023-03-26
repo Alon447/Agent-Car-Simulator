@@ -15,6 +15,7 @@ class QueuedEdge:
 
     # GETS
     def get_edge_graph_index(self):
+        # return a tuple of the form (u, v, key)
         return self.edge_graph_index
 
     def get_max_speed(self):

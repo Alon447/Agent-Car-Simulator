@@ -24,6 +24,7 @@ class Cars:
         return self.route[self.next_node_index]
 
     def get_next_edge(self):
+        # return a tuple of the form (u, v, key)
         return self.edges_route[self.next_edge_index]
 
     def get_travel_time(self):
