@@ -9,7 +9,7 @@ import time
 #import l5kit as l5
 import generate_car_routes as gcr
 import Cars
-import QueuedEdge as QE
+import Road as QE
 
 def color_by_type(g):
     # specify the colors for each highway type
@@ -185,12 +185,27 @@ def test_route():
     return
 
 if __name__ == '__main__':
-    g2 = ox.load_graphml('./data/graphTLVFix.graphml')
-    edge_colors = color_by_type(g2)
+    g2 = ox.load_graphml('./data/graphTLVtime3.graphml')
+    edge = g2.edges
+    graph_edges={}
 
+    #print(graph_edges)
+    edges = ox.utils_graph.graph_to_gdfs(g2, nodes=False, fill_edge_geometry=False)
+    nx.set_edge_attributes(g2, values=0, name="id")
+    for i, edge in enumerate(g2.edges):
+
+        #g2.edges[edge]['id'] = i
+        print(g2.edges[edge]['id'])
     orig1 = 340368898
     dest1 = 139708
+    route=ox.shortest_path(g2, orig1, dest1, weight='length')
+    #print(ox.utils_graph.get_route_edge_attributes(g2, route))
+    #print(nx.get_edge_attributes(g2, 'id'))
 
+    #ox.save_graphml(g2, filepath='./data/graphTLVtime2.graphml')
+
+
+    """
     # print(g2)
     route1=ox.distance.shortest_path(g2, orig1, dest1, weight='length', cpus=1)
     edges_route = []
@@ -203,7 +218,7 @@ if __name__ == '__main__':
     ox.plot.plot_graph_route(g2, route1, route_color='r', route_linewidth=4, route_alpha=0.5, orig_dest_size=100, ax=None, edge_color=edge_colors)
     route_map = {'color': 'red', 'weight': 5, 'opacity': 0.7}
 
-    """
+   
     my_map = folium.Map(location=[32.0926596, 34.7746982], zoom_start=13, tiles='CartoDB positron')
     
     ox.folium.plot_route_folium(g2, route1, route_map=route_map, popup_attribute=None, tiles='cartodbpositron', zoom=1, fit_bounds=True, map=my_map)
@@ -220,9 +235,9 @@ if __name__ == '__main__':
     
     print(route_streets)
     
-    """
+    
     for node in g2.nodes:
         print(type(node))
         break
-
+"""
 
