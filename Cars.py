@@ -17,8 +17,6 @@ class Cars:
         self.starting_time = datetime.datetime.now()
         self.travel_time = 0
 
-        #  MAYBE WE NEED THE CARS TO STORE THE CURRENT EDGE AND THE NEXT EDGE. THE CURRENT EDGE TO CALCULATE THE TRAVEL TIME AND THE NEXT EDGE TO ASK TO MOVE TO THE EDGE IN THE NEXT TICK.
-
     # GETS
     def get_id(self):
         return self.id
