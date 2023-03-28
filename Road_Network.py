@@ -138,14 +138,14 @@ g2 = ox.load_graphml('./data/graphTLVFix.graphml')
 
 q = Road_Network(g2)
 
-c1 = Cars.Cars(1, 1, 3)
+c1 = Cars.Cars(1, 1, 56)
 print(c1.get_nodes_route())
-c2 = Cars.Cars(2, 2, 4)
+c2 = Cars.Cars(2, 56, 43)
 print(c2.get_nodes_route())
 
 q.start_car_ride(c1)
 q.start_car_ride(c2)
-for i in range(10):
+while True:
 
     print("*********************************************************")
 
