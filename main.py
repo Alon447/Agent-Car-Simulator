@@ -185,24 +185,35 @@ def test_route():
     return
 
 if __name__ == '__main__':
-    g2 = ox.load_graphml('./data/graphTLVtime3.graphml')
+    g2 = ox.load_graphml('./data/graphTLVfix.graphml')
     edge = g2.edges
-    graph_edges={}
 
-    #print(graph_edges)
-    edges = ox.utils_graph.graph_to_gdfs(g2, nodes=False, fill_edge_geometry=False)
-    nx.set_edge_attributes(g2, values=0, name="id")
-    for i, edge in enumerate(g2.edges):
+    num_edges=g2.number_of_nodes()
+    graph_nodes= {}
+    types=[]
+    type_30=['residantial','living_street','unclassified','service']
+    #edges = ox.utils_graph.graph_to_gdfs(g2, nodes=False, fill_edge_geometry=False)
+    for i, node in enumerate(g2.nodes):
+        graph_nodes[i] =  node
 
+    print(graph_nodes)
         #g2.edges[edge]['id'] = i
-        print(g2.edges[edge]['id'])
+        #print(g2.edges[edge])
+    #print(graph_edges)
+    #nx.set_node_attributes(g2, graph_nodes, "node_id")
+    #print(g2.nodes)
+
     orig1 = 340368898
     dest1 = 139708
     route=ox.shortest_path(g2, orig1, dest1, weight='length')
     #print(ox.utils_graph.get_route_edge_attributes(g2, route))
-    #print(nx.get_edge_attributes(g2, 'id'))
+    #print(nx.get_node_attributes(g2, 'highway'))
+    #print(nx.get_node_attributes(g2, 'node_id'))
 
-    #ox.save_graphml(g2, filepath='./data/graphTLVtime2.graphml')
+
+
+    #print(g2.nodes.items())
+    #ox.save_graphml(g2, filepath='./data/graphTLVfix.graphml')
 
 
     """
