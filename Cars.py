@@ -35,11 +35,16 @@ class Cars:
         # return the next node_id that the car will go to
         return int(self.node_route[self.next_node_index])
 
+    def finish_ride(self):
+        self.is_finished = True
+        print(f"CAR {self.id} IS FINISHED")
+        print(f"CAR {self.id} TRAVEL TIME: {round(self.travel_time/60)} MINUTES")
+        print("*********************************************************")
+
     def get_next_edge(self):
         # return the next edge_id that the car will go to
         if self.next_edge_index == len(self.edges_route):
-            self.is_finished = True
-            print(f"CAR {self.id} IS FINISHED")
+            self.finish_ride()
             return None
         return int(self.edges_route[self.next_edge_index])
 
@@ -60,14 +65,11 @@ class Cars:
         if len(self.node_route) == 1:  # means that the car is in the last node of the node_route
             self.is_finished = True  # after the car is finished i think we need to remove it
 
-    def update_travel_time(self, finishing_time):
-        #  Calculate the travel time of the car
-        self.travel_time = finishing_time - self.starting_time
+    def update_travel_time(self, travel_time):
+        #  update the travel time of the car every time it moves to the next road
+        self.travel_time += travel_time
 
-    def calculate_travel_time(self):
-        #  Calculate the travel time of the car in the current road
-        road_travel_time = self.edges_route[self.next_edge_index].get_travel_time()
-        self.travel_time = datetime.datetime.now() - self.starting_time
+
 
     def move_next(self):
         # Function to use when we want to move the car to the next road
@@ -75,7 +77,9 @@ class Cars:
         self.next_edge_index += 1
 
     def __str__(self):
-        return "car_id: " + str(self.id) + "\n"
+        return "car_id: " + str(self.id) + "\n" + "travel_time: " + str(self.travel_time) + "\n"
+
 
     def __repr__(self):
         return self.__str__()
+

@@ -1,5 +1,7 @@
 import time
 
+from matplotlib import pyplot as plt
+
 import Road as QE
 import osmnx as ox
 import Cars
@@ -26,8 +28,7 @@ class Road_Network:
                 length = -1
             else:
                 length = int(length / CAR_LENGTH)
-            queued_edge = QE.Road(G.edges[edge]['edge_id'], edge[0], edge[1], edge, G.edges[edge]['maxspeed'], [],
-                                  length)
+            queued_edge = QE.Road(G.edges[edge]['edge_id'], edge[0], edge[1], edge, G.edges[edge]['maxspeed'], [], length)
             self.queued_edges.append(queued_edge)
 
     def get_edge(self, edge_id):
@@ -54,6 +55,8 @@ class Road_Network:
         road_id: the id of the road to add the car to
         """
         self.queued_edges[road_id].add_cars([car])
+        road_travel_time = self.queued_edges[road_id].calculate_road_travel_time()
+        car.update_travel_time(road_travel_time)
         car.move_next()
 
     def get_cars_next_edge(self, car):
@@ -132,25 +135,42 @@ class Road_Network:
     def __eq__(self, other):
         return self.queued_edges == other.queued_edges
 
-
+def print_graph_with_names_fixed_2(G,route):
+    # no reversing for lists
+    fig, ax = ox.plot_graph_route(G,route, bgcolor='k', edge_linewidth=3, node_size=0,
+                            show=False, close=False)
+    for _, edge in ox.graph_to_gdfs(G, nodes=False).fillna('').iterrows():
+        if edge['highway'] in ('secondary', 'secondary_link', 'trunk', 'trunk_link'):
+            c = edge['geometry'].centroid
+            if type(edge['name']) == list:
+                text = edge['name']
+            else:
+                edge['name'] = edge['name'][::-1]
+                text = edge['name']
+            ax.annotate(text, (c.x, c.y), c='w')
+    plt.show()
+    return
 g2 = ox.load_graphml('./data/graphTLVFix.graphml')
 
 q = Road_Network(g2)
+start=nodes.NODES_ID[100]
+end=nodes.NODES_ID[3]
+route=ox.shortest_path(g2, start, end, weight='length')
+print_graph_with_names_fixed_2(g2,route)
+c1 = Cars.Cars(1, 100, 3)
 
-c1 = Cars.Cars(1, 1, 56)
-print(c1.get_nodes_route())
-c2 = Cars.Cars(2, 56, 43)
-print(c2.get_nodes_route())
+#c2 = Cars.Cars(2, 2, 4)
+#print(c2.get_edges_route())
 
 q.start_car_ride(c1)
-q.start_car_ride(c2)
+#q.start_car_ride(c2)
 while True:
 
     print("*********************************************************")
 
     q.update(1)
     print(q)
-    time.sleep(1)
+    #time.sleep(1)
     if q.end_simulation():
         break
 

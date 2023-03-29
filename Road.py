@@ -1,5 +1,7 @@
 import itertools
 import copy
+import random
+
 import Cars
 
 
@@ -10,8 +12,8 @@ class Road:
         self.start_node = start_node
         self.end_node = end_node
         self.edge_index = edge_index  # edge is a tuple of the form (u, v, key)
-        self.max_speed = max_speed
-        self.cur_speed = self.calculate_speed()  # the current speed of the road
+        self.max_speed = int(max_speed)
+        self.cur_speed = random.randint(1,self.max_speed-10)  # the current speed of the road
         self.cars_queue = cars_queue  # a list of the current cars on the road
         self.next_queue = copy.deepcopy(self.cars_queue)  # a list of the cars that will be on the road in the next state
         self.max_length = max_length  # we need to define a mex length for the queue
@@ -59,9 +61,7 @@ class Road:
     def set_cars_queue(self, cars_queue):
         self.cars_queue = cars_queue
 
-    """
-    functions to update to the next state
-    """
+    # FUNCTIONS FOR THE USE
 
     def add_cars(self, cars):
         # Tries to add the cars to the next queue
@@ -88,8 +88,13 @@ class Road:
 
     def calculate_speed(self):
         # calculate the speed according to the queue and LWR model
-        cur_speed = self.max_speed * (1 - (len(self.cars_queue) / self.max_length))
+        cur_speed = self.max_speed * (1 - (self.get_num_cars() / self.max_length))
         return cur_speed
+
+    def calculate_road_travel_time(self):
+        # calculate the time it takes to cross the road
+        travel_time = 3.6 * (5 * self.max_length) / self.cur_speed
+        return round(travel_time)
 
     def __str__(self):
         return "road_id: " + str(self.id) + "\n" + "start node: " + str(self.start_node) + "\n" + "end node: " + str(
