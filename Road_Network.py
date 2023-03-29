@@ -10,6 +10,7 @@ CAR_LENGTH = 5
 
 
 class Road_Network:
+
     # this class suppose to hold all the edges of the graph
     def __init__(self, G):
         self.queued_edges = []  # initialize an empty list to hold the Road objects
@@ -35,14 +36,13 @@ class Road_Network:
 
         Parameters
         ----------
-        edge: the edge to get the Road object of
+        edge_id: the edge to get the Road object of
         """
         return self.queued_edges[edge_id]
 
-    def start_car_ride(self,car):
+    def start_car_ride(self, car):
         starting_road_id = car.get_first_edge()
         self.queued_edges[starting_road_id].add_cars([car])
-
 
     def add_car_to_road(self, car, road_id):
         """
@@ -64,7 +64,6 @@ class Road_Network:
             return None
         return self.queued_edges[car.get_next_edge()]
 
-
     def move_car(self, current_road):
         """
         # Tries to remove the first car from the edge it is currently on
@@ -80,13 +79,13 @@ class Road_Network:
             return False
 
         car = current_road.get_cars_queue()[0]  # get the first car in the queue
-        if self.get_cars_next_edge(car) is None:
-            print("NEXT EDGE IS NONE")
+
+        if self.get_cars_next_edge(car) is None: # if the next edge is None, then the car finished its ride
+            #print("NEXT EDGE IS NONE")
             current_road.get_next_state_cars_queue().pop(0)
             return True
 
         next_road = self.get_cars_next_edge(car)  # gets the Road object of the next edge
-
 
         if next_road is None:
             print("NEXT EDGE IS NONE")

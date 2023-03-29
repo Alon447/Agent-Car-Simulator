@@ -1,6 +1,7 @@
 import datetime
 import osmnx as ox
 import nodes
+import Road
 
 
 class Cars:
@@ -63,20 +64,10 @@ class Cars:
         #  Calculate the travel time of the car
         self.travel_time = finishing_time - self.starting_time
 
-
-
-    """
-    WE DONT NEED THIS FUNCTION ANYMORE
-    
-    def create_edges_route(self):
-        # Create the edges node_route of the car from the node_route that contains the nodes
-        edges_route = []
-        for i in range(len(self.node_route) - 1):
-            current_edge = (self.node_route[i] , self.node_route[i + 1] , 0)
-            edges_route.append(current_edge)
-        self.edges_route = edges_route
-        return edges_route
-"""
+    def calculate_travel_time(self):
+        #  Calculate the travel time of the car in the current road
+        road_travel_time = self.edges_route[self.next_edge_index].get_travel_time()
+        self.travel_time = datetime.datetime.now() - self.starting_time
 
     def move_next(self):
         # Function to use when we want to move the car to the next road

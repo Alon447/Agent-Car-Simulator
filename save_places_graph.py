@@ -12,7 +12,7 @@ def create_and_save_area(name,distance):
     ox.save_graphml(g, filepath=f'./data/{name}.graphml')
     return g
 
-def save_graph(g):
+def save_graph(g,name):
     ox.save_graphml(g, filepath=f'./data/{name}.graphml')
 
 """

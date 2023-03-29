@@ -11,7 +11,7 @@ class Road:
         self.end_node = end_node
         self.edge_index = edge_index  # edge is a tuple of the form (u, v, key)
         self.max_speed = max_speed
-        self.cur_speed = max_speed
+        self.cur_speed = self.calculate_speed()  # the current speed of the road
         self.cars_queue = cars_queue  # a list of the current cars on the road
         self.next_queue = copy.deepcopy(self.cars_queue)  # a list of the cars that will be on the road in the next state
         self.max_length = max_length  # we need to define a mex length for the queue
@@ -66,7 +66,7 @@ class Road:
     def add_cars(self, cars):
         # Tries to add the cars to the next queue
         # we need to address what to do to the cars that can't be added
-        #self.next_queue = copy.deepcopy(self.cars_queue)
+        # self.next_queue = copy.deepcopy(self.cars_queue)
         for i in range(len(cars)):
             if len(self.next_queue) == self.max_length:
                 print("********************")
@@ -80,29 +80,16 @@ class Road:
         cars_list = copy.deepcopy(self.cars_queue[:num_cars - 1])
         self.next_queue = self.cars_queue[num_cars:]
 
-    """
-    MAYBE THIS FUNCTION SHOULD BE IN ANOTHER CLASS
-    CURRENTLY IN Road_Network
-    def try_move_car(self, car, next_edge):
-        
-        :param car: a car to move to the next edge
-        :return: boolean: true if the car was moved to the next edge, false otherwise
-        
-        if next_:
-            return False
-        self.next_queue.append(car)
-        return True
-    """
-
     def update(self):
         self.cars_queue = self.next_queue
         self.next_queue = copy.deepcopy(self.cars_queue)
         # NOW WE NEED TO UPDATE THE SPEED ACCORDING TO THE QUEUE
         # self.set_cur_speed()
 
-    def set_cur_speed(self):
+    def calculate_speed(self):
         # calculate the speed according to the queue and LWR model
-        self.cur_speed = self.max_speed * (1 - (len(self.cars_queue) / self.max_length))
+        cur_speed = self.max_speed * (1 - (len(self.cars_queue) / self.max_length))
+        return cur_speed
 
     def __str__(self):
         return "road_id: " + str(self.id) + "\n" + "start node: " + str(self.start_node) + "\n" + "end node: " + str(
