@@ -1,3 +1,5 @@
+import json
+
 import osmnx as ox
 import networkx as nx
 import datetime
@@ -19,6 +21,24 @@ class TrafficDictionary:
             else:
                 graph_max_speed[edge] = 50
         nx.set_edge_attributes(g, graph_max_speed, "maxspeed")
+        return
+
+    def add_edge_id(name):
+        g = ox.load_graphml(f'./data/{name}.graphml')
+        graph_edge_id = {}
+        for i, edge in enumerate(g.edges):
+            graph_edge_id[edge] = i
+        nx.set_edge_attributes(g, graph_edge_id, "edge_id")
+        ox.save_graphml(g, filepath=f'./data/{name}.graphml')
+        return
+
+    def add_node_id(name):
+        g = ox.load_graphml(f'./data/{name}.graphml')
+        graph_node_id = {}
+        for i, node in enumerate(g.nodes):
+            graph_node_id[node] = i
+        nx.set_node_attributes(g, graph_node_id, "node_id")
+        ox.save_graphml(g, filepath=f'./data/{name}.graphml')
         return
 
     def generate_edge_data(self, edge_id, max_speed):
@@ -50,3 +70,8 @@ class TrafficDictionary:
         # Print the dictionary
         print(data)
         return
+
+
+g = ox.load_graphml(f'./data/tel aviv.graphml')
+name= "tel aviv"
+TrafficDictionary.add_node_id(name)
