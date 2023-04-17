@@ -1,3 +1,4 @@
+import random
 import time
 
 from matplotlib import pyplot as plt
@@ -28,7 +29,8 @@ class Road_Network:
                 length = -1
             else:
                 length = int(length / CAR_LENGTH)
-            queued_edge = QE.Road(G.edges[edge]['edge_id'], edge[0], edge[1], edge, G.edges[edge]['maxspeed'], [], length)
+            queued_edge = QE.Road(G.edges[edge]['edge_id'], edge[0], edge[1], edge, G.edges[edge]['maxspeed'], [],
+                                  length)
             self.queued_edges.append(queued_edge)
 
     def get_edge(self, edge_id):
@@ -83,8 +85,8 @@ class Road_Network:
 
         car = current_road.get_cars_queue()[0]  # get the first car in the queue
 
-        if self.get_cars_next_edge(car) is None: # if the next edge is None, then the car finished its ride
-            #print("NEXT EDGE IS NONE")
+        if self.get_cars_next_edge(car) is None:  # if the next edge is None, then the car finished its ride
+            # print("NEXT EDGE IS NONE")
             current_road.get_next_state_cars_queue().pop(0)
             return True
 
@@ -105,7 +107,6 @@ class Road_Network:
         # Updates the Road_Network to the next state
         # param: num_of_cars_to_move is the number of cars that we want to move from each edge
 
-        num_of_cars_to_move = 1
         for road in self.queued_edges:  # for each road
             for num in range(num_of_cars_to_move):  # move the required number of cars
                 if not self.move_car(road):
@@ -115,12 +116,44 @@ class Road_Network:
         for queued_edge in self.queued_edges:
             queued_edge.update()  # queued_edge.update() NOT FULLY WRITTEN YET
 
+    def start_simulation(self, num_of_cars_to_move):
+        # Starts the simulation
+        # param: num_of_cars_to_move is the number of cars that we want to move from each edge
+        while True:
+            print("*********************************************************")
+            q.update(num_of_cars_to_move)
+            print(q)
+            # time.sleep(1)
+            if q.end_simulation():
+                break
+
     def end_simulation(self):
+        # Checks if the simulation should end
+        # ends when there are no cars in the simulation
+        if self.get_num_of_cars() == 0:
+            print("No more cars in the network, Simulation ended")
+            return True
+        return False
+
+    def get_num_of_cars(self):
+        num_of_cars = 0
         for road in self.queued_edges:
-            if road.get_num_cars() != 0:
-                return False
-        print("No more cars in the network, Simulation ended")
-        return True
+            num_of_cars += road.get_num_cars()
+        return num_of_cars
+
+    def add_cars_to_network(self, cars):
+        # adds a list of cars to the network
+        for car in cars:
+            self.start_car_ride(car)
+
+    def make_random_cars(self, num_of_cars):
+        # makes a list of random cars
+        # param: num_of_cars is the number of cars to make
+        cars = []
+        print(len(self.queued_edges))
+        for i in range(num_of_cars):
+            cars.append(Cars.Cars(i, random.randint(0, 997), random.randint(0, 997)))
+        return cars
 
     def __str__(self):
         st = ""
@@ -135,10 +168,11 @@ class Road_Network:
     def __eq__(self, other):
         return self.queued_edges == other.queued_edges
 
-def print_graph_with_names_fixed_2(G,route):
+
+def print_graph_with_names_fixed_2(G, route):
     # no reversing for lists
-    fig, ax = ox.plot_graph_route(G,route, bgcolor='k', edge_linewidth=3, node_size=0,
-                            show=False, close=False)
+    fig, ax = ox.plot_graph_route(G, route, bgcolor='k', edge_linewidth=3, node_size=0,
+                                  show=False, close=False)
     for _, edge in ox.graph_to_gdfs(G, nodes=False).fillna('').iterrows():
         if edge['highway'] in ('secondary', 'secondary_link', 'trunk', 'trunk_link'):
             c = edge['geometry'].centroid
@@ -150,37 +184,16 @@ def print_graph_with_names_fixed_2(G,route):
             ax.annotate(text, (c.x, c.y), c='w')
     plt.show()
     return
+
+
 g2 = ox.load_graphml('./data/graphTLVFix.graphml')
-
 q = Road_Network(g2)
-start=nodes.NODES_ID[100]
-end=nodes.NODES_ID[3]
-route=ox.shortest_path(g2, start, end, weight='length')
-print_graph_with_names_fixed_2(g2,route)
-c1 = Cars.Cars(1, 100, 3)
-
-#c2 = Cars.Cars(2, 2, 4)
-#print(c2.get_edges_route())
-
-q.start_car_ride(c1)
-#q.start_car_ride(c2)
-while True:
-
-    print("*********************************************************")
-
-    q.update(1)
-    print(q)
-    #time.sleep(1)
-    if q.end_simulation():
-        break
-
-"""
-q.add_car(c)
-print("finished P1")
-print(q)
+# start = nodes.NODES_ID[2]
+# end = nodes.NODES_ID[100]
+# route = ox.shortest_path(g2, start, end, weight='length')
+# print_graph_with_names_fixed_2(g2, route)
 
 
-print(q)
+q.add_cars_to_network(q.make_random_cars(5))
 
-print("finished P2")
-"""
+q.start_simulation(1)
