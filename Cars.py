@@ -5,76 +5,76 @@ import Road
 
 
 class Cars:
-    def __init__(self, id, start_node_id, end_node_id):
+    def __init__(self, id, start_node, end_node):
 
         self.id = id
+        self.source_node= start_node
+        self.destination_node = end_node
         self.graph = ox.load_graphml('./data/graphTLVfix.graphml')
-        self.node_route = ox.shortest_path(self.graph, nodes.NODES_ID[start_node_id],  nodes.NODES_ID[end_node_id], weight='length')# nodes node_route
-        #print(f"CAR {self.id} ROUTE: {self.node_route}")
-        self.edges_route = ox.utils_graph.get_route_edge_attributes(self.graph, self.node_route, 'edge_id')  # edges node_route
-        self.next_node_index = 1  # the next node that the car will go to
-        self.next_edge_index = 1  # the next edge that the car will go to
+        self.current_road = None
+        self.past_roads = []
         self.is_finished = False  # indicates if the car has reached its destination
         self.starting_time = datetime.datetime.now()
-        self.travel_time = 0
+        self.total_travel_time = 0
+        self.time_until_next_road = 0
+        # self.node_route = ox.shortest_path(self.graph, nodes.NODES_ID[start_node_id], nodes.NODES_ID[end_node_id],
+        #                                    weight='length')  # nodes node_route
+        # self.edges_route = ox.utils_graph.get_route_edge_attributes(self.graph, self.node_route,
+        #                                                             'edge_id')  # edges node_route
+        # self.next_node_index = 1  # the next node that the car will go to
+        # self.next_edge_index = 1  # the next edge that the car will go to
 
     # GETS
     def get_id(self):
         return self.id
 
-    def get_nodes_route(self):
-        return self.node_route
+    def get_source_node(self):
+        return self.source_node
 
-    def get_edges_route(self):
-        return self.edges_route
+    def get_destination_node(self):
+        return self.destination_node
 
-    def get_first_edge(self):
-        return int(self.edges_route[0])
+    def get_current_road(self):
+        return self.current_road
 
-    def get_next_node(self):
-        # return the next node_id that the car will go to
-        return int(self.node_route[self.next_node_index])
+    def get_past_roads(self):
+        return self.past_roads
 
-    def finish_ride(self):
-        self.is_finished = True
-        print(f"CAR {self.id} IS FINISHED")
-        print(f"CAR {self.id} TRAVEL TIME: {round(self.travel_time/60)} MINUTES")
-        print("*********************************************************")
-
-    def get_next_edge(self):
-        # return the next edge_id that the car will go to
-        if self.next_edge_index == len(self.edges_route):
-            self.finish_ride()
-            return None
-        return int(self.edges_route[self.next_edge_index])
+    def get_starting_time(self):
+        return self.starting_time
 
     def get_travel_time(self):
-        return self.travel_time
+        return self.total_travel_time
 
     def is_finished(self):
         return self.is_finished
 
+    def get_time_until_next_road(self):
+        return self.time_until_next_road
+
     # SETS
-    def set_next_node_index(self, next_node_index):
-        self.next_node_index = next_node_index
+    # def set_next_node_index(self, next_node_index):
+    #     self.next_node_index = next_node_index
+    #
+    # def set_route(self, route):
+    #     self.node_route = route
 
-    def set_route(self, route):
-        self.node_route = route
-
-    def set_is_finished(self):
-        if len(self.node_route) == 1:  # means that the car is in the last node of the node_route
-            self.is_finished = True  # after the car is finished i think we need to remove it
+    def set_finished(self):
+        self.is_finished = True  # after the car is finished i think we need to remove it
 
     def update_travel_time(self, travel_time):
         #  update the travel time of the car every time it moves to the next road
-        self.travel_time += travel_time
+        self.total_travel_time += travel_time
 
 
+    # FUNCTIONS
 
-    def move_next(self):
+    def get_next_road(self):
         # Function to use when we want to move the car to the next road
-        self.next_node_index += 1
-        self.next_edge_index += 1
+        pass
+
+    def move_next_road(self):
+        pass
 
     def __str__(self):
         return "car_id: " + str(self.id) + "\n" + "travel_time: " + str(self.travel_time) + "\n"

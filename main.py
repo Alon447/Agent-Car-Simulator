@@ -203,8 +203,8 @@ if __name__ == '__main__':
     #nx.set_node_attributes(g2, graph_nodes, "node_id")
     #print(g2.nodes)
 
-    orig1 = 340368898
-    dest1 = 139708
+    orig1 = 4415217481
+    dest1 = 287237219
     route=ox.shortest_path(g2, orig1, dest1, weight='length')
     #print(ox.utils_graph.get_route_edge_attributes(g2, route))
     #print(nx.get_node_attributes(g2, 'highway'))
@@ -226,8 +226,9 @@ if __name__ == '__main__':
     #gcr.create_state_dictionary(g2, 10, [route1])
     print(route1)
     print(edges_route)
-    ox.plot.plot_graph_route(g2, route1, route_color='r', route_linewidth=4, route_alpha=0.5, orig_dest_size=100, ax=None, edge_color=edge_colors)
-    route_map = {'color': 'red', 'weight': 5, 'opacity': 0.7}
+    """
+    ox.plot.plot_graph_route(g2, route)
+    """route_map = {'color': 'red', 'weight': 5, 'opacity': 0.7}
 
    
     my_map = folium.Map(location=[32.0926596, 34.7746982], zoom_start=13, tiles='CartoDB positron')

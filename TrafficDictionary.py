@@ -1,5 +1,5 @@
 import json
-
+import pandas as pd
 import osmnx as ox
 import networkx as nx
 import datetime
@@ -71,7 +71,52 @@ class TrafficDictionary:
         print(data)
         return
 
+    def create_available_roads_list(self, g):
+        # makes a dictionary of all the roads and the roads that are available from them
+        roads={}
+        availble_roads= {}
+        for road in g.edges:
+            destination_node=road[1]
+            for edge in g.edges:
+                if edge[0]==destination_node:
+                    availble_roads[edge]=g.edges[edge]['length']
+            #print("a:",availble_roads,len(availble_roads))
+            roads[road]=availble_roads
+            availble_roads={}
+        #print(roads,len(roads))
+        return roads
 
-g = ox.load_graphml(f'./data/tel aviv.graphml')
-name= "tel aviv"
-TrafficDictionary.add_node_id(name)
+    def create_distances_matrix(self, g):
+        # makes a matrix of the shortest distances between all the roads
+        dist_matrix = pd.DataFrame.from_dict(dict(nx.all_pairs_dijkstra_path_length(g)), orient='index')
+        return dist_matrix
+
+    def shortest_path(self, g, source, destination):
+        return nx.shortest_path(g, source, destination)
+
+g = ox.load_graphml(f'./data/graphTLVFix.graphml')
+availble_roads=[]
+roads=[]
+
+td = TrafficDictionary(g)
+tr_dic=td.create_available_roads_list(g)
+sum=0
+for i in tr_dic:
+    # print(i,tr_dic[i], len(tr_dic[i]))
+    sum+=len(tr_dic[i])
+
+dis=td.create_distances_matrix(g)
+
+print(max(dis[139713]))
+
+# for i,edge in enumerate(g.edges):
+#     destination_node = edge[
+#    ]
+#     for road in (g.edges):
+#         if road[0] == destination_node:
+#             availble_roads.append(edge)
+#             if road not in roads:
+#                 roads.append(edge)
+#         print(availble_roads,len(availble_roads))
+#     availble_roads=[]
+# print(roads,len(roads))
