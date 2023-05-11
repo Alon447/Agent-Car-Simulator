@@ -77,7 +77,7 @@ class Cars:
         pass
 
     def __str__(self):
-        return "car_id: " + str(self.id) + "\n" + "travel_time: " + str(self.travel_time) + "\n"
+        return "car_id: " + str(self.id) + "\n" + "travel_time: " + str(self.total_travel_time) + "\n"
 
 
     def __repr__(self):

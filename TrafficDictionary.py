@@ -94,6 +94,8 @@ class TrafficDictionary:
     def shortest_path(self, g, source, destination):
         return nx.shortest_path(g, source, destination)
 
+a=ox.graph_from_place("tel aviv")
+
 g = ox.load_graphml(f'./data/graphTLVFix.graphml')
 availble_roads=[]
 roads=[]

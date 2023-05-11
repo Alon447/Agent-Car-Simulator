@@ -63,3 +63,20 @@ def create_state_dictionary(G, starting_time, route_list):
     for route in route_list:
         nodes_list.extend(route)
     #for i,edge in enumerate(G.edges):
+
+
+#se= ox.graph_from_bbox(37.5518,37.5291, 127.0030,126.9521, network_type='drive')
+se=ox.load_graphml(f'./data/seoul.graphml')
+#ox.plot_graph(se)
+#ox.save_graphml(se, filepath=f'./data/seoul.graphml')
+nodes={}
+edge={}
+# dist_matrix = pd.DataFrame.from_dict(dict(nx.all_pairs_dijkstra_path_length(se)), orient='index')
+# print(dist_matrix)
+for node in se.nodes:
+    nodes[node]=se.nodes[node]['x'],se.nodes[node]['y'],se.nodes[node]['street_count']
+for edge in se.edges:
+    a=(edge[0], edge[1])
+    edge[edge]=a
+
+print(edge)
