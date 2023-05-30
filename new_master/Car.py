@@ -1,7 +1,7 @@
 import Route
 class Car:
 
-    def __init__(self, id, source_node, destination_node, starting_time,route_algorithm):
+    def __init__(self, id, source_node, destination_node, starting_time,route_algorithm = "random"):
         self.id = id # car id
         self.source_node = source_node # source node
         self.destination_node = destination_node # destination node
