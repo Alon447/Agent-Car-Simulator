@@ -5,14 +5,17 @@ import Car_manager
 
 class Simulation_manager:
     """
+    This class manages the simulation.
+    It will create the road network, the cars, the route algorithm and the q tables.
+    It will also update the simulation and print the results.
 
 
     """
 
-    def __init__(self):
-        self.road_network = Road_Network.RoadNetwork()
+    def __init__(self,graph):
+        self.road_network = Road_Network.Road_Network(graph)
         self.car_manager = Car_manager.CarManager()
-        self.simulation_time = 0
+        self.simulation_time = 0 # in seconds
         self.route_algorithm = None
         self.q_tables = {}
         self.map_graph = None
@@ -36,6 +39,7 @@ class Simulation_manager:
 
 
     def set_map(self):
+        return
 
 
 
@@ -48,3 +52,4 @@ class Simulation_manager:
         self.create_cars()
         self.update_simulation()
         self.print_results()
+        return

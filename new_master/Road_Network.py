@@ -148,10 +148,10 @@ class Road_Network:
     def __str__(self):
         return "Road_Network"
 
-
-RN = Road_Network('/graphTLVfix.graphml')
-roads = (RN.get_roads_array())
-for road in roads:
-    print(road.adjacent_roads)
+#
+# RN = Road_Network('/graphTLVfix.graphml')
+# roads = (RN.get_roads_array())
+# for road in roads:
+#     print(road.adjacent_roads)
 
 

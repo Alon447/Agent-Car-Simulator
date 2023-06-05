@@ -1,20 +1,43 @@
 import Route
+
+
+
 class Car:
 
-    def __init__(self, id, source_node, destination_node, starting_time,route_algorithm = "random"):
+    def __init__(self, id, source_node, destination_node, starting_time, route_algorithm = "random"):
+
+        # ID
         self.id = id # car id
+        # Nodes
         self.source_node = source_node # source node
         self.destination_node = destination_node # destination node
+        # Roads
         self.current_road = None # the car's current road
         self.past_roads = [] # a list of the roads the car has been on
-        self.total_travel_time = 0 # the total travel time of the car
-        self.time_until_next_road = 0 # the time until the car reaches the next road
-        self.is_finished = False # indicates if the car has reached its destination
+        # self.source_road = None  # source road
+        # self.destination_road = None  # destination road
+        # Time
         self.starting_time = starting_time # the time the car started its journey
-        self.route=Route.Route(source_node,destination_node,route_algorithm) # the route the car will take
+        self.time_until_next_road = 0 # the time until the car reaches the next road *IN SECONDS*
+        self.total_travel_time = 0 # the total travel time of the car
+        # Flags
+        self.is_finished = False # indicates if the car has reached its destination
+        # Route
+        self.route = None # the route the car will take
+        self.decide_route_algorithm(route_algorithm)
+        #self.route=Route.Route() # the route the car will take
+
         ###############################################
         # we need to pass rods to Route and not nodes
         ###############################################
+    def decide_route_algorithm(self, route_algorithm):
+        if route_algorithm == "q learning":
+            self.route = Route.Q_Learning_Route()
+        elif route_algorithm == "shortest_path":
+            self.route = Route.Shortest_path_route()
+        else:
+            self.route = Route.Random_route()
+
     # Gets
     def get_id(self):
         return self.id
@@ -59,19 +82,47 @@ class Car:
 
     def get_next_road(self):
         #  move the car to the next road based on route's next node
-        pass
+        next_road = self.route.get_next_road(self.current_road, self.destination_node, 0)
+        return next_road
+
+
     def move_next_road(self):
-        pass
+        """
+        move the car to the next road based on route's next node
+        update car's time until next road
+
+        :return:
+        """
+        # TODO: check if the car has reached its destination
+        self.past_roads.append(self.current_road)
+        self.current_road = self.get_next_road()
+        self.set_time_until_next_road(self.current_road.get_length() / self.current_road.get_current_speed())
+        return
+
 
     def start_car(self):
         #  move the car to the first road based on starting node
         #  update car's time until next road
+        self.current_road = self.route.get_next_road(self.source_node, self.destination_node, 0)
+        self.update_time_until_next_road(self.current_road)
         pass
+
     def get_travel_data(self):
         # return the  total travel time, path taken, travel time in each road, starting time, ending time.
         return self.total_travel_time,self.past_roads, self.starting_time, self.total_travel_time
+
+    def update_time_until_next_road(self,road):
+        self.set_time_until_next_road(road.get_length() / road.get_current_speed())
+        return
+
+    def update_travel_time(self, time):
+        # used when we fast forward the simulation
+        self.total_travel_time += time
+        self.time_until_next_road -= time
+        return
+
     def __str__(self) -> str:
-        return "car_id: " + str(self.id) + "\n" + "travel_time: " + str(self.total_travel_time) + "\n"
+        return "Car_id: " + str(self.id) + ", " + "Travel_time: " + str(self.total_travel_time)+ ", " + "Starting time: " + str(self.starting_time)+ ", " + "Time until update: " + str(self.time_until_next_road)+ "\n"
 
     def __repr__(self):
         return self.__str__()

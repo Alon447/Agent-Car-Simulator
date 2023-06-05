@@ -49,6 +49,7 @@ class CarManager :
 
     def add_car(self, car):
         self.cars_in_simulation[car.get_id()] = car
+        #self.sort_cars_in_simulation()
         #self.calc_nearest_update_time()
 
     def remove_car(self, car):
@@ -60,6 +61,13 @@ class CarManager :
     """
     calculation functions
     """
+    def sort_cars_in_simulation(self):
+        # sort the dict by the time until the next road
+        # also update the nearest update time
+        self.cars_in_simulation = dict(sorted(self.get_cars_in_simulation().items(), key=lambda item: item[1].get_time_until_next_road()))
+        first_index, first_car = next(iter(self.cars_in_simulation.items()))
+        self.cars_nearest_update_time = first_car.get_time_until_next_road()
+
     def calc_nearest_update_time(self):
         self.cars_nearest_update_time = self.cars_in_simulation[0].get_time_until_next_road()
         for car in self.cars_in_simulation:
@@ -72,12 +80,30 @@ class CarManager :
             if car.get_time_until_next_road() == self.cars_nearest_update_time:
                 self.cars_nearest_update.append(car)
 
+    def show_cars_in_simulation(self):
+        print("cars_in_simulation:")
+        print(self.cars_in_simulation)
+
+
 cm = CarManager()
-car1=Car.Car(1,0,10,0)
-car3=Car.Car(3,1,8,0)
-car20=Car.Car(20,2,9,0)
+car1=Car.Car(1,0,10,12)
+car1.set_time_until_next_road(10)
+
+car3=Car.Car(3,1,8,50)
+car3.set_time_until_next_road(5)
+
+car20=Car.Car(20,2,9,23)
+car20.set_time_until_next_road(2)
 cm.add_car(car1)
 cm.add_car(car20)
 cm.add_car(car3)
-print(cm.get_cars_in_simulation()[car20.get_id()])
-print("bye")
+# print(cm.get_cars_in_simulation()[car20.get_id()])
+# print("cm.get_cars_in_simulation()")
+cm.sort_cars_in_simulation()
+cm.show_cars_in_simulation()
+print("nearest_update_time:", cm.get_cars_nearest_update_time())
+cm.add_car(Car.Car(13,1,8,10))
+cm.show_cars_in_simulation()
+cm.sort_cars_in_simulation()
+cm.show_cars_in_simulation()
+

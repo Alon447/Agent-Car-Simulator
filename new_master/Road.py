@@ -9,7 +9,7 @@ class Road:
         self.max_speed = max_speed
         self.is_blocked= False
         self.cars_on_road = []
-        self.adjacent_roads = []
+        self.adjacent_roads = [] # list of adjacent roads to this road, includes only the ids of the roads
 
     # Gets
     def get_id(self):
