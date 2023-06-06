@@ -2,8 +2,13 @@ import os
 
 import osmnx as ox
 import Road
+
 import pandas as pd
 import networkx as nx
+from abc import abstractmethod, ABC
+import random
+
+
 
 
 class Road_Network:
@@ -92,13 +97,28 @@ class Road_Network:
                     edge1.adjacent_roads.append(edge2.get_id())
         return
 
+    def set_roads_speeds(self):
+        for road in self.roads_array:
+            road.update_speed(self.roads_speeds[road.get_id()])
+        pass
+
+    def generate_random_speeds(self):
+        start_time=0
+        for road in self.roads_array:
+            self.roads_speeds[road.get_id()] = (random.randint(25,int(road.get_max_speed())))
+        # print(self.roads_speeds)
+        return
+
+    def calc_dist_mat(self):
+        # makes a matrix of the shortest distances between all the roads
+        return pd.DataFrame.from_dict(dict(nx.all_pairs_dijkstra_path_length(self.graph)), orient='index')
     def make_src_node_to_dest_node_dict(self):
         src_to_dest = {}
         for edge in self.roads_array:
             if edge.get_source_node() not in src_to_dest:
                 src_to_dest[edge.get_source_node()] = []
             src_to_dest[edge.get_source_node()].append(edge.get_destination_node())
-        print(src_to_dest)
+        #print(src_to_dest)
         return src_to_dest
 
     def make_dest_node_to_src_node_dict(self):
@@ -108,7 +128,7 @@ class Road_Network:
             if edge.get_destination_node() not in dest_to_src:
                 dest_to_src[edge.get_destination_node()] = []
             dest_to_src[edge.get_destination_node()].append(edge.get_source_node())
-        print(dest_to_src)
+        #print(dest_to_src)
         return dest_to_src
 
     # GETS
@@ -135,9 +155,7 @@ class Road_Network:
 
     # def set_connectivity_list(self):
 
-    def calc_dist_mat(self):
-        # makes a matrix of the shortest distances between all the roads
-        return pd.DataFrame.from_dict(dict(nx.all_pairs_dijkstra_path_length(self.graph)), orient='index')
+
 
     def set_graph(self, graph_path):
         cur = os.getcwd()
@@ -148,10 +166,46 @@ class Road_Network:
     def __str__(self):
         return "Road_Network"
 
+    # class Route(ABC):
+    #     @abstractmethod
+    #     def get_next_road(self, source_road, destination_node, time):
+    #         pass
+    #
+    #     @abstractmethod
+    #     def decide_first_road(self, source_node):
+    #         pass
+    # class Random_route(Route):
+    #     def decide_first_road(self, source_node):
+    #         for road in Road_Network.get_roads_array():
+    #             if road.get_source_node() == source_node:
+    #                 return road
+    #
+    #     def get_next_road(self, source_road, destination_node, time):
+    #         """
+    #         :param source_road: Road id
+    #         :param destination_node:
+    #         :param time: 0 for now
+    #         :return:  next road to travel to : Road
+    #         """
+    #         # TODO: update according to connectivity list implementation
+    #         road = Road_Network.get_road_by_road_id(source_road)
+    #         optional_roads = road.get_adjacent_roads()  # list of IDs of optional roads
+    #         choice = random.randint(0, len(optional_roads) - 1)
+    #         next_road = optional_roads[choice]
+    #         return next_road
+    #
+    # class Q_Learning_Route(Route):
+    #     def get_next_road(self, source_road, destination_node, time):
+    #         # Implement Q-learning route logic here
+    #         # Return a new edge based on the Q-learning algorithm
+    #         pass
+    #
+    # class Shortest_path_route(Route):
+    #
+    #     def get_next_road(self, source_node, destination_node, time):
+    #         # TODO: update according to distance matrix implementation
+    #         return Road_Network.get_distance_matrix().get_road(source_node, destination_node)
+
 #
-# RN = Road_Network('/graphTLVfix.graphml')
-# roads = (RN.get_roads_array())
-# for road in roads:
-#     print(road.adjacent_roads)
 
 

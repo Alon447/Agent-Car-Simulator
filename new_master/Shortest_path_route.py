@@ -1,5 +1,5 @@
 import Road_Network
-import Route
+from new_master import Route
 
 
 class Shortest_path_route(Route):

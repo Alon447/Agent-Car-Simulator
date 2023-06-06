@@ -1,6 +1,6 @@
 import Road_Network
-import Route
 import Car_manager
+from new_master import Car
 
 
 class Simulation_manager:
@@ -53,3 +53,14 @@ class Simulation_manager:
         self.update_simulation()
         self.print_results()
         return
+
+SM = Simulation_manager('/graphTLVfix.graphml')
+RN = SM.get_road_network()
+RN.generate_random_speeds()
+RN.set_roads_speeds()
+# roads = (RN.get_roads_array())
+# for road in roads:
+#     print(road)
+c1 = Car.Car(1,1,4,0)
+print(c1.start_car())
+print(c1.decide_next_road())

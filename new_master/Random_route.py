@@ -1,6 +1,6 @@
 from random import random
 
-import Route
+from new_master import Route
 
 
 class Random_route(Route):

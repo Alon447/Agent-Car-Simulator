@@ -9,25 +9,39 @@ class Route(ABC):
     def get_next_road(self, source_road, destination_node, time):
         pass
 
+    @abstractmethod
+    def decide_first_road(self, source_node):
+        pass
+
+
 class Random_route(Route):
+
+    def decide_first_road(self, source_node):
+        for road in Road_Network.get_roads_array():
+            if road.get_source_node() == source_node:
+                return road
 
     def get_next_road(self, source_road, destination_node, time):
         """
-        :param source_road: Road
+        :param source_road: Road id
         :param destination_node:
         :param time: 0 for now
         :return:  next road to travel to : Road
         """
         # TODO: update according to connectivity list implementation
-        optional_roads = source_road.get_adjacent_roads()  # list of IDs of optional roads
+        road = Road_Network.get_road_by_road_id(source_road)
+        optional_roads = road.get_adjacent_roads()  # list of IDs of optional roads
+        choice = random.randint(0, len(optional_roads) - 1)
+        next_road = optional_roads[choice]
+        return next_road
 
-        return random.choice(optional_roads)
 
 class Q_Learning_Route(Route):
     def get_next_road(self, source_road, destination_node, time):
         # Implement Q-learning route logic here
         # Return a new edge based on the Q-learning algorithm
         pass
+
 
 class Shortest_path_route(Route):
 
