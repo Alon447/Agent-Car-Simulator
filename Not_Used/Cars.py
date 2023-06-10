@@ -10,7 +10,7 @@ class Cars:
         self.id = id
         self.source_node= start_node
         self.destination_node = end_node
-        self.graph = ox.load_graphml('./data/graphTLVfix.graphml')
+        self.graph = ox.load_graphml('../data/graphTLVFix.graphml')
         self.current_road = None
         self.past_roads = []
         self.is_finished = False  # indicates if the car has reached its destination

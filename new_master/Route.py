@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABC
-from random import random
+import random
 
 from new_master.Road_Network import Road_Network
 
@@ -21,23 +21,41 @@ class Random_route(Route):
             if road.get_source_node() == source_node:
                 return road
 
-    def get_next_road(self, source_road, destination_node, time):
+    def get_next_road(self, source_road, destination_node, adjacency_list):
         """
-        :param source_road: Road id
+        :param source_road: Road
         :param destination_node:
+        :param adjacency_list: list of adjacent roads
         :param time: 0 for now
         :return:  next road to travel to : Road
         """
         # TODO: update according to connectivity list implementation
-        road = Road_Network.get_road_by_road_id(source_road)
-        optional_roads = road.get_adjacent_roads()  # list of IDs of optional roads
-        choice = random.randint(0, len(optional_roads) - 1)
-        next_road = optional_roads[choice]
+
+        choice = random.randint(0, len(adjacency_list) - 1)
+        next_road = adjacency_list[choice]
+        count=0
+        while len(next_road.get_adjacent_roads()) == 0:
+            choice = random.randint(0, len(adjacency_list) - 1)
+            next_road = adjacency_list[choice]
+            count+=1
+
+            if count>5: # case of no adjacent roads
+                print("no adjacent roads")
+                return None
+
         return next_road
 
 
 class Q_Learning_Route(Route):
     def get_next_road(self, source_road, destination_node, time):
+        """
+
+        :param source_road:
+        :param destination_node:
+        :param time:
+        :return:
+        """
+
         # Implement Q-learning route logic here
         # Return a new edge based on the Q-learning algorithm
         pass

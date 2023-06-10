@@ -66,7 +66,7 @@ def create_state_dictionary(G, starting_time, route_list):
 
 
 #se= ox.graph_from_bbox(37.5518,37.5291, 127.0030,126.9521, network_type='drive')
-se=ox.load_graphml(f'./data/seoul.graphml')
+se=ox.load_graphml(f'../data/seoul.graphml')
 #ox.plot_graph(se)
 #ox.save_graphml(se, filepath=f'./data/seoul.graphml')
 nodes={}

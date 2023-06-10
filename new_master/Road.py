@@ -2,8 +2,8 @@
 class Road:
     def __init__(self, id ,source_node ,destination_node ,length,max_speed):
         self.id= id
-        self.source_node = source_node
-        self.destination_node = destination_node
+        self.source_node = int(source_node)
+        self.destination_node = int(destination_node)
         self.length = length
         self.current_speed = 0
         self.max_speed = max_speed

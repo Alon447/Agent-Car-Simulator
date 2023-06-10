@@ -1,4 +1,6 @@
 import json
+import os
+
 import pandas as pd
 import osmnx as ox
 import networkx as nx
@@ -94,9 +96,36 @@ class TrafficDictionary:
     def shortest_path(self, g, source, destination):
         return nx.shortest_path(g, source, destination)
 
+    def plotting_custom_route(self):
+        """
+        this is the way for a car that finished its route to plot it on the map at the end
+        saves the function here for future use
+        """
+        import osmnx as ox
+        import matplotlib.pyplot as plt
+
+        # Define the custom route as a list of node IDs
+        custom_route = [342355075, 387519294]
+        cur = os.getcwd()
+        parent = os.path.dirname(cur)
+        data = os.path.join(parent, "data")
+        graph = ox.load_graphml(data + '/graphTLVfix.graphml')
+
+        # Plot the graph
+        fig, ax = ox.plot_graph(graph, show=False, close=False, edge_color='lightgray', node_color='gray',
+                                bgcolor='white')
+
+        # Plot the custom route
+        ox.plot_graph_route(graph, custom_route, route_color='red', route_linewidth=6, ax=ax)
+
+        # Show the plot
+        plt.show()
+
+
+
 a=ox.graph_from_place("tel aviv")
 
-g = ox.load_graphml(f'./data/graphTLVFix.graphml')
+g = ox.load_graphml(f'../data/graphTLVFix.graphml')
 availble_roads=[]
 roads=[]
 

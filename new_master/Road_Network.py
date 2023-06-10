@@ -28,20 +28,30 @@ class Road_Network:
 
     """
 
+
     def __init__(self, graph_path):
-        self.roads_array = []
+        # graph
         self.graph = self.set_graph(graph_path)
-        self.set_roads_array()
+        self.roads_array = []
         self.roads_speeds = {}
+        self.node_dict={}
+
+        # initialize functions
+        self.set_roads_array()
         self.distance_matrix = self.calc_dist_mat()
         self.set_adjacney_roads()
+        self.make_node_dict()
+
+        #self.remove_blocked_roads()
+        # maybe remove all the blocked roads from the graph
+        # only problem is that we will create more blocked roads in the simulation
         ###############################
         # check if necessary
-        self.nodes = ox.graph_to_gdfs(self.graph, edges=False)
-        self.edges = ox.graph_to_gdfs(self.graph, nodes=False)
-        self.nodes = self.nodes.to_dict()
-        self.edges = self.edges.to_dict()
-        self.adjacency_matrix = nx.adjacency_matrix(self.graph)
+        # self.nodes = ox.graph_to_gdfs(self.graph, edges=False)
+        # self.edges = ox.graph_to_gdfs(self.graph, nodes=False)
+        # self.nodes = self.nodes.to_dict()
+        # self.edges = self.edges.to_dict()
+        # self.adjacency_matrix = nx.adjacency_matrix(self.graph)
         ##############################
 
     ################
@@ -80,6 +90,7 @@ class Road_Network:
             if i not in node_to_node_id:
                 node_to_node_id[i] = []
             node_to_node_id[i] = (self.graph.nodes[i]['node_id'])
+        self.node_dict= node_to_node_id
         return node_to_node_id
 
     def set_adjacney_roads(self):
@@ -94,7 +105,13 @@ class Road_Network:
             for edge2 in self.roads_array:
                 src_node = edge2.get_source_node()
                 if dest_node == src_node:
-                    edge1.adjacent_roads.append(edge2.get_id())
+                    edge1.adjacent_roads.append(edge2)
+        return
+
+    def remove_blocked_roads(self):
+        for road in self.roads_array:
+            if len(road.get_adjacent_roads()) == 0:
+                self.roads_array.remove(road)
         return
 
     def set_roads_speeds(self):
@@ -153,9 +170,11 @@ class Road_Network:
     def get_road_by_road_id(self, road_id):
         return self.roads_array[road_id]
 
+    def get_road_by_source_node(self, source_node):
+        for road in self.roads_array:
+            if road.get_source_node() == source_node:
+                return road
     # def set_connectivity_list(self):
-
-
 
     def set_graph(self, graph_path):
         cur = os.getcwd()
@@ -166,46 +185,7 @@ class Road_Network:
     def __str__(self):
         return "Road_Network"
 
-    # class Route(ABC):
-    #     @abstractmethod
-    #     def get_next_road(self, source_road, destination_node, time):
-    #         pass
-    #
-    #     @abstractmethod
-    #     def decide_first_road(self, source_node):
-    #         pass
-    # class Random_route(Route):
-    #     def decide_first_road(self, source_node):
-    #         for road in Road_Network.get_roads_array():
-    #             if road.get_source_node() == source_node:
-    #                 return road
-    #
-    #     def get_next_road(self, source_road, destination_node, time):
-    #         """
-    #         :param source_road: Road id
-    #         :param destination_node:
-    #         :param time: 0 for now
-    #         :return:  next road to travel to : Road
-    #         """
-    #         # TODO: update according to connectivity list implementation
-    #         road = Road_Network.get_road_by_road_id(source_road)
-    #         optional_roads = road.get_adjacent_roads()  # list of IDs of optional roads
-    #         choice = random.randint(0, len(optional_roads) - 1)
-    #         next_road = optional_roads[choice]
-    #         return next_road
-    #
-    # class Q_Learning_Route(Route):
-    #     def get_next_road(self, source_road, destination_node, time):
-    #         # Implement Q-learning route logic here
-    #         # Return a new edge based on the Q-learning algorithm
-    #         pass
-    #
-    # class Shortest_path_route(Route):
-    #
-    #     def get_next_road(self, source_node, destination_node, time):
-    #         # TODO: update according to distance matrix implementation
-    #         return Road_Network.get_distance_matrix().get_road(source_node, destination_node)
-
-#
+    def __repr__(self):
+        return "Road_Network"
 
 

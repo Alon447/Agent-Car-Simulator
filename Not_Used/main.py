@@ -185,7 +185,7 @@ def test_route():
     return
 
 if __name__ == '__main__':
-    g2 = ox.load_graphml('./data/graphTLVfix.graphml')
+    g2 = ox.load_graphml('../data/graphTLVFix.graphml')
     edge = g2.edges
 
     num_edges=g2.number_of_nodes()
