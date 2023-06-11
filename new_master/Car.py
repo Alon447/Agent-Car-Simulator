@@ -59,7 +59,7 @@ class Car:
         # return the ID of the next road the car will travel to
 
         #self.route.get_next_road parameters: (source_road_id, destination_node, time)
-        next_road = self.route.get_next_road(self.current_road, self.destination_node, self.current_road.get_adjacent_roads())
+        next_road = self.route.get_next_road(self.current_road.get_source_node(), self.destination_node,0, self.road_network)
         if next_road is None: # case of no adjacent roads
             return None
         return next_road
@@ -71,7 +71,6 @@ class Car:
 
         :return:
         """
-        # TODO: check if the car has reached its destination
         if(self.check_if_finished()):
             return None
 
@@ -84,6 +83,7 @@ class Car:
         id = int(next_road.get_id())
         self.current_road = self.road_network.get_roads_array()[id]
         self.road_network.get_roads_array()[id].add_car_to_road(self)
+        #TODO: remove car from current road
         self.update_time_until_next_road(self.current_road)
         #self.set_time_until_next_road(self.current_road.get_length()*3.6 / self.current_road.get_current_speed())
         return self.current_road

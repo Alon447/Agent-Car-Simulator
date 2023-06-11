@@ -6,28 +6,30 @@ from new_master.Road_Network import Road_Network
 
 class Route(ABC):
     @abstractmethod
-    def get_next_road(self, source_road, destination_node, time):
+    def get_next_road(self, source_road, destination_node, time,road_network):
         pass
 
     @abstractmethod
-    def decide_first_road(self, source_node):
+    def decide_first_road(self, source_node, road_network):
         pass
 
 
 class Random_route(Route):
 
-    def decide_first_road(self, source_node):
-        for road in Road_Network.get_roads_array():
+    def decide_first_road(self, source_node, road_network):
+        for road in road_network.get_roads_array():
             if road.get_source_node() == source_node:
                 return road
 
-    def get_next_road(self, source_road, destination_node, adjacency_list):
+    def get_next_road(self, source_road, destination_node, adjacency_list,road_network):
         """
         :param source_road: Road
         :param destination_node:
         :param adjacency_list: list of adjacent roads
         :param time: 0 for now
+        :param road_network: Road_Network
         :return:  next road to travel to : Road
+
         """
         # TODO: update according to connectivity list implementation
 
@@ -47,12 +49,13 @@ class Random_route(Route):
 
 
 class Q_Learning_Route(Route):
-    def get_next_road(self, source_road, destination_node, time):
+    def get_next_road(self, source_road, destination_node, time, road_network):
         """
 
         :param source_road:
         :param destination_node:
         :param time:
+        :param road_network:
         :return:
         """
 
@@ -60,9 +63,20 @@ class Q_Learning_Route(Route):
         # Return a new edge based on the Q-learning algorithm
         pass
 
+    def decide_first_road(self, source_node, road_network):
+        for road in road_network.get_roads_array():
+            if road.get_source_node() == source_node:
+                return road
+
 
 class Shortest_path_route(Route):
 
-    def get_next_road(self, source_node, destination_node, time):
+    def get_next_road(self, source_node, destination_node, time,road_network):
         # TODO: update according to distance matrix implementation
-        return Road_Network.get_distance_matrix().get_road(source_node, destination_node)
+        return road_network.get_next_road(source_node, destination_node)
+
+    def decide_first_road(self, source_node, road_network):
+        for road in road_network.get_roads_array():
+            if road.get_source_node() == source_node:
+                return road
+

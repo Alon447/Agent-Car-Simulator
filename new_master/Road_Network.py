@@ -34,7 +34,9 @@ class Road_Network:
         self.graph = self.set_graph(graph_path)
         self.roads_array = []
         self.roads_speeds = {}
-        self.node_dict={}
+        self.node_dict={} #maps osm ids to our new ids
+        self.reverse_node_dict={} #maps our new ids to osm ids
+        self.road_dict = {}
         self.distance_matrix = [] # cache for the distance matrix
 
         # initialize functions
@@ -73,12 +75,13 @@ class Road_Network:
 
     ###############
     def set_roads_array(self):
-        node_to_edge = self.make_node_dict()
+        osm_node_to_node_id = self.make_node_dict()
         for edge in self.graph.edges:
-            new_road = Road.Road(self.graph.edges[edge]['edge_id'], node_to_edge[edge[0]], node_to_edge[edge[1]],
+            new_road = Road.Road(self.graph.edges[edge]['edge_id'], osm_node_to_node_id[edge[0]], osm_node_to_node_id[edge[1]],
                                  self.graph.edges[edge]['length'],
                                  self.graph.edges[edge]['maxspeed'])
             self.roads_array.append(new_road)
+            self.road_dict[(new_road.get_source_node(),new_road.get_destination_node())] = new_road.get_id()
             # print(new_road)
         return
 
@@ -91,8 +94,8 @@ class Road_Network:
             if i not in node_to_node_id:
                 node_to_node_id[i] = []
             node_to_node_id[i] = (self.graph.nodes[i]['node_id'])
-        self.node_dict = node_to_node_id
-        return node_to_node_id
+        self.node_dict= node_to_node_id
+        self.reverse_node_dict= {value: key for key, value in self.node_dict.items()}
 
     def set_adjacney_roads(self):
         # method:
@@ -150,6 +153,30 @@ class Road_Network:
         return dest_to_src
 
     # GETS
+    def add_shortest_path_to_matrix(self,src,dest):
+        #src and destination are node ids as we defined in the graph
+        #we need to get the osm node ids to use the networkx's shortest path function
+        temp_src = self.reverse_node_dict[src]
+        temp_dest = self.reverse_node_dict[dest]
+        # nodes are the osm nodes
+        path = nx.shortest_path(self.graph, temp_src, temp_dest, weight='length')
+        fixed_path = [self.node_dict[node] for node in path]
+
+        #updating the distances matrix
+        for i,node in enumerate(fixed_path[:-1]):
+            self.distance_matrix[node][fixed_path[-1]] = fixed_path[i+1]#adds the relevant next node to the distances matrix
+
+    def get_next_road_from_matrix(self,src_id,dst_id):
+        return self.roads_array[self.road_dict[(src_id,self.distance_matrix[src_id][dst_id])]]
+
+    def get_next_road(self, src_id, dst_id):
+        #checks if the next node is filled in the distance matrix.
+        #if it is, returns the next road. otherwise, calculate path and update matrix.
+        if self.distance_matrix[src_id][dst_id] == None:
+            self.add_shortest_path_to_matrix(src_id,dst_id)
+        return self.get_next_road_from_matrix(src_id,dst_id)
+
+
     def get_graph(self):
         return self.graph
 
@@ -176,8 +203,7 @@ class Road_Network:
             if road.get_source_node() == source_node:
                 return road
     # def set_connectivity_list(self):
-    def get_distance_matrix(self):
-        return self.distance_matrix
+
     def set_graph(self, graph_path):
         cur = os.getcwd()
         parent = os.path.dirname(cur)
@@ -189,9 +215,5 @@ class Road_Network:
 
     def __repr__(self):
         return "Road_Network"
-
-    def get_shortest_path(self, source_node, destination_node):
-        
-        return nx.shortest_path(self.get_graph(), source_node, destination_node, weight='length')
 
 
