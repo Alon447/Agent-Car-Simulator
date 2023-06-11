@@ -1,12 +1,10 @@
 import random
-import time
 
 from matplotlib import pyplot as plt
 
 import Road as QE
 import osmnx as ox
 import Cars
-import nodes
 
 # Class that contains all the edges of the graph
 CAR_LENGTH = 5
@@ -186,7 +184,7 @@ def print_graph_with_names_fixed_2(G, route):
     return
 
 
-g2 = ox.load_graphml('./data/graphTLVFix.graphml')
+g2 = ox.load_graphml('../data/graphTLVFix.graphml')
 q = Road_Network(g2)
 # start = nodes.NODES_ID[2]
 # end = nodes.NODES_ID[100]

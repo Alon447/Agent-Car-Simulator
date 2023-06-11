@@ -5,7 +5,7 @@ import osmnx as ox
 # Load the map data from OSM
 from matplotlib import pyplot as plt
 
-G = ox.load_graphml('./data/tel aviv.graphml')
+G = ox.load_graphml('../data/tel aviv.graphml')
 
 
 # Convert the graph to a transition matrix
