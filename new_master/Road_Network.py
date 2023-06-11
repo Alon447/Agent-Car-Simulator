@@ -35,10 +35,11 @@ class Road_Network:
         self.roads_array = []
         self.roads_speeds = {}
         self.node_dict={}
+        self.distance_matrix = [] # cache for the distance matrix
 
         # initialize functions
         self.set_roads_array()
-        self.distance_matrix = self.calc_dist_mat()
+        #self.distance_matrix = self.calc_dist_mat()
         self.set_adjacney_roads()
         self.make_node_dict()
 
@@ -90,7 +91,7 @@ class Road_Network:
             if i not in node_to_node_id:
                 node_to_node_id[i] = []
             node_to_node_id[i] = (self.graph.nodes[i]['node_id'])
-        self.node_dict= node_to_node_id
+        self.node_dict = node_to_node_id
         return node_to_node_id
 
     def set_adjacney_roads(self):
@@ -175,7 +176,8 @@ class Road_Network:
             if road.get_source_node() == source_node:
                 return road
     # def set_connectivity_list(self):
-
+    def get_distance_matrix(self):
+        return self.distance_matrix
     def set_graph(self, graph_path):
         cur = os.getcwd()
         parent = os.path.dirname(cur)
@@ -187,5 +189,9 @@ class Road_Network:
 
     def __repr__(self):
         return "Road_Network"
+
+    def get_shortest_path(self, source_node, destination_node):
+        
+        return nx.shortest_path(self.get_graph(), source_node, destination_node, weight='length')
 
 

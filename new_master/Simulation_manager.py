@@ -239,16 +239,20 @@ class Simulation_manager:
             osm_route.append(self.get_key_from_value(self.road_network.node_dict, node))
         return osm_route
 
-    def car_1_times_bar_chart(self):
+    def car_times_bar_chart(self, car_number):
         """
-        This function plots a bar chart of the times of car 1 in the simulation.
+        This function plots a bar chart of the times of a specific car in the simulation.
+
+        Parameters:
+        - car_number: The car number for which the chart will be plotted.
         """
         times = []
         colors = []
 
         for result in self.simulation_results:
-            times.append(result['car1_time_taken'])
-            if result['car1_reached_destination']:
+            car_key = 'car{}'.format(car_number)
+            times.append(result[car_key]['time_taken'])
+            if result[car_key]['reached_destination']:
                 colors.append('green')
             else:
                 colors.append('red')
@@ -257,19 +261,16 @@ class Simulation_manager:
 
         # Add labels and title
         plt.xlabel('Simulation Number')
-        plt.ylabel('Time taken by Car 1')
-        plt.title('Bar Chart: Times of Car 1 in Simulation')
+        plt.ylabel('Time taken by Car {}'.format(car_number))
+        plt.title('Bar Chart: Times of Car {} in Simulation'.format(car_number))
         legend_labels = ['Reached Destination', 'Not Reached Destination']
         legend_colors = ['green', 'red']
         legend_patches = [mpatches.Patch(color=color, label=label) for color, label in
                           zip(legend_colors, legend_labels)]
 
-        # a legend that says green- reached destination, red- not reached
-        # plt.legend(legend_labels, title='Legend', loc='upper right')
-        plt.legend(handles=legend_patches, title='Legend', loc='lower right')
+        plt.legend(handles=legend_patches, title='Legend', loc='upper right')
 
         plt.show()
-        return
 
     def plotting_custom_route(self,custom_route):
         """
@@ -300,10 +301,8 @@ CM = SM.get_car_manager()
 RN = SM.get_road_network()
 
 
-# roads = (RN.get_roads_array())
-# for road in roads:
-#     print(road)
-NUMBER_OF_SIMULATIONS = 3
+
+NUMBER_OF_SIMULATIONS = 10
 c1 = Car.Car(1,1,5,0,RN)
 c2 = Car.Car(2,2,10,0,RN)
 cars = [c1,c2]
@@ -323,7 +322,8 @@ print("***************************")
 # print(route[1])
 # route2 = SM.transform_node_id_route_to_osm_id_route(route[1])
 # SM.plotting_custom_route(route2)
-# SM.car_1_times_bar_chart()
+SM.car_times_bar_chart(1)
+SM.car_times_bar_chart(2)
 
 
 
