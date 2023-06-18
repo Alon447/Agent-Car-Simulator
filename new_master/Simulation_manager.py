@@ -188,7 +188,7 @@ class Simulation_manager:
                 car_time_taken = car.get_total_travel_time()
                 car_route = car.get_past_nodes()
 
-                car_key = f'car{j + 1}'
+                car_key = car.get_id()
                 simulation_results[car_key] = {
                     'reached_destination': car_reached_destination,
                     'time_taken': car_time_taken,
@@ -224,11 +224,13 @@ class Simulation_manager:
 
         return
 
-    def get_simulation_route(self):
-        for d in self.simulation_results:
-            if d == 'car1':
-                print(d)
-        return
+    def get_simulation_route(self,carInd, simulation_number):
+        """
+        get the wanted route drom the wanted simulation
+        :return:
+        """
+        return self.simulation_results[simulation_number][carInd]['route']
+
 
     def get_key_from_value(self, dictionary, value):
         for key, val in dictionary.items():
@@ -251,7 +253,7 @@ class Simulation_manager:
         colors = []
 
         for result in self.simulation_results:
-            car_key = 'car{}'.format(car_number)
+            car_key = car_number
             times.append(result[car_key]['time_taken'])
             if result[car_key]['reached_destination']:
                 colors.append('green')
@@ -279,6 +281,7 @@ class Simulation_manager:
         saves the function here for future use
         """
         # Define the custom route as a list of node IDs
+        custom_route = self.transform_node_id_route_to_osm_id_route(custom_route)
         cur = os.getcwd()
         parent = os.path.dirname(cur)
         data = os.path.join(parent, "data")
@@ -305,7 +308,7 @@ RN = SM.get_road_network()
 
 NUMBER_OF_SIMULATIONS = 10
 c1 = Car.Car(1,1,5,0,RN,route_algorithm="random")
-c2 = Car.Car(2,2,10,0,RN,route_algorithm = "shortest_path")
+c2 = Car.Car(2,2,20,0,RN,route_algorithm = "shortest_path")
 cars = [c1,c2]
 
 SM.run_full_simulation(cars,NUMBER_OF_SIMULATIONS)
@@ -315,16 +318,17 @@ print("simulation results:")
 SM.print_simulation_results()
 print("***************************")
 
-route = SM.get_simulation_route()
+route = SM.get_simulation_route(CM.cars_finished[0].get_id(),0)
 #print(SM.get_road_network().node_dict)
 # print(route[0])
 # route1 = SM.transform_node_id_route_to_osm_id_route(route[0])
-# SM.plotting_custom_route(route1)
+SM.plotting_custom_route(route)
 # print(route[1])
 #route2 = SM.transform_node_id_route_to_osm_id_route(route[1])
 #SM.plotting_custom_route(route2)
 SM.car_times_bar_chart(1)
 SM.car_times_bar_chart(2)
+
 
 
 

@@ -80,6 +80,7 @@ class Car:
         next_road = self.decide_next_road() # gets a road object
         if next_road is None:
             self.is_finished = True
+            self.car_in_destination = True
             return None
         id = int(next_road.get_id())
         self.current_road = self.road_network.get_roads_array()[id]
@@ -89,8 +90,10 @@ class Car:
         #self.set_time_until_next_road(self.current_road.get_length()*3.6 / self.current_road.get_current_speed())
         return self.current_road
 
-    def check_if_finished(self):
+    def check_if_finished(self):#assuming reaching for the destination road is sufficient
         if self.current_road.get_destination_node() == self.destination_node:
+            self.past_roads.append(self.current_road)
+            self.past_nodes.append(self.current_road.get_destination_node())
             self.is_finished = True
             self.car_in_destination = True
             #print("Car " + str(self.id) + " has reached its destination")
