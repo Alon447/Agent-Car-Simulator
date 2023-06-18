@@ -60,7 +60,7 @@ class Car:
         # return the ID of the next road the car will travel to
 
         #self.route.get_next_road parameters: (source_road_id, destination_node, time)
-        next_road = self.route.get_next_road(self.current_road.get_destination_node(), self.destination_node,self.current_road.get_adjacent_roads(), self.road_network)
+        next_road = self.route.get_next_road(self.current_road.get_destination_node(), self.destination_node,self.current_road.get_adjacent_roads(), self.road_network,self.total_travel_time+self.starting_time)
         if next_road is None: # case of no adjacent roads
             return None
         return next_road

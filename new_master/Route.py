@@ -6,7 +6,7 @@ from new_master.Road_Network import Road_Network
 
 class Route(ABC):
     @abstractmethod
-    def get_next_road(self, source_road, destination_node, time,road_network):
+    def get_next_road(self, source_road, destination_node, adjacency_list,road_network,time):
         pass
 
     @abstractmethod
@@ -22,7 +22,7 @@ class Random_route(Route):
             if road.get_source_node() == source_node:
                 return road
 
-    def get_next_road(self, source_node, destination_node, adjacency_list,road_network):
+    def get_next_road(self, source_node, destination_node, adjacency_list,road_network,time):
         """
         :param source_node: int
         :param destination_node:
@@ -50,9 +50,10 @@ class Random_route(Route):
 
 
 class Q_Learning_Route(Route):
-    def get_next_road(self, source_road, destination_node, time, road_network):
+    def get_next_road(self, source_road, destination_node, adjacency_list, road_network,time):
         """
 
+        :param adjacency_list:
         :param source_road:
         :param destination_node:
         :param time:
@@ -72,7 +73,7 @@ class Q_Learning_Route(Route):
 
 class Shortest_path_route(Route):
 
-    def get_next_road(self, source_node, destination_node, time, road_network):
+    def get_next_road(self, source_node, destination_node, adjacency_list, road_network,time):
         # TODO: update according to distance matrix implementation
         if(source_node==destination_node):
             return None
