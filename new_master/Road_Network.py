@@ -96,6 +96,7 @@ class Road_Network:
             node_to_node_id[i] = (self.graph.nodes[i]['node_id'])
         self.node_dict= node_to_node_id
         self.reverse_node_dict= {value: key for key, value in self.node_dict.items()}
+        return node_to_node_id
 
     def set_adjacney_roads(self):
         # method:

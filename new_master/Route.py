@@ -21,7 +21,7 @@ class Random_route(Route):
             if road.get_source_node() == source_node:
                 return road
 
-    def get_next_road(self, source_road, destination_node, adjacency_list,road_network):
+    def get_next_road(self, source_road, destination_node, adjacency_list, road_network):
         """
         :param source_road: Road
         :param destination_node:
@@ -71,7 +71,7 @@ class Q_Learning_Route(Route):
 
 class Shortest_path_route(Route):
 
-    def get_next_road(self, source_node, destination_node, time,road_network):
+    def get_next_road(self, source_node, destination_node, time, road_network):
         # TODO: update according to distance matrix implementation
         return road_network.get_next_road(source_node, destination_node)
 

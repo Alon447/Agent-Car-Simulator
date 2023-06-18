@@ -303,8 +303,8 @@ RN = SM.get_road_network()
 
 
 NUMBER_OF_SIMULATIONS = 10
-c1 = Car.Car(1,1,5,0,RN)
-c2 = Car.Car(2,2,10,0,RN)
+c1 = Car.Car(1,1,5,0,RN,route_algorithm="random")
+c2 = Car.Car(2,2,10,0,RN,route_algorithm="random")
 cars = [c1,c2]
 
 SM.run_full_simulation(cars,NUMBER_OF_SIMULATIONS)
@@ -314,14 +314,14 @@ print("simulation results:")
 SM.print_simulation_results()
 print("***************************")
 
-#route = SM.get_simulation_route()
+route = SM.get_simulation_route()
 #print(SM.get_road_network().node_dict)
 # print(route[0])
 # route1 = SM.transform_node_id_route_to_osm_id_route(route[0])
 # SM.plotting_custom_route(route1)
 # print(route[1])
-# route2 = SM.transform_node_id_route_to_osm_id_route(route[1])
-# SM.plotting_custom_route(route2)
+route2 = SM.transform_node_id_route_to_osm_id_route(route[1])
+SM.plotting_custom_route(route2)
 SM.car_times_bar_chart(1)
 SM.car_times_bar_chart(2)
 
