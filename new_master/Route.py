@@ -14,6 +14,7 @@ class Route(ABC):
         pass
 
 
+
 class Random_route(Route):
 
     def decide_first_road(self, source_node, road_network):
@@ -21,9 +22,9 @@ class Random_route(Route):
             if road.get_source_node() == source_node:
                 return road
 
-    def get_next_road(self, source_road, destination_node, adjacency_list, road_network):
+    def get_next_road(self, source_node, destination_node, adjacency_list,road_network):
         """
-        :param source_road: Road
+        :param source_node: int
         :param destination_node:
         :param adjacency_list: list of adjacent roads
         :param time: 0 for now
@@ -73,6 +74,8 @@ class Shortest_path_route(Route):
 
     def get_next_road(self, source_node, destination_node, time, road_network):
         # TODO: update according to distance matrix implementation
+        if(source_node==destination_node):
+            return None
         return road_network.get_next_road(source_node, destination_node)
 
     def decide_first_road(self, source_node, road_network):

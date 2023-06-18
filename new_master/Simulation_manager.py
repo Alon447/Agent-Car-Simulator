@@ -157,7 +157,8 @@ class Simulation_manager:
                                   car.get_source_node(),
                                   car.get_destination_node(),
                                   car.get_starting_time(),
-                                  self.road_network)
+                                  self.road_network,
+                                    car.get_routing_algorithm())
                 copy_cars.append(new_car)
 
             self.set_up_simulation(copy_cars)
@@ -304,7 +305,7 @@ RN = SM.get_road_network()
 
 NUMBER_OF_SIMULATIONS = 10
 c1 = Car.Car(1,1,5,0,RN,route_algorithm="random")
-c2 = Car.Car(2,2,10,0,RN,route_algorithm="random")
+c2 = Car.Car(2,2,10,0,RN,route_algorithm = "shortest_path")
 cars = [c1,c2]
 
 SM.run_full_simulation(cars,NUMBER_OF_SIMULATIONS)
@@ -320,8 +321,8 @@ route = SM.get_simulation_route()
 # route1 = SM.transform_node_id_route_to_osm_id_route(route[0])
 # SM.plotting_custom_route(route1)
 # print(route[1])
-route2 = SM.transform_node_id_route_to_osm_id_route(route[1])
-SM.plotting_custom_route(route2)
+#route2 = SM.transform_node_id_route_to_osm_id_route(route[1])
+#SM.plotting_custom_route(route2)
 SM.car_times_bar_chart(1)
 SM.car_times_bar_chart(2)
 

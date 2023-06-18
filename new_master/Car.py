@@ -4,7 +4,7 @@ from new_master import Route
 
 class Car:
 
-    def __init__(self, id, source_node, destination_node, starting_time, road_network, route_algorithm = "random" ):
+    def __init__(self, id, source_node, destination_node, starting_time, road_network, route_algorithm = 'random' ):
 
         # ID
         self.id = id # car id
@@ -30,6 +30,7 @@ class Car:
         self.car_in_destination = False # indicates if the car is in the destination node
 
         # Route
+        self.route_algorithm = route_algorithm # the algorithm the car will use to decide its route
         self.route = self.decide_route_algorithm(route_algorithm) # the route the car will take
         #self.route=Route.Route() # the route the car will take
         self.road_network = road_network # the road network the car is in
@@ -47,7 +48,7 @@ class Car:
             return Route.Random_route()
 
     def start_car(self):
-        #  move the car to the first road based on starting node
+        #  move the car to the first road-based on starting node
         #  update car's time until next road
         self.current_road =self.road_network.get_road_by_source_node(self.source_node)
         #print(self.current_road)
@@ -59,7 +60,7 @@ class Car:
         # return the ID of the next road the car will travel to
 
         #self.route.get_next_road parameters: (source_road_id, destination_node, time)
-        next_road = self.route.get_next_road(self.current_road.get_source_node(), self.destination_node,self.current_road.get_adjacent_roads(), self.road_network)
+        next_road = self.route.get_next_road(self.current_road.get_destination_node(), self.destination_node,self.current_road.get_adjacent_roads(), self.road_network)
         if next_road is None: # case of no adjacent roads
             return None
         return next_road
@@ -106,7 +107,7 @@ class Car:
         return
 
     def update_travel_time(self, time):
-        # used when we fast forward the simulation
+        # used when we fast-forward the simulation
         self.total_travel_time += time
         self.time_until_next_road -= time
         return
@@ -121,6 +122,8 @@ class Car:
     def get_starting_time(self):
         return self.starting_time
 
+    def get_routing_algorithm(self):
+        return self.route_algorithm
     def get_time_until_next_road(self):
         return self.time_until_next_road
     def get_total_travel_time(self):
