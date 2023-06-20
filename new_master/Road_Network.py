@@ -37,14 +37,14 @@ class Road_Network:
         self.node_dict={} #maps osm ids to our new ids
         self.reverse_node_dict={} #maps our new ids to osm ids
         self.road_dict = {}
-        self.distance_matrix = [] # cache for the distance matrix
+
 
         # initialize functions
         self.set_roads_array()
         #self.distance_matrix = self.calc_dist_mat()
         self.set_adjacney_roads()
         self.make_node_dict()
-
+        self.distance_matrix = [[-1]*len(self.node_dict) for _ in range(len(self.node_dict))] # cache for the distance matrix
         #self.remove_blocked_roads()
         # maybe remove all the blocked roads from the graph
         # only problem is that we will create more blocked roads in the simulation
@@ -75,9 +75,9 @@ class Road_Network:
 
     ###############
     def set_roads_array(self):
-        osm_node_to_node_id = self.make_node_dict()
+        self.make_node_dict()
         for edge in self.graph.edges:
-            new_road = Road.Road(self.graph.edges[edge]['edge_id'], osm_node_to_node_id[edge[0]], osm_node_to_node_id[edge[1]],
+            new_road = Road.Road(int(self.graph.edges[edge]['edge_id']), self.node_dict[edge[0]], self.node_dict[edge[1]],
                                  self.graph.edges[edge]['length'],
                                  self.graph.edges[edge]['maxspeed'])
             self.roads_array.append(new_road)
@@ -93,9 +93,9 @@ class Road_Network:
         for i in self.graph.nodes:
             if i not in node_to_node_id:
                 node_to_node_id[i] = []
-            node_to_node_id[i] = (self.graph.nodes[i]['node_id'])
+            node_to_node_id[i] = (int(self.graph.nodes[i]['node_id']))
         self.node_dict= node_to_node_id
-        self.reverse_node_dict= {value: key for key, value in self.node_dict.items()}
+        self.reverse_node_dict= {value: int(key) for key, value in self.node_dict.items()}
         return node_to_node_id
 
     def set_adjacney_roads(self):
@@ -173,7 +173,7 @@ class Road_Network:
     def get_next_road(self, src_id, dst_id):
         #checks if the next node is filled in the distance matrix.
         #if it is, returns the next road. otherwise, calculate path and update matrix.
-        if self.distance_matrix[src_id][dst_id] == None:
+        if self.distance_matrix[src_id][dst_id] == -1:
             self.add_shortest_path_to_matrix(src_id,dst_id)
         return self.get_next_road_from_matrix(src_id,dst_id)
 
