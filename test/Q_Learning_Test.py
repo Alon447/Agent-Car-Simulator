@@ -2,7 +2,10 @@
 import networkx as nx
 import numpy as np
 import osmnx as ox
+from matplotlib import pyplot as plt
+
 import new_master.Road as Road
+
 
 
 def set_up_roads():
@@ -64,8 +67,27 @@ def make_node_dict(g):
         node_to_node_id[i] = (g.nodes[i]['node_id'])
     return node_to_node_id
 
+def get_key_from_value(dictionary, value):
+    for key, val in dictionary.items():
+        if int(val) == value:
+            return key
+def transform_node_id_route_to_osm_id_route( route):
+    osm_route = []
+    for node in route:
+        osm_route.append(get_key_from_value(osm_node_to_node_id, node))
+    return osm_route
+
+
+
+
 g = ox.load_graphml('graphPolegFix.graphml')
 osm_node_to_node_id = make_node_dict(g)
+
+TRAINING_START_NODE = 345
+TRAINING_END_NODE = 120
+TESTING_START_NODE = 345
+TESTING_END_NODE = 120
+
 road_list=[]
 for edge in g.edges:
     new_road = Road.Road(g.edges[edge]['edge_id'], osm_node_to_node_id[edge[0]], osm_node_to_node_id[edge[1]],
@@ -86,21 +108,22 @@ for i in range(len(road_list)):
         row_values.append(0)
     q_values.append(row_values)
 # rewards will be -len(road) for each road
-src = 1
-dest = 140
+src = TRAINING_START_NODE
+dest = TRAINING_END_NODE
 current_road = road_list[src]
 
 rewards = np.zeros(len(road_list))
 for i in range(len(road_list)):
-    if len(q_values[i]) == 0:
+
+    if road_list[i].get_id() == dest:
+        rewards[i] = 10000
+    elif len(q_values[i]) == 0:
         rewards[i] = -10000
-    elif road_list[i].get_id() == dest:
-        rewards[i] = 200
     else:
-        rewards[i] = -(int(road_list[i].get_length()))
+        rewards[i] = -(int(road_list[i].get_length())) # TODO:problomatic
 
 
-epsilon = 0.9 #the percentage of time when we should take the best action (instead of a random action)
+epsilon = 0.2 #the percentage of time when we should take the best action (instead of a random action)
 discount_factor = 0.9 #discount factor for future rewards
 learning_rate = 0.9 #the rate at which the AI agent should learn
 def is_terminal_state(index):
@@ -154,13 +177,19 @@ for episode in range(100):
 
 print('Training complete!')
 
-src=1
-dest=140
+def find_starting_road():
+    for road in road_list:
+        if road.get_source_node() == TESTING_START_NODE:
+            return road
+
+src=TESTING_START_NODE
+dest=TESTING_END_NODE
 path=[src]
-current_road = road_list[src]
+current_road = find_starting_road()
 current_node_index = current_road.get_destination_node()
 path.append(current_node_index)
-while current_node_index != dest:
+count=0
+while current_node_index != dest and count<20:
     q_value = q_values[int(current_road.get_id())]
     action = np.argmax(q_value)
     next_road = current_road.get_adjacent_roads()[action]
@@ -168,18 +197,19 @@ while current_node_index != dest:
     current_node_index = next_node_index
     path.append(current_node_index)
     current_road = next_road
+    count+=1
 
 print("Path:", path)
 
 
-def get_key_from_value(dictionary, value):
-    for key, val in dictionary.items():
-        if int(val) == value:
-            return key
-def transform_node_id_route_to_osm_id_route( route):
-    osm_route = []
-    for node in route:
-        osm_route.append(get_key_from_value(node_dict, node))
-    return osm_route
+
 
 route = transform_node_id_route_to_osm_id_route(path)
+print("Route:", route)
+fig, ax = ox.plot_graph(g, show=False, close=False, edge_color='lightgray', node_color='gray', bgcolor='black')
+
+# Plot the custom route
+ox.plot_graph_route(g, route, route_color='red', route_linewidth=6, ax=ax)
+
+# Show the plot
+plt.show()
