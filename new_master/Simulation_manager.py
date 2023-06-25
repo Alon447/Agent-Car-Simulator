@@ -10,7 +10,7 @@ from new_master import Car
 import pandas as pd
 import matplotlib.patches as mpatches
 
-
+from new_master.Simulation_Results_Manager import Simulation_Results_Manager
 
 
 class Simulation_manager:
@@ -306,8 +306,9 @@ RN = SM.get_road_network()
 
 
 
+
 NUMBER_OF_SIMULATIONS = 10
-c1 = Car.Car(1,1,5,0,RN,route_algorithm="random")
+c1 = Car.Car(1,2,20,0,RN,route_algorithm="random")
 c2 = Car.Car(2,2,20,0,RN,route_algorithm = "shortest_path")
 cars = [c1,c2]
 
@@ -318,16 +319,22 @@ print("simulation results:")
 SM.print_simulation_results()
 print("***************************")
 
-route = SM.get_simulation_route(CM.cars_finished[0].get_id(),0)
+route1 = SM.get_simulation_route(CM.cars_finished[1].get_id(),0)
 #print(SM.get_road_network().node_dict)
 # print(route[0])
 # route1 = SM.transform_node_id_route_to_osm_id_route(route[0])
-SM.plotting_custom_route(route)
+SM.plotting_custom_route(route1)
 # print(route[1])
 #route2 = SM.transform_node_id_route_to_osm_id_route(route[1])
 #SM.plotting_custom_route(route2)
 SM.car_times_bar_chart(1)
 SM.car_times_bar_chart(2)
+SRM = Simulation_Results_Manager()
+SRM.save_results_to_JSON(SM.simulation_results,1)
+SM.simulation_results = SRM.read_results_from_JSON()
+SM.print_simulation_results()
+
+
 
 
 
