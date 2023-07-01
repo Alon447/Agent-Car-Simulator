@@ -48,14 +48,7 @@ class Road_Network:
         #self.remove_blocked_roads()
         # maybe remove all the blocked roads from the graph
         # only problem is that we will create more blocked roads in the simulation
-        ###############################
-        # check if necessary
-        # self.nodes = ox.graph_to_gdfs(self.graph, edges=False)
-        # self.edges = ox.graph_to_gdfs(self.graph, nodes=False)
-        # self.nodes = self.nodes.to_dict()
-        # self.edges = self.edges.to_dict()
-        # self.adjacency_matrix = nx.adjacency_matrix(self.graph)
-        ##############################
+
 
     ################
     """
@@ -124,6 +117,9 @@ class Road_Network:
             road.update_speed(self.roads_speeds[road.get_id()])
         pass
 
+    def add_road_speed(self,road_id,speed):
+        self.roads_speeds[road_id] = speed
+        return
     def generate_random_speeds(self):
         start_time=0
         for road in self.roads_array:

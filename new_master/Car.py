@@ -17,6 +17,7 @@ class Car:
         self.current_road = None # the car's current road
         self.past_roads = [] # a list of the roads the car has been on, and his entering time to each one
         self.past_nodes= [] # a list of the nodes the car has been on, and his entering time to each one
+        self.distance_traveled = 0 # the distance the car has traveled so far
         # self.source_road = None  # source road
         # self.destination_road = None  # destination road
 
@@ -76,6 +77,7 @@ class Car:
             return None
 
         self.past_roads.append(self.current_road)
+        self.distance_traveled += self.current_road.get_length()
         self.past_nodes.append(self.current_road.get_destination_node())
         next_road = self.decide_next_road() # gets a road object
         if next_road is None:
@@ -102,7 +104,8 @@ class Car:
     def get_travel_data(self):
         # return the  total travel time, path taken, travel time in each road, starting time, ending time.
         return self.total_travel_time, self.past_roads, self.starting_time, self.total_travel_time
-
+    def get_distance_travelled(self):
+        return self.distance_traveled
     def get_past_nodes(self):
         return self.past_nodes
     def update_time_until_next_road(self, road):
@@ -147,6 +150,8 @@ class Car:
         return self.__str__()
     def __eq__(self, other):
         return self.id == other.id and self.source_node == other.source_node and self.destination_node == other.destination_node and self.starting_time == other.starting_time
+
+
 
 
 

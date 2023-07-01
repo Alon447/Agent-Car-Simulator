@@ -1,4 +1,5 @@
 import copy
+from datetime import datetime
 import json
 import os
 import sys
@@ -21,13 +22,19 @@ class Simulation_manager:
 
 
     """
-    def __init__(self,graph): # TODO: data path
+    def __init__(self,graph,datetime=datetime(year=2023,month=6,day=29,hour=8, minute=0, second=0)): # TODO: data path
+
+        # MANAGERS
         self.road_network = Road_Network.Road_Network(graph)
         self.car_manager = Car_manager.CarManager()
+
+        # TIME
+        self.simulation_datetime_start = datetime
+        self.simulation_datetime = datetime
         self.simulation_time = 0 # in seconds
-        self.route_algorithm = None
-        self.q_tables = {}
-        self.map_graph = None
+        self.last_speed_update_time = datetime
+
+        # RESULTS
         self.simulation_results = [] # list of dictionaries, each dictionary is a simulation result
 
 
@@ -79,9 +86,6 @@ class Simulation_manager:
     def get_car_manager(self):
         return self.car_manager
 
-    def set_map(self):
-        return
-
     def add_time_slice_from_file(self,file,q_tables):
         # TODO: implement
         #assuming the file name is in the following format:"hour:minute"
@@ -97,45 +101,86 @@ class Simulation_manager:
         return q_slice_dict
 
     def update_simulation_clock(self, time):
+        # update both the spesific simulation time and the datetime
         self.simulation_time += time
-        #self.car_manager.update_cars(time)
+        self.simulation_datetime+= pd.Timedelta(seconds=time)
+        time_difference = self.simulation_datetime - self.last_speed_update_time
+        if time_difference.seconds>= 600:
+            # The minutes modulo 10 is 0
+            # Perform the desired actions here
+            print("Speed updated at:", self.simulation_datetime.strftime("%H:%M:%S"))
+            self.read_road_speeds(self.simulation_datetime)
         return
+
     def get_simulation_time(self):
         return self.simulation_time
 
     def generate_random_speeds(self):
         self.road_network.generate_random_speeds()
         self.road_network.set_roads_speeds()
+
+    def read_road_speeds(self, datetime_obj):
+        """
+        reads the road speeds from the json file and updates the road_network according to the time
+        :param datetime_obj:
+        :return:
+        """
+        self.last_speed_update_time = datetime_obj.replace(second=0, microsecond=0)
+        number_of_roads = len(self.road_network.roads_array)
+        with open('simulation_speeds.json', 'r') as infile:
+            data = json.load(infile)
+
+        time_key = datetime_obj.strftime("%H:%M")  # Format the datetime object as HH:MM
+
+
+        # Get the number from the JSON data
+        for road_number in range(number_of_roads):
+            speed = data.get(str(road_number), {}).get(time_key)
+            self.road_network.add_road_speed(road_number, speed)
+
+        # now make sure every road has the right speed
+        self.road_network.set_roads_speeds()
+        return
+
     def set_up_simulation(self, cars):
         # set up simulation
+        # resets the clocks
+        # adds the cars to the car manager
         self.simulation_time = 0
+        self.simulation_datetime = self.simulation_datetime_start
         self.car_manager.clear()
         for car in cars:
             self.car_manager.add_car(car)
 
     def start_simulation(self):
-        #self.route_algorithm = input("Please choose a route algorithm: ")
-        #map_graph_location = input("Please enter the location of the map graph: ")
-
-        # start the simulation
+        """
+        runs the simulation until there are no more cars in the simulation ot it gets to a time limit
+        :return:
+        """
         Time_limit = 7200
         while self.get_simulation_time() < Time_limit and self.car_manager.get_cars_in_simulation():
             time = self.car_manager.get_nearest_update_time()
             SM.update_simulation_clock(time)
             #print("simulation_time:", SM.simulation_time)
             self.car_manager.update_cars(time)
-           # self.car_manager.show_cars_in_simulation()
+            #self.car_manager.show_cars_in_simulation()
 
         for carInd in self.car_manager.get_cars_in_simulation():
             car = self.car_manager.get_cars_in_simulation()[carInd] # dict so we need to get the car object
             self.car_manager.cars_stuck.append(car)
 
-
         return
 
     def end_simulation(self):
+        # prints end message
         print("***************************")
-        print("simulation finished, after", round(self.simulation_time / 3600,2), "hours")
+        if self.simulation_time>= 3600:
+            if self.simulation_time%3600 == 0:
+                print("simulation finished after", int(self.simulation_time/3600),"hours")
+            else:
+                print("simulation finished after", int(self.simulation_time/3600),"hours and ",int(self.simulation_time%60),"minutes")
+        else:
+            print("simulation finished after", int(self.simulation_time/60),"minutes")
         # print("***************************")
         #print("Cars finished:")
         # for car in self.car_manager.get_cars_finished():
@@ -146,9 +191,7 @@ class Simulation_manager:
         #     print(car.get_id(), car.get_total_travel_time())
 
     def run_full_simulation(self, cars, number_of_simulations=1):
-        self.generate_random_speeds()
-        #sys.setrecursionlimit(10000)  # default is 1000 in my installation
-
+        self.read_road_speeds(self.simulation_datetime_start)
         for i in range(number_of_simulations):
             copy_cars= []
             # make a deep copy of the cars list
@@ -164,6 +207,7 @@ class Simulation_manager:
             self.set_up_simulation(copy_cars)
             self.start_simulation()
             self.end_simulation()
+
             """
             #this is where we will save the results of the simulation
             #we want it to be more generic so we can change the parameters of the simulation.
@@ -191,8 +235,10 @@ class Simulation_manager:
                 car_key = car.get_id()
                 simulation_results[car_key] = {
                     'reached_destination': car_reached_destination,
+                    'routing_algorithm': car.get_routing_algorithm(),
                     'time_taken': car_time_taken,
-                    'route': car_route
+                    'route': car_route,
+                    'distance_travelled': car.get_distance_travelled(),
                 }
 
             self.simulation_results.append({
@@ -217,14 +263,18 @@ class Simulation_manager:
 
                     print(array_index, ": ")
                     for key, value in result_dict.items():
-                        if key != "route":
+                        if key != "route" and key != "time_taken" and key != "distance_travelled":
                             print(key,": ", value)
+                        elif key == "time_taken":
+                            print(key, ": ", int(value/60), "minutes")
+                        elif key == "distance_travelled":
+                            print(key, ": ", round(value/1000,1), "km")
                         else:
                             print("Route length: ", len(value),"roads")
 
         return
 
-    def get_simulation_route(self,carInd, simulation_number):
+    def get_simulation_route(self, carInd, simulation_number):
         """
         get the wanted route drom the wanted simulation
         :return:
@@ -300,35 +350,32 @@ class Simulation_manager:
 
 
 # initilazires
-SM = Simulation_manager('/graphTLVfix.graphml')
+START_TIME =datetime(year=2023,month=6,day=29,hour=8, minute=0, second=0)
+
+SM = Simulation_manager('/graphTLVfix.graphml',START_TIME)
 CM = SM.get_car_manager()
 RN = SM.get_road_network()
 
 
 
-
-NUMBER_OF_SIMULATIONS = 10
+NUMBER_OF_SIMULATIONS = 1
 c1 = Car.Car(1,2,20,0,RN,route_algorithm="random")
-c2 = Car.Car(2,2,20,0,RN,route_algorithm = "shortest_path")
+c2 = Car.Car(2,110,700,0,RN,route_algorithm = "shortest_path")
 cars = [c1,c2]
 
 SM.run_full_simulation(cars,NUMBER_OF_SIMULATIONS)
 print("***************************")
 
-print("simulation results:")
-SM.print_simulation_results()
-print("***************************")
+# print("simulation results:")
+# #SM.print_simulation_results()
+# print("***************************")
 
-route1 = SM.get_simulation_route(CM.cars_finished[1].get_id(),0)
-#print(SM.get_road_network().node_dict)
-# print(route[0])
-# route1 = SM.transform_node_id_route_to_osm_id_route(route[0])
-SM.plotting_custom_route(route1)
-# print(route[1])
-#route2 = SM.transform_node_id_route_to_osm_id_route(route[1])
-#SM.plotting_custom_route(route2)
-SM.car_times_bar_chart(1)
-SM.car_times_bar_chart(2)
+route1 = SM.get_simulation_route(1,0)
+route2 = SM.get_simulation_route(2,0)
+# SM.plotting_custom_route(route2)
+
+# SM.car_times_bar_chart(1)
+# SM.car_times_bar_chart(2)
 SRM = Simulation_Results_Manager()
 SRM.save_results_to_JSON(SM.simulation_results,1)
 SM.simulation_results = SRM.read_results_from_JSON()

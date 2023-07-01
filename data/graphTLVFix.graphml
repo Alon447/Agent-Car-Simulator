@@ -17,7 +17,6 @@
 <key id="d7" for="edge" attr.name="osmid" attr.type="string"/>
 <key id="d6" for="node" attr.name="highway" attr.type="string"/>
 <key id="d5" for="node" attr.name="node_id" attr.type="string"/>
-<key id="d4" for="node" attr.name="street_id" attr.type="string"/>
 <key id="d3" for="node" attr.name="street_count" attr.type="string"/>
 <key id="d2" for="node" attr.name="x" attr.type="string"/>
 <key id="d1" for="node" attr.name="y" attr.type="string"/>
@@ -27,7 +26,6 @@
   <data key="d1">32.095357</data>
   <data key="d2">34.7784921</data>
   <data key="d3">3</data>
-  <data key="d4">100</data>
   <data key="d5">0</data>
 </node>
 <node id="139708">
