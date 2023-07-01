@@ -37,14 +37,17 @@ class Road_Network:
         self.node_dict={} #maps osm ids to our new ids
         self.reverse_node_dict={} #maps our new ids to osm ids
         self.road_dict = {}
-
+        self.nodes_attributes = {}
 
         # initialize functions
+        self.make_node_dict()
+        self.fill_nodes_attributes()
         self.set_roads_array()
         #self.distance_matrix = self.calc_dist_mat()
         self.set_adjacney_roads()
-        self.make_node_dict()
+
         self.distance_matrix = [[-1]*len(self.node_dict) for _ in range(len(self.node_dict))] # cache for the distance matrix
+
         #self.remove_blocked_roads()
         # maybe remove all the blocked roads from the graph
         # only problem is that we will create more blocked roads in the simulation
@@ -67,12 +70,21 @@ class Road_Network:
     """
 
     ###############
+    # Functions:
+    def fill_nodes_attributes(self):
+        for node in self.graph.nodes:
+            traffic_light = self.graph.nodes[node].get('highway')
+            if traffic_light == 'traffic_signals':
+                self.nodes_attributes[self.node_dict[node]] = [self.graph.nodes[node].get('street_count'),True]
+            else:
+                self.nodes_attributes[self.node_dict[node]] = [self.graph.nodes[node].get('street_count'),False]
+
     def set_roads_array(self):
-        self.make_node_dict()
         for edge in self.graph.edges:
+            end_node =self.node_dict[edge[1]]
+            end_node_attributes = self.nodes_attributes[end_node]
             new_road = Road.Road(int(self.graph.edges[edge]['edge_id']), self.node_dict[edge[0]], self.node_dict[edge[1]],
-                                 self.graph.edges[edge]['length'],
-                                 self.graph.edges[edge]['maxspeed'])
+                                 self.graph.edges[edge]['length'],self.graph.edges[edge]['maxspeed'], end_node_attributes[0],end_node_attributes[1])
             self.roads_array.append(new_road)
             self.road_dict[(new_road.get_source_node(),new_road.get_destination_node())] = new_road.get_id()
             # print(new_road)

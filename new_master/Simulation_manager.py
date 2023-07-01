@@ -130,8 +130,11 @@ class Simulation_manager:
         with open('simulation_speeds.json', 'r') as infile:
             data = json.load(infile)
 
-        time_key = datetime_obj.strftime("%H:%M")  # Format the datetime object as HH:MM
+        #time_key = datetime_obj.strftime("%H:%M")  # Format the datetime object as HH:MM
 
+        # round the minutes to the nearest 10
+        minutes = int(datetime_obj.minute / 10) * 10
+        time_key = datetime_obj.replace(minute=minutes).strftime("%H:%M")
 
         # Get the number from the JSON data
         for road_number in range(number_of_roads):

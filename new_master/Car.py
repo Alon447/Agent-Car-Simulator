@@ -108,8 +108,10 @@ class Car:
         return self.distance_traveled
     def get_past_nodes(self):
         return self.past_nodes
+
     def update_time_until_next_road(self, road):
-        self.time_until_next_road += round((road.get_length() * 3.6 / road.get_current_speed()),2) # need to convert km/h to m/s
+        time = road.calculate_time()
+        self.time_until_next_road += time #round((road.get_length() * 3.6 / road.get_current_speed()),2) # need to convert km/h to m/s
         return
 
     def update_travel_time(self, time):

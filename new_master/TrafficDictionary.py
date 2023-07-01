@@ -68,7 +68,7 @@ class TrafficDictionary:
                         speed=1
                     data[road][time_str] = speed
                 else:
-                    speed = int(random.gauss(20, 3))
+                    speed = int(random.gauss(27, 3))
                     if speed<=0:
                         speed=1
                     data[road][time_str]  = speed
@@ -179,4 +179,4 @@ td = TrafficDictionary(g)
 #     availble_roads=[]
 # print(roads,len(roads))
 
-td.node_date()
+td.generate_day_data()
