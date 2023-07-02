@@ -24,7 +24,7 @@ class Simulation_manager:
 
 
     """
-    def __init__(self,graph,datetime=datetime(year=2023,month=6,day=29,hour=8, minute=0, second=0)): # TODO: data path
+    def __init__(self, graph, datetime = datetime(year=2023,month=6,day=29,hour=8, minute=0, second=0)): # TODO: data path
 
         # MANAGERS
         self.road_network = Road_Network.Road_Network(graph)
@@ -210,9 +210,11 @@ class Simulation_manager:
                                     car.get_routing_algorithm())
                 copy_cars.append(new_car)
 
+            # block a random road
             rnd = random.randint(0,1)
             if rnd == 0:
                 self.road_network.block_road(542)
+            # set up the simulation
             self.set_up_simulation(copy_cars)
             self.start_simulation()
             self.end_simulation()
