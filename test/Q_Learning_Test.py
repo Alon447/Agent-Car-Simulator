@@ -80,8 +80,6 @@ def transform_node_id_route_to_osm_id_route(route,osm_node_to_node_id):
         osm_route.append(get_key_from_value(osm_node_to_node_id, node))
     return osm_route
 
-def sigmoid(x):
-    return 1 / (1 + math.exp(-x))
 def calculate_reward(road, distances,osm_node_to_node_id):
     current_speed = road.get_current_speed()
     max_speed = road.get_max_speed()
@@ -98,17 +96,16 @@ def calculate_reward(road, distances,osm_node_to_node_id):
         dist_dest = 0
     # Speed reward
     speed_difference = current_speed - max_speed
-    speed_reward = sigmoid(speed_difference)
 
     # Length reward
     length_reward = -road_length
 
     # Distance reward
 
-    if src not in distances.keys():
-        distance_reward = -10000
-    else:
-        distance_reward = dist_src - dist_dest
+    # if src not in distances.keys():
+    #     distance_reward = -10000
+    # else:
+    #     distance_reward = dist_src - dist_dest
 
     total_reward = (1 * speed_reward) + (0.5 * length_reward) + (0.5 * distance_reward)
 

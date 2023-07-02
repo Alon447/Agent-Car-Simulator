@@ -34,6 +34,8 @@ class Road_Network:
         # graph
         self.graph = self.set_graph(graph_path)
         self.roads_array = []
+        self.graph_nodes = {} # dict that includes: 0. node_id 1. osm_id 2.x 3.y 4. street_count 5. traffic_light
+
         """
         with open(roads_speeds_path) as file:
             self.roads_speeds = json.load(file)
@@ -42,12 +44,12 @@ class Road_Network:
         self.node_dict={} #maps osm ids to our new ids
         self.reverse_node_dict={} #maps our new ids to osm ids
         self.road_dict = {}
-        self.nodes_attributes = {}
         self.blocked_roads_array = []
 
         # initialize functions
         self.make_node_dict()
-        self.fill_nodes_attributes()
+        # self.fill_nodes_attributes()
+        self.set_graph_nodes()
         self.set_roads_array()
         #self.distance_matrix = self.calc_dist_mat()
         self.set_adjacency_roads()
@@ -78,20 +80,23 @@ class Road_Network:
 
     ###############
     # Functions:
-    def fill_nodes_attributes(self):
+    def set_graph_nodes(self):
         for node in self.graph.nodes:
             traffic_light = self.graph.nodes[node].get('highway')
             if traffic_light == 'traffic_signals':
-                self.nodes_attributes[self.node_dict[node]] = [self.graph.nodes[node].get('street_count'),True]
+                self.graph_nodes[self.node_dict[node]] = [self.node_dict[node], int(node),self.graph.nodes[node].get('x'), self.graph.nodes[node].get('y'),self.graph.nodes[node].get('street_count'), True]
             else:
-                self.nodes_attributes[self.node_dict[node]] = [self.graph.nodes[node].get('street_count'),False]
+                self.graph_nodes[self.node_dict[node]] = [self.node_dict[node], int(node),self.graph.nodes[node].get('x'), self.graph.nodes[node].get('y'),self.graph.nodes[node].get('street_count'), False]
 
+        return
     def set_roads_array(self):
         for edge in self.graph.edges:
+            start_node = self.node_dict[edge[0]]
+            start_node_attributes = self.graph_nodes[start_node]
             end_node =self.node_dict[edge[1]]
-            end_node_attributes = self.nodes_attributes[end_node]
-            new_road = Road.Road(int(self.graph.edges[edge]['edge_id']), self.node_dict[edge[0]], self.node_dict[edge[1]],
-                                 self.graph.edges[edge]['length'],self.graph.edges[edge]['maxspeed'], end_node_attributes[0],end_node_attributes[1])
+            end_node_attributes = self.graph_nodes[end_node]
+            new_road = Road.Road(int(self.graph.edges[edge]['edge_id']), start_node_attributes,end_node_attributes,
+                                 self.graph.edges[edge]['length'],int(self.graph.edges[edge]['maxspeed']))
             self.roads_array.append(new_road)
             self.road_dict[(new_road.get_source_node(),new_road.get_destination_node())] = new_road.get_id()
             # print(new_road)

@@ -2,28 +2,28 @@ import random
 
 
 class Road:
-    def __init__(self, id , source_node, destination_node, length, max_speed, street_count, traffic_lights):
-        self.id= id
-        self.source_node = int(source_node)
-        self.destination_node = int(destination_node)
+    def __init__(self, id , source_node, destination_node, length, max_speed):
+        self.id= id # int
+        self.source_node = source_node # class Node
+        self.destination_node = destination_node # class Node
         self.length = length
         self.current_speed = 10
         self.max_speed = max_speed
         self.is_blocked= False
         self.cars_on_road = []
         self.adjacent_roads = [] # list of adjacent roads to this road, includes only the ids of the roads
-
-        # new attributes,
-        self.street_count= street_count # represents the number of intersections this road has
-        self.traffic_lights = traffic_lights # represents if this road has traffic lights
-
     # Gets
     def get_id(self):
         return self.id
+    def get_osm_id(self):
+        return self.osm_id
     def get_source_node(self):
-        return self.source_node
+        # return the new id of the source node
+        return self.source_node[0]
     def get_destination_node(self):
-        return self.destination_node
+        # return the new id of the destination node
+
+        return self.destination_node[0]
     def get_length(self):
         return self.length
     def get_current_speed(self):
@@ -38,9 +38,11 @@ class Road:
         return self.adjacent_roads
 
     def get_street_count(self):
-        return self.street_count
+        # return the destination node street count
+        return self.destination_node[4]
     def get_traffic_lights(self):
-        return self.traffic_lights
+        # return the destination node traffic lights
+        return self.destination_node[5]
     # Sets
     def set_current_speed(self, speed):
         self.current_speed = speed
@@ -70,8 +72,8 @@ class Road:
         if self.current_speed == None:
             print("error")
         total_time = 3.6 * self.length/self.current_speed
-        if self.traffic_lights:
-            total_time += random.randrange(0,30*self.street_count,1)#60
+        if self.get_traffic_lights():
+            total_time += random.randrange(0,30*self.get_street_count(),1)#60
         return round(total_time,2)
 
     def __str__(self):
