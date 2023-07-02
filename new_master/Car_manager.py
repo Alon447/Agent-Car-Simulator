@@ -95,7 +95,7 @@ class CarManager :
         """
         cars = self.cars_in_simulation.copy()
         for keys in self.cars_in_simulation:
-            if keys in self.cars_blocked:
+            if cars[keys] in self.cars_blocked:
                 continue
             car = cars[keys]
             car.update_travel_time(time)
@@ -111,7 +111,7 @@ class CarManager :
                         self.add_stuck_car(car)
                 elif result == "blocked":
                     print("car", car.get_id(), "is blocked")
-                    self.cars_blocked.append(car.get_id())
+                    self.cars_blocked.append(car)
         self.cars_in_simulation = cars
         self.sort_cars_in_simulation()
         return
@@ -135,6 +135,9 @@ class CarManager :
         self.cars_finished.clear()
         self.cars_stuck.clear()
         self.cars_nearest_update_time = 0
+        for car in self.cars_blocked:
+            car.set_unblocked()
+        self.cars_blocked.clear()
 
 
 

@@ -94,7 +94,7 @@ class Car:
         elif next_road.get_is_blocked():
             next_road = self.decide_alt_road()
             if next_road is None:#all roads are blocked
-
+                self.is_blocked = True
                 return "blocked"
         id = int(next_road.get_id())
         self.current_road = self.road_network.get_roads_array()[id]
@@ -142,6 +142,8 @@ class Car:
     def get_starting_time(self):
         return self.starting_time
 
+    def get_is_blocked(self):
+        return self.is_blocked
     def get_routing_algorithm(self):
         return self.route_algorithm
     def get_time_until_next_road(self):
@@ -157,6 +159,14 @@ class Car:
     # Sets
     def set_time_until_next_road(self, time_until_next_road):
         self.time_until_next_road = time_until_next_road
+
+    def set_blocked(self):
+        self.is_blocked = True
+        return
+
+    def set_unblocked(self):
+        self.is_blocked = False
+        return
 
 
     def __str__(self) -> str:
