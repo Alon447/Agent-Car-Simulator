@@ -25,7 +25,7 @@ class CarManager :
         self.cars_nearest_update_time = 0   # the time of the next update
         self.cars_finished = []  # a list of the cars that have finished their journey and are waiting to be removed from the simulation
         self.cars_stuck = []                # a list of the cars that are stuck in the simulation
-
+        self.cars_blocked = []              # a list of the cars that are blocked in the simulation
 
     """
     cars_in_simulation=[1:[1, 0,100, 20],3:[3, 3,20, 30]]
@@ -95,10 +95,13 @@ class CarManager :
         """
         cars = self.cars_in_simulation.copy()
         for keys in self.cars_in_simulation:
+            if keys in self.cars_blocked:
+                continue
             car = cars[keys]
             car.update_travel_time(time)
             if car.get_time_until_next_road() == 0:
-                if car.move_next_road()==None:
+                result = car.move_next_road()
+                if result is None:
                     cars.pop(car.get_id())
                     if car.get_car_in_destination():
                         print("car", car.get_id(), "finished his journey")
@@ -106,6 +109,9 @@ class CarManager :
                     else:
                         print("car", car.get_id(), "is stuck")
                         self.add_stuck_car(car)
+                elif result == "blocked":
+                    print("car", car.get_id(), "is blocked")
+                    self.cars_blocked.append(car.get_id())
         self.cars_in_simulation = cars
         self.sort_cars_in_simulation()
         return

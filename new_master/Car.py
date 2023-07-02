@@ -29,7 +29,7 @@ class Car:
         # Flags
         self.is_finished = False # indicates if the car has reached its destination
         self.car_in_destination = False # indicates if the car is in the destination node
-
+        self.is_blocked = False # indicates if the car is blocked
         # Route
         self.route_algorithm = route_algorithm # the algorithm the car will use to decide its route
         self.route = self.decide_route_algorithm(route_algorithm) # the route the car will take
@@ -66,6 +66,13 @@ class Car:
             return None
         return next_road
 
+    def decide_alt_road(self):
+        # return the ID of the next road the car will travel to
+
+        #self.route.get_next_road parameters: (source_road_id, destination_node, time)
+        next_road = self.route.get_alt_road(self.current_road.get_destination_node(), self.destination_node,self.current_road.get_adjacent_roads(), self.road_network,self.total_travel_time+self.starting_time)
+
+
     def move_next_road(self):
         """
         move the car to the next road-based on route's next node
@@ -76,7 +83,7 @@ class Car:
         if(self.check_if_finished()):
             return None
 
-        self.past_roads.append(self.current_road)
+        self.past_roads.append(self.current_road.get_id())
         self.distance_traveled += self.current_road.get_length()
         self.past_nodes.append(self.current_road.get_destination_node())
         next_road = self.decide_next_road() # gets a road object
@@ -84,6 +91,11 @@ class Car:
             self.is_finished = True
             self.car_in_destination = True
             return None
+        elif next_road.get_is_blocked():
+            next_road = self.decide_alt_road()
+            if next_road is None:#all roads are blocked
+
+                return "blocked"
         id = int(next_road.get_id())
         self.current_road = self.road_network.get_roads_array()[id]
         self.road_network.get_roads_array()[id].add_car_to_road(self)
@@ -94,7 +106,7 @@ class Car:
 
     def check_if_finished(self):#assuming reaching for the destination road is sufficient
         if self.current_road.get_destination_node() == self.destination_node:
-            self.past_roads.append(self.current_road)
+            self.past_roads.append(self.current_road.get_id())
             self.past_nodes.append(self.current_road.get_destination_node())
             self.is_finished = True
             self.car_in_destination = True
@@ -133,6 +145,8 @@ class Car:
     def get_routing_algorithm(self):
         return self.route_algorithm
     def get_time_until_next_road(self):
+        if self.is_blocked:
+            return 99999999
         return self.time_until_next_road
     def get_total_travel_time(self):
         return self.total_travel_time
@@ -152,6 +166,8 @@ class Car:
         return self.__str__()
     def __eq__(self, other):
         return self.id == other.id and self.source_node == other.source_node and self.destination_node == other.destination_node and self.starting_time == other.starting_time
+
+
 
 
 

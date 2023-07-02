@@ -1,3 +1,4 @@
+import json
 import os
 
 import osmnx as ox
@@ -33,20 +34,26 @@ class Road_Network:
         # graph
         self.graph = self.set_graph(graph_path)
         self.roads_array = []
+        """
+        with open(roads_speeds_path) as file:
+            self.roads_speeds = json.load(file)
+            """
         self.roads_speeds = {}
         self.node_dict={} #maps osm ids to our new ids
         self.reverse_node_dict={} #maps our new ids to osm ids
         self.road_dict = {}
         self.nodes_attributes = {}
+        self.blocked_roads_array = []
 
         # initialize functions
         self.make_node_dict()
         self.fill_nodes_attributes()
         self.set_roads_array()
         #self.distance_matrix = self.calc_dist_mat()
-        self.set_adjacney_roads()
+        self.set_adjacency_roads()
 
-        self.distance_matrix = [[-1]*len(self.node_dict) for _ in range(len(self.node_dict))] # cache for the distance matrix
+        self.next_node_matrix = [[-1] * len(self.node_dict) for _ in range(len(self.node_dict))] # cache for the distance matrix
+        self.distances_matrix = [[-1] * len(self.node_dict) for _ in range(len(self.node_dict))] # cache for the distance matrix
 
         #self.remove_blocked_roads()
         # maybe remove all the blocked roads from the graph
@@ -103,7 +110,7 @@ class Road_Network:
         self.reverse_node_dict= {value: int(key) for key, value in self.node_dict.items()}
         return node_to_node_id
 
-    def set_adjacney_roads(self):
+    def set_adjacency_roads(self):
         # method:
         # 1. iterate over all the edges
         # 2. for each edge, take the destination node
@@ -124,6 +131,24 @@ class Road_Network:
                 self.roads_array.remove(road)
         return
 
+    def block_road(self,road_id):
+        #print("block road")
+        #print(road_id)
+        self.roads_array[road_id].block()
+        self.blocked_roads_array.append(road_id)
+        return
+
+    def unblock_road(self,road_id):
+        #print("unblock road")
+        #print(road_id)
+        self.roads_array[road_id].unblock()
+        self.blocked_roads_array.remove(road_id)
+        return
+
+    def unblock_all_roads(self):
+        for road in self.blocked_roads_array:
+            self.unblock_road(road)
+        return
     def set_roads_speeds(self):
         for road in self.roads_array:
             road.update_speed(self.roads_speeds[road.get_id()])
@@ -169,19 +194,26 @@ class Road_Network:
         temp_dest = self.reverse_node_dict[dest]
         # nodes are the osm nodes
         path = nx.shortest_path(self.graph, temp_src, temp_dest, weight='length')
+        path_length = nx.shortest_path_length(self.graph, temp_src, temp_dest, weight='length')
         fixed_path = [self.node_dict[node] for node in path]
 
         #updating the distances matrix
+        previous_edge_length = 0
         for i,node in enumerate(fixed_path[:-1]):
-            self.distance_matrix[node][fixed_path[-1]] = fixed_path[i+1]#adds the relevant next node to the distances matrix
+            self.next_node_matrix[node][fixed_path[-1]] = fixed_path[i + 1]#adds the relevant next node to the distances matrix
+            self.distances_matrix[node][fixed_path[-1]] = path_length - previous_edge_length
+            previous_edge_length += self.roads_array[self.road_dict[(node,fixed_path[i + 1])]].get_length()
 
     def get_next_road_from_matrix(self,src_id,dst_id):
-        return self.roads_array[self.road_dict[(src_id,self.distance_matrix[src_id][dst_id])]]
+        return self.roads_array[self.road_dict[(src_id,self.next_node_matrix[src_id][dst_id])]]
+
+    def get_remaining_distance(self,src_id,dst_id):
+        return self.distances_matrix[src_id][dst_id]
 
     def get_next_road(self, src_id, dst_id):
         #checks if the next node is filled in the distance matrix.
         #if it is, returns the next road. otherwise, calculate path and update matrix.
-        if self.distance_matrix[src_id][dst_id] == -1:
+        if self.next_node_matrix[src_id][dst_id] == -1:
             self.add_shortest_path_to_matrix(src_id,dst_id)
         return self.get_next_road_from_matrix(src_id,dst_id)
 

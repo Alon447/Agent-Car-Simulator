@@ -3,6 +3,8 @@ from datetime import datetime
 import json
 import os
 import sys
+import random
+
 import osmnx as ox
 import matplotlib.pyplot as plt
 import Road_Network
@@ -122,6 +124,7 @@ class Simulation_manager:
     def read_road_speeds(self, datetime_obj):
         """
         reads the road speeds from the json file and updates the road_network according to the time
+        currently the time slice is every 10 minutes.
         :param datetime_obj:
         :return:
         """
@@ -207,9 +210,13 @@ class Simulation_manager:
                                     car.get_routing_algorithm())
                 copy_cars.append(new_car)
 
+            rnd = random.randint(0,1)
+            if rnd == 0:
+                self.road_network.block_road(542)
             self.set_up_simulation(copy_cars)
             self.start_simulation()
             self.end_simulation()
+            self.road_network.unblock_all_roads()
 
             """
             #this is where we will save the results of the simulation
@@ -241,6 +248,7 @@ class Simulation_manager:
                     'routing_algorithm': car.get_routing_algorithm(),
                     'time_taken': car_time_taken,
                     'route': car_route,
+                    'roads_used': car.get_past_roads(),
                     'distance_travelled': car.get_distance_travelled(),
                 }
 
@@ -353,7 +361,7 @@ class Simulation_manager:
 
 
 # initilazires
-START_TIME =datetime(year=2023,month=6,day=29,hour=8, minute=0, second=0)
+START_TIME =datetime(year=2023,month=6,day=29,hour=1, minute=0, second=0)
 
 SM = Simulation_manager('/graphTLVfix.graphml',START_TIME)
 CM = SM.get_car_manager()
@@ -361,7 +369,7 @@ RN = SM.get_road_network()
 
 
 
-NUMBER_OF_SIMULATIONS = 1
+NUMBER_OF_SIMULATIONS = 10
 c1 = Car.Car(1,2,20,0,RN,route_algorithm="random")
 c2 = Car.Car(2,110,700,0,RN,route_algorithm = "shortest_path")
 cars = [c1,c2]
@@ -375,10 +383,10 @@ print("***************************")
 
 route1 = SM.get_simulation_route(1,0)
 route2 = SM.get_simulation_route(2,0)
-# SM.plotting_custom_route(route2)
+SM.plotting_custom_route(route2)
 
-# SM.car_times_bar_chart(1)
-# SM.car_times_bar_chart(2)
+SM.car_times_bar_chart(1)
+SM.car_times_bar_chart(2)
 SRM = Simulation_Results_Manager()
 SRM.save_results_to_JSON(SM.simulation_results,1)
 SM.simulation_results = SRM.read_results_from_JSON()

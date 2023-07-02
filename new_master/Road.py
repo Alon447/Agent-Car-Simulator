@@ -1,3 +1,5 @@
+import random
+
 
 class Road:
     def __init__(self, id , source_node, destination_node, length, max_speed, street_count, traffic_lights):
@@ -42,8 +44,8 @@ class Road:
     # Sets
     def set_current_speed(self, speed):
         self.current_speed = speed
-    def set_adjacent_roads(self, adjacent_roads):
-        self.adjacent_roads = adjacent_roads
+    # def set_adjacent_roads(self, adjacent_roads):#not used
+    #     self.adjacent_roads = adjacent_roads
     # Functions
     def block(self):
         self.is_blocked = True
@@ -69,7 +71,7 @@ class Road:
             print("error")
         total_time = 3.6 * self.length/self.current_speed
         if self.traffic_lights:
-            total_time += 30#60
+            total_time += random.randrange(0,30*self.street_count,1)#60
         return round(total_time,2)
 
     def __str__(self):
