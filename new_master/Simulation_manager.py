@@ -173,9 +173,9 @@ class Simulation_manager:
 
             rnd = random.randint(0, 100)
             blocked_roads = self.road_network.get_blocked_roads_array()
-            if rnd == 0 and len(blocked_roads) !=0:
-                self.road_network.unblock_all_roads()
-                print("Roads unblocked")
+            # if rnd == 0 and len(blocked_roads) !=0:
+            #     self.road_network.unblock_all_roads()
+            #     print("Roads unblocked")
 
             time = self.car_manager.get_nearest_update_time()
             SM.update_simulation_clock(time)
@@ -186,6 +186,7 @@ class Simulation_manager:
         for carInd in self.car_manager.get_cars_in_simulation():
             car = self.car_manager.get_cars_in_simulation()[carInd] # dict so we need to get the car object
             self.car_manager.cars_stuck.append(car)
+        self.car_manager.force_cars_to_finish()
 
         return
 
@@ -260,6 +261,8 @@ class Simulation_manager:
                     'reached_destination': car_reached_destination,
                     'routing_algorithm': car.get_routing_algorithm(),
                     'time_taken': car_time_taken,
+                    'start_time': car.get_starting_time(),
+                    'end_time': car.get_ending_time(),
                     'route': car_route,
                     'roads_used': car.get_past_roads(),
                     'distance_travelled': car.get_distance_travelled(),
@@ -382,7 +385,7 @@ RN = SM.get_road_network()
 
 
 
-NUMBER_OF_SIMULATIONS = 10
+NUMBER_OF_SIMULATIONS = 1
 c1 = Car.Car(1,2,20,0,RN,route_algorithm="random")
 c2 = Car.Car(2,110,700,0,RN,route_algorithm = "shortest_path")
 cars = [c1,c2]

@@ -101,7 +101,7 @@ class CarManager :
             car.update_travel_time(time)
 
             if car.get_time_until_next_road() == 0:
-                result = car.move_next_road()
+                result = car.move_next_road(time)
                 if result is None:
                     cars.pop(car.get_id())
                     if car.get_car_in_destination():
@@ -113,13 +113,14 @@ class CarManager :
                         self.add_stuck_car(car)
                         moved = False
                 elif result == "blocked":
-                    print("car", car.get_id(), "is blocked")
+                    print("car", car.get_id(), "is blocked in road ", car.get_current_road().get_id())
                     self.cars_blocked.append(car)
                     car.set_blocked()
+                    blocked_cars.append(car)
                     moved = False
             if moved == True and car.get_is_blocked():
                 car.set_unblocked()
-                #blocked_cars.pop(car.get_id())
+                blocked_cars.remove(car)#TODO: check if needed
                 cars[keys] = car
                 moved = False
         self.cars_in_simulation = cars
@@ -149,6 +150,11 @@ class CarManager :
         for car in self.cars_blocked:
             car.set_unblocked()
         self.cars_blocked.clear()
+
+    def force_cars_to_finish(self):
+        for car in self.cars_stuck:
+            car.force_finish()
+            #self.cars_finished.append(car)
 
 
 
