@@ -148,7 +148,7 @@ class Car:
         return self.route_algorithm
     def get_time_until_next_road(self):
         if self.is_blocked:
-            return 99999999
+            self.time_until_next_road = 600
         return self.time_until_next_road
     def get_total_travel_time(self):
         return self.total_travel_time

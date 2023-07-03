@@ -22,7 +22,6 @@ class Road:
         return self.source_node[0]
     def get_destination_node(self):
         # return the new id of the destination node
-
         return self.destination_node[0]
     def get_length(self):
         return self.length
@@ -59,25 +58,31 @@ class Road:
         self.cars_on_road.remove(car)
     def update_speed(self, new_speed):
         self.current_speed = new_speed
+
     def calculate_time(self):
         """
         Calculates the time it takes to travel on this road
         length - meters
         speed - km/h
         time - seconds
-        so we need to convert speed to m/s by dividing by 3.6
+        so, we need to convert speed to m/s by dividing by 3.6
         :return:
         """
 
-        if self.current_speed == None:
+        if self.current_speed is None:
             print("error")
         total_time = 3.6 * self.length/self.current_speed
         if self.get_traffic_lights():
-            total_time += random.randrange(0,30*(self.get_street_count()-1),1)#60
+            street_count = self.get_street_count()
+            if street_count> 1:
+                total_time += random.randrange(0,30*(self.get_street_count()-1) ,1)
+            else:
+                total_time += random.randrange(0,30,1)
         return round(total_time,2)
 
     def __str__(self):
         return "Road id: " + str(self.id) + ", source node: " + str(self.source_node) + ", destination node: " + str(self.destination_node) + ", length: " + str(self.length) + ", max speed: " + str(self.max_speed) + ", current speed: " + str(self.current_speed) + ", is blocked: " + str(self.is_blocked) #+ ", cars on road: " + str(self.cars_on_road)
+
 
     def __repr__(self):
         return f"Road(road_id={self.id}, source_node={self.source_node}, destination_node={self.destination_node}, length={self.length}, speed={self.current_speed})"

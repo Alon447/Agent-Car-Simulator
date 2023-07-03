@@ -36,10 +36,6 @@ class Road_Network:
         self.roads_array = []
         self.graph_nodes = {} # dict that includes: 0. node_id 1. osm_id 2.x 3.y 4. street_count 5. traffic_light
 
-        """
-        with open(roads_speeds_path) as file:
-            self.roads_speeds = json.load(file)
-            """
         self.roads_speeds = {}
         self.node_dict={} #maps osm ids to our new ids
         self.reverse_node_dict={} #maps our new ids to osm ids
@@ -48,15 +44,14 @@ class Road_Network:
 
         # initialize functions
         self.make_node_dict()
-        # self.fill_nodes_attributes()
         self.set_graph_nodes()
         self.set_roads_array()
-        #self.distance_matrix = self.calc_dist_mat()
         self.set_adjacency_roads()
 
         self.next_node_matrix = [[-1] * len(self.node_dict) for _ in range(len(self.node_dict))] # cache for the distance matrix
         self.distances_matrix = [[-1] * len(self.node_dict) for _ in range(len(self.node_dict))] # cache for the distance matrix
 
+        #self.distance_matrix = self.calc_dist_mat()
         #self.remove_blocked_roads()
         # maybe remove all the blocked roads from the graph
         # only problem is that we will create more blocked roads in the simulation
@@ -232,14 +227,6 @@ class Road_Network:
     def get_roads_speeds(self):
         return self.roads_speeds
 
-    def get_nodes(self):
-        return self.nodes
-
-    def get_edges(self):
-        return self.edges
-
-    def get_adjacency_matrix(self):
-        return self.adjacency_matrix
 
     def get_road_by_road_id(self, road_id):
         return self.roads_array[road_id]
@@ -250,6 +237,8 @@ class Road_Network:
                 return road
     # def set_connectivity_list(self):
 
+    def get_blocked_roads_array(self):
+        return self.blocked_roads_array
     def set_graph(self, graph_path):
         cur = os.getcwd()
         parent = os.path.dirname(cur)

@@ -62,7 +62,7 @@ class TrafficDictionary:
         while current_time < end_time:
             time_str = current_time.strftime("%H:%M")
             for road in roads:
-                if current_time.hour<6 or current_time.hour>20:
+                if current_time.hour<7 or current_time.hour>18:
                     speed=int(random.gauss(45, 1))
                     if speed<=0:
                         speed=1

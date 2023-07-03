@@ -110,7 +110,7 @@ class Simulation_manager:
         if time_difference.seconds>= 600:
             # The minutes modulo 10 is 0
             # Perform the desired actions here
-            print("Speed updated at:", self.simulation_datetime.strftime("%H:%M:%S"))
+            # print("Speed updated at:", self.simulation_datetime.strftime("%H:%M:%S"))
             self.read_road_speeds(self.simulation_datetime)
         return
 
@@ -165,12 +165,18 @@ class Simulation_manager:
         """
         Time_limit = 7200
         rnd = random.randint(0, 1)
-        if rnd == 0:
-            self.road_network.block_road(542)
+        # if rnd == 0:
+        self.road_network.block_road(542)
+        print("Road 542 blocked")
+
         while self.get_simulation_time() < Time_limit and self.car_manager.get_cars_in_simulation():
-            rnd = random.randint(0, 5)
-            if rnd == 0:
+
+            rnd = random.randint(0, 100)
+            blocked_roads = self.road_network.get_blocked_roads_array()
+            if rnd == 0 and len(blocked_roads) !=0:
                 self.road_network.unblock_all_roads()
+                print("Roads unblocked")
+
             time = self.car_manager.get_nearest_update_time()
             SM.update_simulation_clock(time)
             #print("simulation_time:", SM.simulation_time)
@@ -183,17 +189,18 @@ class Simulation_manager:
 
         return
 
-    def end_simulation(self):
+    def end_simulation(self, simulation_number):
         # prints end message
-        print("***************************")
+        simulation_number+=1
         if self.simulation_time>= 3600:
             if self.simulation_time%3600 == 0:
-                print("simulation finished after", int(self.simulation_time/3600),"hours")
+                print("simulation",simulation_number,"finished after", int(self.simulation_time/3600),"hours")
             else:
-                print("simulation finished after", int(self.simulation_time/3600),"hours and ",int(self.simulation_time%60),"minutes")
+                print("simulation",simulation_number,"finished after", int(self.simulation_time/3600),"hours and ",int(self.simulation_time%60),"minutes")
         else:
-            print("simulation finished after", int(self.simulation_time/60),"minutes")
-        # print("***************************")
+            print("simulation",simulation_number,"finished after", int(self.simulation_time/60),"minutes")
+        print("***************************")
+
         #print("Cars finished:")
         # for car in self.car_manager.get_cars_finished():
             #print(car.get_id(), car.get_total_travel_time())
@@ -221,7 +228,7 @@ class Simulation_manager:
             # set up the simulation
             self.set_up_simulation(copy_cars)
             self.start_simulation()
-            self.end_simulation()
+            self.end_simulation(i)
             self.road_network.unblock_all_roads()
 
             """
@@ -327,11 +334,11 @@ class Simulation_manager:
             else:
                 colors.append('red')
 
-        plt.bar(range(len(times)), times, color=colors)
+        plt.bar((range(1, len(times)+1)), times, color=colors)
 
         # Add labels and title
         plt.xlabel('Simulation Number')
-        plt.ylabel('Time taken by Car {}'.format(car_number))
+        plt.ylabel('Time taken [seconds] by Car {}'.format(car_number))
         plt.title('Bar Chart: Times of Car {} in Simulation'.format(car_number))
         legend_labels = ['Reached Destination', 'Not Reached Destination']
         legend_colors = ['green', 'red']
@@ -389,14 +396,18 @@ print("***************************")
 
 route1 = SM.get_simulation_route(1,0)
 route2 = SM.get_simulation_route(2,0)
-SM.plotting_custom_route(route2)
 
-SM.car_times_bar_chart(1)
+# SM.plotting_custom_route(route2)
+# SM.car_times_bar_chart(1)
 SM.car_times_bar_chart(2)
+
 SRM = Simulation_Results_Manager()
 SRM.save_results_to_JSON(SM.simulation_results,1)
 SM.simulation_results = SRM.read_results_from_JSON()
 SM.print_simulation_results()
+
+
+
 
 
 
