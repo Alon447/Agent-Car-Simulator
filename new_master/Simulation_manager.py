@@ -164,7 +164,13 @@ class Simulation_manager:
         :return:
         """
         Time_limit = 7200
+        rnd = random.randint(0, 1)
+        if rnd == 0:
+            self.road_network.block_road(542)
         while self.get_simulation_time() < Time_limit and self.car_manager.get_cars_in_simulation():
+            rnd = random.randint(0, 5)
+            if rnd == 0:
+                self.road_network.unblock_all_roads()
             time = self.car_manager.get_nearest_update_time()
             SM.update_simulation_clock(time)
             #print("simulation_time:", SM.simulation_time)
@@ -211,9 +217,7 @@ class Simulation_manager:
                 copy_cars.append(new_car)
 
             # block a random road
-            rnd = random.randint(0,1)
-            if rnd == 0:
-                self.road_network.block_road(542)
+
             # set up the simulation
             self.set_up_simulation(copy_cars)
             self.start_simulation()

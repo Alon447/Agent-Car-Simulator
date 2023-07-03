@@ -94,11 +94,12 @@ class CarManager :
         :return:
         """
         cars = self.cars_in_simulation.copy()
+        blocked_cars = self.cars_blocked.copy()
         for keys in self.cars_in_simulation:
-            if cars[keys] in self.cars_blocked:
-                continue
+            moved = True
             car = cars[keys]
             car.update_travel_time(time)
+
             if car.get_time_until_next_road() == 0:
                 result = car.move_next_road()
                 if result is None:
@@ -106,13 +107,23 @@ class CarManager :
                     if car.get_car_in_destination():
                         print("car", car.get_id(), "finished his journey")
                         self.cars_finished.append(car)
+                        moved = False
                     else:
                         print("car", car.get_id(), "is stuck")
                         self.add_stuck_car(car)
+                        moved = False
                 elif result == "blocked":
                     print("car", car.get_id(), "is blocked")
                     self.cars_blocked.append(car)
+                    car.set_blocked()
+                    moved = False
+            if moved == True and car.get_is_blocked():
+                car.set_unblocked()
+                #blocked_cars.pop(car.get_id())
+                cars[keys] = car
+                moved = False
         self.cars_in_simulation = cars
+        self.cars_blocked = blocked_cars
         self.sort_cars_in_simulation()
         return
 
@@ -138,7 +149,6 @@ class CarManager :
         for car in self.cars_blocked:
             car.set_unblocked()
         self.cars_blocked.clear()
-
 
 
 
