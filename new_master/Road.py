@@ -17,12 +17,7 @@ class Road:
         return self.id
     def get_osm_id(self):
         return self.osm_id
-    def get_source_node(self):
-        # return the new id of the source node
-        return self.source_node[0]
-    def get_destination_node(self):
-        # return the new id of the destination node
-        return self.destination_node[0]
+
     def get_length(self):
         return self.length
     def get_current_speed(self):
@@ -36,6 +31,27 @@ class Road:
     def get_adjacent_roads(self):
         return self.adjacent_roads
 
+    def get_source_node_attributes(self):
+        return self.source_node
+    def get_destination_node_attributes(self):
+        return self.destination_node
+
+    def get_source_node(self):
+        # return the new id of the source node
+        return self.source_node[0]
+
+    def get_destination_node(self):
+        # return the new id of the destination node
+        return self.destination_node[0]
+    def get_destination_node_osm_id(self):
+        # return the osm id of the destination node
+        return self.destination_node[1]
+    def get_destination_node_lat(self):
+        # return the destination node lat
+        return self.destination_node[2]
+    def get_destination_node_lon(self):
+        # return the destination node lon
+        return self.destination_node[3]
     def get_street_count(self):
         # return the destination node street count
         return self.destination_node[4]

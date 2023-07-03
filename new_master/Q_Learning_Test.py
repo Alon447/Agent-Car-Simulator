@@ -8,7 +8,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 import new_master.Road as Road
-
+import Road_Network, Road
 
 
 def set_up_roads():
@@ -80,94 +80,106 @@ def transform_node_id_route_to_osm_id_route(route,osm_node_to_node_id):
         osm_route.append(get_key_from_value(osm_node_to_node_id, node))
     return osm_route
 
-def calculate_reward(road, distances,osm_node_to_node_id):
+def calculate_distance(x1,y1,x2,y2):
+    # Convert degrees to radians
+    lat1 = math.radians(x1)
+    lon1 = math.radians(y1)
+    lat2 = math.radians(x2)
+    lon2 = math.radians(y2)
+
+    # Radius of the Earth in kilometers
+    radius = 6371
+
+    # Haversine formula
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    distance = 1000 * radius * c # return distance in meters
+
+    return distance
+def calculate_reward(road, dest_node):
     current_speed = road.get_current_speed()
-    max_speed = road.get_max_speed()
     road_length = road.get_length()
-    src = get_key_from_value(osm_node_to_node_id,road.get_source_node())
-    dest = get_key_from_value(osm_node_to_node_id,road.get_destination_node())
-    if src in distances.keys():
-        dist_src = distances[src]
-    else:
-        dist_src = 0
-    if dest in distances.keys():
-        dist_dest = distances[dest]
-    else:
-        dist_dest = 0
+    road_src_node = road.get_source_node_attributes()
+    road_dest_node = road.get_destination_node_attributes()
+
+    #TODO: need to calculate if road_dest_node is closer to dest_node than road_src_node
+    src_distance = calculate_distance(road_src_node[2],road_src_node[3], dest_node[2],dest_node[3])
+    dst_distance = calculate_distance(road_dest_node[2],road_dest_node[3], dest_node[2],dest_node[3])
+
+
+
     # Speed reward
-    speed_difference = current_speed - max_speed
+    speed_difference = current_speed
 
     # Length reward
     length_reward = -road_length
 
     # Distance reward
+    distance = dst_distance - src_distance
 
-    # if src not in distances.keys():
-    #     distance_reward = -10000
-    # else:
-    #     distance_reward = dist_src - dist_dest
+    # distance_reward = -distances[src][dest]
 
-    total_reward = (1 * speed_reward) + (0.5 * length_reward) + (0.5 * distance_reward)
+    total_reward =   distance-100
 
     return total_reward
 
 def Q_Learning(start_node,end_node):
 
 
-    g = ox.load_graphml('tel aviv.graphml')
-    osm_node_to_node_id = make_node_dict(g)
-
+    # g = ox.load_graphml('../test/tel aviv.graphml')
+    # osm_node_to_node_id = make_node_dict(g)
+    RN = Road_Network.Road_Network('/tel aviv.graphml')
     start=start_node
     end=end_node
-    TRAINING_START_NODE = start
-    TRAINING_END_NODE = end
-    TESTING_START_NODE = start
-    TESTING_END_NODE = end
-    road_list=[]
-    for edge in g.edges:
-        new_road = Road.Road(g.edges[edge]['edge_id'], osm_node_to_node_id[edge[0]], osm_node_to_node_id[edge[1]],
-                             g.edges[edge]['length'],50)
-        road_list.append(new_road)
-    for edge1 in road_list:
-        dest_node = edge1.get_destination_node()
-        for edge2 in road_list:
-            src_node = edge2.get_source_node()
-            if dest_node == src_node:
-                edge1.adjacent_roads.append(edge2)
+
+    road_list=RN.roads_array
+    node_list=RN.node_roads_count
+    # for edge in g.edges:
+    #     new_road = Road.Road(g.edges[edge]['edge_id'], osm_node_to_node_id[edge[0]], osm_node_to_node_id[edge[1]],
+    #                          g.edges[edge]['length'],50)
+    #     road_list.append(new_road)
+    # for edge1 in road_list:
+    #     dest_node = edge1.get_destination_node()
+    #     for edge2 in road_list:
+    #         src_node = edge2.get_source_node()
+    #         if dest_node == src_node:
+    #             edge1.adjacent_roads.append(edge2)
 
     # start implementing q learning
+    len_of_node_list = list(node_list)[-1]
 
-    destination = get_key_from_value(osm_node_to_node_id, TRAINING_END_NODE)
-
-    distances = nx.shortest_path_length(g, target=destination, weight='length')
+    destination_osmid = RN.reverse_node_dict[end] # destination node osm id
+    destination_node_attributes = RN.graph_nodes[end] # destination node attribute
+    # distances = nx.shortest_path_length(g, target=destination, weight='length')
 
 
     q_values = []
-    for i in range(len(road_list)):
+    for i in range(len_of_node_list+1):
         row_values = []
-        for j in range(len(road_list[i].get_adjacent_roads())):
+        if node_list.get(i) is None:
+            q_values.append([])
+            continue
+        for j in range(len(node_list[i])):
             row_values.append(0)
         q_values.append(row_values)
 
-    # rewards will be -len(road) for each road
-    src = TRAINING_START_NODE
-    dest = TRAINING_END_NODE
-    current_road = road_list[src]
 
-
-
-
-    rewards = np.zeros(len(road_list))
-    for i in range(len(road_list)):
-
-        if road_list[i].get_id() == dest:
-            rewards[i] = 1000
-        elif len(q_values[i]) == 0:
-            rewards[i] = -10000
-        else:
-            # rewards[i] = -(int(road_list[i].get_length())) # TODO:problomatic
-            road = road_list[i]
-            rewards[i] = calculate_reward(road, distances,osm_node_to_node_id)
+    rewards = []
+    for i in range(len_of_node_list+1):
+        if len(q_values[i]) == 0:
+            rewards.append(-10000)
+            continue
+        row_values = []
+        for j in range(len(node_list[i])):
+            if i == end:
+                row_values.append(0)
+            else:
+                road_id = node_list[i][j]
+                road = RN.roads_array[road_id]
+                row_values.append(calculate_reward(road,destination_node_attributes))
+        rewards.append(row_values)
 
     epsilon = 0.9 #the percentage of time when we should take the best action (instead of a random action)
     discount_factor = 0.9 #discount factor for future rewards
@@ -179,44 +191,56 @@ def Q_Learning(start_node,end_node):
       else:
         return False
 
-    def get_next_action(current_road, epsilon):
+    def get_next_action(current_node_index, epsilon):
+
         if np.random.uniform(0, 1) > epsilon:
             # random
-            adjacent_roads = current_road.get_adjacent_roads()
-            action_index = np.random.randint(len(adjacent_roads))
+            length = len(node_list[current_node_index])
+            action_index = np.random.randint(length)
             # next_road = adjacent_roads[action_index]
         else:
             # greedy
-            # a=current_road.get_id()
-            # b=q_values[current_road.get_id()-1]
-            # array index starts at 0, road index starts at 1
-            action_index = np.argmax(q_values[int(current_road.get_id())])
+            if len(q_values[current_node_index]) == 0:
+                action_index = -1
+                return action_index
+
+            action_index = np.argmax(q_values[current_node_index])
             # next_road = current_road.get_adjacent_roads()[action_index]
 
         return action_index
 
-    def get_next_road(current_road, action_index):
-        return current_road.get_adjacent_roads()[action_index]
+    def get_next_road(current_node_index, action_index):
+        road = RN.roads_array[node_list[current_node_index][action_index]]
+        return road
 
+    shortest_route = ox.shortest_path(RN.graph, orig=RN.reverse_node_dict[start], dest=RN.reverse_node_dict[end], weight='length')
+    shortest_route=transform_node_id_route_to_osm_id_route(shortest_route, RN.reverse_node_dict)
     for episode in range(5000):
-        current_node_index=src
-        current_road = road_list[src]
-        while not current_node_index == dest:
-            action_index = get_next_action(current_road, epsilon)
-            next_road = get_next_road(current_road, action_index)
-            reward = rewards[int(next_road.get_id())]
-            if is_terminal_state(int(next_road.get_id())):
-                q_values[int(current_road.get_id()) ][action_index]= -10000
+        current_node_index=start
+
+        while not current_node_index == end:
+            """"
+            state - current node
+            action - next road
+            """
+            action_index = get_next_action(current_node_index, epsilon)
+            if action_index == -1:
+                q_values[current_node_index]=-10000
+                break
+            next_road = get_next_road(current_node_index, action_index)
+            reward = rewards[current_node_index][action_index]
+            if reward == -10000:
+                q_values[current_node_index][action_index]= -10000
                 break
 
-            old_q_value = q_values[int(current_road.get_id())][ action_index]
-            temporal_difference = reward + (discount_factor * np.max(q_values[int(next_road.get_id())])) - old_q_value
+            old_q_value = q_values[current_node_index][action_index]
+            temporal_difference = reward + (discount_factor * np.max(q_values[current_node_index])) - old_q_value
 
             # update the Q-value for the previous state and action pair
             new_q_value = old_q_value + (learning_rate * temporal_difference)
-            q_values[int(current_road.get_id())][ action_index] = new_q_value
-            current_node_index = next_road.get_source_node()
-            current_road = next_road
+            q_values[current_node_index][action_index] = new_q_value
+            current_node_index = next_road.get_destination_node()
+            #print("episode: ", episode)
 
 
     print('Training complete!')
@@ -259,9 +283,9 @@ def Q_Learning(start_node,end_node):
 
 
 
-    route = transform_node_id_route_to_osm_id_route(path,osm_node_to_node_id)
+    route = transform_node_id_route_to_osm_id_route(path,RN.reverse_node_dict)
     # print("Route:", route)
-    fig, ax = ox.plot_graph(g, show=False, close=False, edge_color='lightgray', node_color='gray', bgcolor='black')
+    # fig, ax = ox.plot_graph(RN.graph, show=False, close=False, edge_color='lightgray', node_color='gray', bgcolor='black')
 
     # Plot the custom route
     # if is_dest_reached:
@@ -274,11 +298,11 @@ def Q_Learning(start_node,end_node):
     return is_dest_reached
 
 test_res={}
-end=1
-for i in range(30):
-    print(end)
-    test_res[end] = Q_Learning(10,end)
-    end+=2
+end=[0,1,2,3,4,5,6,7,9,11,12,13]
+for i in end:
+    print(i)
+    test_res[i] = Q_Learning(10,i)
+    # end+=2
 print(test_res)
 total_values = len(test_res)
 false_count = sum(value == False for value in test_res.values())

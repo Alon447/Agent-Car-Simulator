@@ -40,6 +40,7 @@ class Road_Network:
         self.node_dict={} #maps osm ids to our new ids
         self.reverse_node_dict={} #maps our new ids to osm ids
         self.road_dict = {}
+        self.node_roads_count = {} # list the id of the roads that starts from a node
         self.blocked_roads_array = []
 
         # initialize functions
@@ -94,6 +95,11 @@ class Road_Network:
                                  self.graph.edges[edge]['length'],int(self.graph.edges[edge]['maxspeed']))
             self.roads_array.append(new_road)
             self.road_dict[(new_road.get_source_node(),new_road.get_destination_node())] = new_road.get_id()
+            if start_node in self.node_roads_count and isinstance(self.node_roads_count[start_node], list):
+                self.node_roads_count[start_node].append(new_road.get_id())
+            else:
+                self.node_roads_count[start_node] = [new_road.get_id()]
+
             # print(new_road)
         return
 
