@@ -73,7 +73,7 @@ class Road:
             print("error")
         total_time = 3.6 * self.length/self.current_speed
         if self.get_traffic_lights():
-            total_time += random.randrange(0,30*self.get_street_count(),1)#60
+            total_time += random.randrange(0,30*(self.get_street_count()-1),1)#60
         return round(total_time,2)
 
     def __str__(self):
