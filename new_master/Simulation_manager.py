@@ -41,48 +41,21 @@ class Simulation_manager:
         # RESULTS
         self.simulation_results = [] # list of dictionaries, each dictionary is a simulation result
 
+    # FUNCTIONS - block/unblock roads
+    def block_road(self, road_id):
+        self.road_network.block_road(road_id)
+        print("Road",road_id ,"blocked")
+        return
 
-    def create_q_tables(self,starting_time_str,ending_tim_str,sample_time_str,day_of_week):
-        """
+    def unblock_road(self, road_id):
+        self.road_network.unblock_road(road_id)
+        print("Road",road_id ,"unblocked")
+        return
 
-        :param starting_time: starting hour+minute
-        :param ending_time: ending hour+minute
-        :param sample_time: time gap between each sample
-        :param day_of_week:
-        :return: skeletone of the q tables, to be filled by the agents
-
-        """
-        # cur_time_str = starting_time_str.split(":")
-        # cur_time = int(cur_time_str[0])*60+int(cur_time_str[1])
-        # ending_time = int(ending_tim_str.split(":")[0])*60+int(ending_tim_str.split(":")[1])
-        # sample_time = int(sample_time_str.split(":")[0])*60+int(sample_time_str.split(":")[1])
-        # time_slice_dict = create_time_slice_dict(self)
-        # while cur_time<ending_time:
-        #
-        #
-        # pass
-
-
-    def load_q_tables(self,data_path):
-
-        """
-        Creates the q tables for the simulation.
-        q table state consists of the following:
-        - current road/the node at the end of the current road
-        - destination node/road.
-        - time and day of the week.
-
-        :return:
-        """
-        q_tables = {}
-        #q table formats:
-        #q_table = {state: {action: value}}
-        #state is a tuple of (current_road,destination_road), each day has its own q table for each time slice.
-        #action is taking one of the possible next routes.
-        directory = os.fsencode(data_path)
-
-        for file in os.listdir(directory):
-            self.add_time_slice_from_file(file,q_tables)#parse the file and add to the q tables
+    def unblock_all_roads(self):
+        self.road_network.unblock_all_roads()
+        print("All roads unblocked")
+        return
 
     def get_road_network(self):
         return self.road_network
@@ -90,28 +63,12 @@ class Simulation_manager:
     def get_car_manager(self):
         return self.car_manager
 
-    def add_time_slice_from_file(self,file,q_tables):
-        # TODO: implement
-        #assuming the file name is in the following format:"hour:minute"
-        #assuming that the file is a JSON file with the format of: {source_road:{target_road:{optional_road:time}}}
-        time_str = file.name
-        q_tables[time_str] = json.load(file)
-
-        pass
-
-    def create_time_slice_dict(self):
-        q_slice_dict = {}
-
-        return q_slice_dict
-
     def update_simulation_clock(self, time):
         # update both the spesific simulation time and the datetime
         self.simulation_time += pd.Timedelta(seconds=time) #time
         self.simulation_datetime += pd.Timedelta(seconds=time) #  time
         time_difference = self.simulation_datetime - self.last_speed_update_time
-        if time_difference.seconds>= 600:
-            # The minutes modulo 10 is 0
-            # Perform the desired actions here
+        if time_difference.seconds>= 600: # 10 minutes
             # print("Speed updated at:", self.simulation_datetime.strftime("%H:%M:%S"))
             self.read_road_speeds(self.simulation_datetime)
         return
@@ -161,20 +118,7 @@ class Simulation_manager:
         for car in cars:
             self.car_manager.add_car(car)
 
-    def block_road(self, road_id):
-        self.road_network.block_road(road_id)
-        print("Road",road_id ,"blocked")
-        return
 
-    def unblock_road(self, road_id):
-        self.road_network.unblock_road(road_id)
-        print("Road",road_id ,"unblocked")
-        return
-
-    def unblock_all_roads(self):
-        self.road_network.unblock_all_roads()
-        print("All roads unblocked")
-        return
 
     def start_simulation(self):
         """
@@ -256,16 +200,18 @@ class Simulation_manager:
                 car_ending_time = car.get_ending_time_end()
                 car_route = car.get_past_nodes()
                 car_key = car.get_id()
-
+                day_of_week_str = self.simulation_datetime_start.strftime('%A')
+                # save the important data
                 simulation_results[car_key] = {
                     'reached_destination': car_reached_destination,
                     'routing_algorithm': car.get_routing_algorithm(),
-                    'time_taken': car_time_taken,
-                    'start_time': car_starting_time,
-                    'end_time': car_ending_time,
+                    'time_taken': car_time_taken, # in seconds
+                    'day_of_week': day_of_week_str, # day of the week string
+                    'start_time': car_starting_time, # datetime object string
+                    'end_time': car_ending_time, # datetime object string
                     'route': car_route,
                     'roads_used': car.get_past_roads(),
-                    'distance_travelled': car.get_distance_travelled(),
+                    'distance_travelled': int(car.get_distance_travelled()), # in meters, int
                 }
 
             self.simulation_results.append({
@@ -380,17 +326,18 @@ HOUR = 3600
 MINUTE = 60
 
 # initilazires
-START_TIME =datetime.datetime(year=2023,month=6,day=29,hour=1, minute=0, second=0)
+START_TIME1 =datetime.datetime(year=2023,month=6,day=29,hour=7, minute=10, second=0)
+START_TIME2 =datetime.datetime(year=2023,month=6,day=29,hour=19, minute=10, second=0)
 
-SM = Simulation_manager('/graphTLVfix.graphml',2*HOUR,START_TIME) # graph path, time limit, starting time
+SM = Simulation_manager('/graphTLVfix.graphml',2*HOUR,START_TIME1) # graph path, time limit, starting time
 CM = SM.get_car_manager()
 RN = SM.get_road_network()
 
 
 
-NUMBER_OF_SIMULATIONS = 20
-c1 = Car.Car(1,110,700,START_TIME,RN,route_algorithm="random")
-c2 = Car.Car(2,110,700,START_TIME,RN,route_algorithm = "shortest_path")
+NUMBER_OF_SIMULATIONS = 1
+c1 = Car.Car(1,110,700,START_TIME1,RN,route_algorithm="random")
+c2 = Car.Car(2,110,700,START_TIME1,RN,route_algorithm = "shortest_path")
 cars = [c1,c2]
 
 SM.run_full_simulation(cars,NUMBER_OF_SIMULATIONS)

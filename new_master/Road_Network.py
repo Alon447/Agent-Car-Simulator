@@ -1,15 +1,9 @@
-import json
 import os
-
 import osmnx as ox
 import Road
-
 import pandas as pd
 import networkx as nx
-from abc import abstractmethod, ABC
 import random
-
-
 
 
 class Road_Network:
@@ -26,10 +20,7 @@ class Road_Network:
     - roads_array
     - roads_speeds
     - distance_matrix
-
     """
-
-
     def __init__(self, graph_path):
         # graph
         self.graph = self.set_graph(graph_path)
@@ -66,15 +57,10 @@ class Road_Network:
     set_adjacney_roads - Adding to all the roads a list of all the adjacent roads for each road
     make_src_node_to_dest_node_dict- Creates a dictionary converting between all the source nodes and their destination nodes
     make_dest_node_to_src_node_dict- Creates a dictionary converting between all the destination nodes and their source nodes
-
     calc_dist_mat - Creates a distance matrix of all the roads in the graph
     set_graph - Sets a graph for the simulation
-
-
-
     """
-
-    ###############
+    ################
     # Functions:
     def set_graph_nodes(self):
         for node in self.graph.nodes:

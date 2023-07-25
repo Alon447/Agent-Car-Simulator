@@ -41,7 +41,6 @@ class Car:
         # Route
         self.route_algorithm = route_algorithm # the algorithm the car will use to decide its route
         self.route = self.decide_route_algorithm(route_algorithm) # the route the car will take
-        #self.route=Route.Route() # the route the car will take
         self.road_network = road_network # the road network the car is in
         ###############################################
         # we need to pass rods to Route and not nodes
