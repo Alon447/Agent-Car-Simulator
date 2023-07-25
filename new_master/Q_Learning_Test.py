@@ -1,13 +1,8 @@
 import math
-import random
 
 import networkx as nx
 import numpy as np
 import osmnx as ox
-import pandas as pd
-from matplotlib import pyplot as plt
-
-import new_master.Road as Road
 import Road_Network, Road
 
 
@@ -98,33 +93,67 @@ def calculate_distance(x1,y1,x2,y2):
     distance = 1000 * radius * c # return distance in meters
 
     return distance
+# def calculate_reward(road, dest_node):
+#     current_speed = road.get_current_speed()
+#     road_length = road.get_length()
+#     road_src_node = road.get_source_node_attributes()
+#     road_dest_node = road.get_destination_node_attributes()
+#     if road_dest_node[0] == dest_node[0]:
+#         return 10000
+#     #TODO: need to calculate if road_dest_node is closer to dest_node than road_src_node
+#     src_distance = calculate_distance(road_src_node[2],road_src_node[3], dest_node[2],dest_node[3])
+#     dst_distance = calculate_distance(road_dest_node[2],road_dest_node[3], dest_node[2],dest_node[3])
+#
+#     # Speed reward
+#     speed_difference = current_speed
+#
+#     # Length reward
+#     length_reward = -road_length
+#
+#     # Distance reward
+#     distance = dst_distance - src_distance
+#
+#     # distance_reward = -distances[src][dest]
+#
+#     total_reward =   distance-1000
+#
+#     return total_reward
 def calculate_reward(road, dest_node):
     current_speed = road.get_current_speed()
     road_length = road.get_length()
     road_src_node = road.get_source_node_attributes()
     road_dest_node = road.get_destination_node_attributes()
 
-    #TODO: need to calculate if road_dest_node is closer to dest_node than road_src_node
-    src_distance = calculate_distance(road_src_node[2],road_src_node[3], dest_node[2],dest_node[3])
-    dst_distance = calculate_distance(road_dest_node[2],road_dest_node[3], dest_node[2],dest_node[3])
-
-
-
+    src_distance = calculate_distance(road_src_node[2], road_src_node[3], dest_node[2], dest_node[3])
+    dst_distance = calculate_distance(road_dest_node[2], road_dest_node[3], dest_node[2], dest_node[3])
     # Speed reward
-    speed_difference = current_speed
+    speed_reward = current_speed * road_length
 
     # Length reward
     length_reward = -road_length
 
     # Distance reward
-    distance = dst_distance - src_distance
+    distance_reward = dst_distance - src_distance
 
-    # distance_reward = -distances[src][dest]
+    # Loop penalty
+    if road_dest_node[0] == dest_node[0]:
+        loop_penalty = -1000
+    else:
+        loop_penalty = 0
 
-    total_reward =   distance-100
+    # Calculate time to traverse the road (t = d / v)
+    time_to_traverse = road_length / current_speed
 
-    return total_reward
+    # Time reward (penalize longer travel time)
+    time_reward = -time_to_traverse
 
+    # Calculate total reward
+    total_reward = 0.5 * distance_reward + 0.1 * time_reward + 0.3 * length_reward + 0.2 * speed_reward + loop_penalty
+
+    # Scale the reward to a reasonable range
+    scaled_reward = total_reward  # Divide by the shortest possible distance
+
+    return scaled_reward
 def Q_Learning(start_node,end_node):
 
 
@@ -181,9 +210,9 @@ def Q_Learning(start_node,end_node):
                 row_values.append(calculate_reward(road,destination_node_attributes))
         rewards.append(row_values)
 
-    epsilon = 0.9 #the percentage of time when we should take the best action (instead of a random action)
-    discount_factor = 0.9 #discount factor for future rewards
-    learning_rate = 0.9 #the rate at which the AI agent should learn
+    epsilon = 0.4 #the percentage of time when we should take the best action (instead of a random action)
+    discount_factor = 0.95 #discount factor for future rewards
+    learning_rate = 0.4 #the rate at which the AI agent should learn
     def is_terminal_state(index):
       #if the reward for this location is -10000, then it is a terminal state
       if rewards[index] == -10000.:
@@ -192,15 +221,19 @@ def Q_Learning(start_node,end_node):
         return False
 
     def get_next_action(current_node_index, epsilon):
+        if current_node_index not in node_list:
+            action_index = -1
+            return action_index
 
         if np.random.uniform(0, 1) > epsilon:
             # random
+
             length = len(node_list[current_node_index])
             action_index = np.random.randint(length)
             # next_road = adjacent_roads[action_index]
         else:
             # greedy
-            if len(q_values[current_node_index]) == 0:
+            if not q_values[current_node_index]:
                 action_index = -1
                 return action_index
 
@@ -210,12 +243,16 @@ def Q_Learning(start_node,end_node):
         return action_index
 
     def get_next_road(current_node_index, action_index):
+        if current_node_index not in node_list:
+            road = -1
+            return road
         road = RN.roads_array[node_list[current_node_index][action_index]]
         return road
 
     shortest_route = ox.shortest_path(RN.graph, orig=RN.reverse_node_dict[start], dest=RN.reverse_node_dict[end], weight='length')
     shortest_route=transform_node_id_route_to_osm_id_route(shortest_route, RN.reverse_node_dict)
-    for episode in range(5000):
+
+    for episode in range(100000):
         current_node_index=start
 
         while not current_node_index == end:
@@ -245,26 +282,22 @@ def Q_Learning(start_node,end_node):
 
     print('Training complete!')
 
-    def find_starting_road():
-        for road in road_list:
-            if road.get_source_node() == TESTING_START_NODE:
-                return road
 
-    src=TESTING_START_NODE
-    dest=TESTING_END_NODE
-    path=[src]
-    current_road = find_starting_road()
-    current_node_index = current_road.get_destination_node()
+    path=[]
+    current_node_index = start
     path.append(current_node_index)
     count=0
     is_dest_reached = False
-    while current_node_index != dest and count<20:
-        q_value = q_values[int(current_road.get_id())]
-        if len(q_value) == 0:
+    while current_node_index != end and count<20:
+        q_value = q_values[current_node_index]
+        if not (q_value):
             print("No adjacent roads")
             break
         action = np.argmax(q_value)
-        next_road = current_road.get_adjacent_roads()[action]
+        next_road = get_next_road(current_node_index, action)
+        if next_road == -1:
+            print("No adjacent roads")
+            break
         next_node_index = next_road.get_destination_node()
         current_node_index = next_node_index
         if current_node_index in path[1:]:
@@ -274,10 +307,10 @@ def Q_Learning(start_node,end_node):
         path.append(current_node_index)
         current_road = next_road
         count+=1
-        if current_node_index == dest:
+        if current_node_index == end:
             is_dest_reached = True
             break
-
+    print("opt_route: ", shortest_route)
     print("Path:", path)
 
 
@@ -298,10 +331,10 @@ def Q_Learning(start_node,end_node):
     return is_dest_reached
 
 test_res={}
-end=[0,1,2,3,4,5,6,7,9,11,12,13]
+end=[0,1]
 for i in end:
     print(i)
-    test_res[i] = Q_Learning(10,i)
+    test_res[i] = Q_Learning(45,i)
     # end+=2
 print(test_res)
 total_values = len(test_res)

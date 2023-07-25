@@ -91,7 +91,7 @@ class Road_Network:
             start_node_attributes = self.graph_nodes[start_node]
             end_node =self.node_dict[edge[1]]
             end_node_attributes = self.graph_nodes[end_node]
-            new_road = Road.Road(int(self.graph.edges[edge]['edge_id']), start_node_attributes,end_node_attributes,
+            new_road = Road.Road(int(self.graph.edges[edge]['edge_id']), start_node_attributes ,end_node_attributes,
                                  self.graph.edges[edge]['length'],int(self.graph.edges[edge]['maxspeed']))
             self.roads_array.append(new_road)
             self.road_dict[(new_road.get_source_node(),new_road.get_destination_node())] = new_road.get_id()

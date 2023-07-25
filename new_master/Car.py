@@ -1,8 +1,15 @@
 import Road_Network
 from new_master import Route
+import datetime
+import pandas as pd
+
+
+def time_delta_to_seconds(time):
+    return int(time.total_seconds())
 
 
 class Car:
+
 
     def __init__(self, id, source_node, destination_node, starting_time, road_network, route_algorithm = 'random' ):
 
@@ -23,9 +30,9 @@ class Car:
 
         # Time
         self.starting_time = starting_time # the time the car started its journey
-        self.time_until_next_road = 0 # the time until the car reaches the next road *IN SECONDS*
-        self.total_travel_time = 0 # the total travel time of the car
-        self.current_road_time = 0 # the time the car has been on the current road
+        self.time_until_next_road = datetime.timedelta(seconds=0) # the time until the car reaches the next road *IN SECONDS*
+        self.total_travel_time = datetime.timedelta(seconds=0) # the total travel time of the car
+        self.current_road_time = datetime.timedelta(seconds=0) # the time the car has been on the current road
 
         # Flags
         self.is_finished = False # indicates if the car has reached its destination
@@ -62,7 +69,10 @@ class Car:
         # return the ID of the next road the car will travel to
 
         #self.route.get_next_road parameters: (source_road_id, destination_node, time)
-        next_road = self.route.get_next_road(self.current_road.get_destination_node(), self.destination_node,self.current_road.get_adjacent_roads(), self.road_network,self.total_travel_time+self.starting_time)
+        next_road = self.route.get_next_road(self.current_road.get_destination_node(),
+                                             self.destination_node,self.current_road.get_adjacent_roads(),
+                                             self.road_network,
+                                             self.total_travel_time+self.starting_time)
         # if next_road is None: # case of no adjacent roads
         #     return None
         return next_road
@@ -81,7 +91,7 @@ class Car:
 
         :return:
         """
-        self.current_road_time += time
+        self.current_road_time += pd.Timedelta(seconds=time) #time
         if(self.check_if_finished()):
             return None
 
@@ -100,7 +110,7 @@ class Car:
         # appends and adds distance only if moved to next road
         self.distance_traveled += self.current_road.get_length()
         self.past_nodes.append(self.current_road.get_destination_node())
-        self.past_roads.append({self.current_road.get_id(): round(self.current_road_time,2)})
+        self.past_roads.append({self.current_road.get_id(): round(time_delta_to_seconds(self.current_road_time), 2)})
 
         id = int(next_road.get_id())
         self.current_road = self.road_network.get_roads_array()[id]
@@ -108,12 +118,12 @@ class Car:
         #TODO: remove car from current road
         self.update_time_until_next_road(self.current_road)
         #self.set_time_until_next_road(self.current_road.get_length()*3.6 / self.current_road.get_current_speed())
-        self.current_road_time = 0
+        self.current_road_time = datetime.timedelta(seconds=0)
         return self.current_road
 
     def check_if_finished(self):#assuming reaching for the destination road is sufficient
         if self.current_road.get_destination_node() == self.destination_node:
-            self.past_roads.append({self.current_road.get_id(): round(self.current_road_time,2)})
+            self.past_roads.append({self.current_road.get_id(): round(time_delta_to_seconds(self.current_road_time), 2)})
             self.past_nodes.append(self.current_road.get_destination_node())
             self.is_finished = True
             self.car_in_destination = True
@@ -122,7 +132,7 @@ class Car:
         return self.is_finished
 
     def force_finish(self):
-        self.past_roads.append({self.current_road.get_id(): round(self.current_road_time,2)})
+        self.past_roads.append({self.current_road.get_id(): round(time_delta_to_seconds(self.current_road_time), 2)})
         # self.past_nodes.append(self.current_road.get_destination_node())
     def get_travel_data(self):
         # return the  total travel time, path taken, travel time in each road, starting time, ending time.
@@ -134,13 +144,13 @@ class Car:
 
     def update_time_until_next_road(self, road):
         time = road.calculate_time()
-        self.time_until_next_road += time #round((road.get_length() * 3.6 / road.get_current_speed()),2) # need to convert km/h to m/s
+        self.time_until_next_road += datetime.timedelta(seconds=time) #round((road.get_length() * 3.6 / road.get_current_speed()),2) # need to convert km/h to m/s
         return
 
     def update_travel_time(self, time):
         # used when we fast-forward the simulation
-        self.total_travel_time += time
-        self.time_until_next_road -= time
+        self.total_travel_time += datetime.timedelta(seconds=time)  # time
+        self.time_until_next_road -= datetime.timedelta(seconds=time) #time
         return
 
     # Gets
@@ -150,19 +160,31 @@ class Car:
         return self.source_node
     def get_destination_node(self):
         return self.destination_node
+
+    # starting time and ending time for the simulation run
     def get_starting_time(self):
         return self.starting_time
 
+    def get_ending_time(self):
+        return time_delta_to_seconds(self.total_travel_time + self.starting_time)
+
+    # starting time and ending time for the simulation end
+    def get_starting_time_end(self):
+        return str(self.starting_time)
+    def get_ending_time_end(self):
+        return str(self.total_travel_time + self.starting_time)
     def get_is_blocked(self):
         return self.is_blocked
     def get_routing_algorithm(self):
         return self.route_algorithm
+
     def get_time_until_next_road(self):
         if self.is_blocked:
             self.time_until_next_road = 600
-        return self.time_until_next_road
+        return int(self.time_until_next_road.total_seconds())
+
     def get_total_travel_time(self):
-        return self.total_travel_time
+        return time_delta_to_seconds(self.total_travel_time)
     def get_past_roads(self):
         return self.past_roads
     def get_car_in_destination(self):
@@ -192,8 +214,6 @@ class Car:
     def __eq__(self, other):
         return self.id == other.id and self.source_node == other.source_node and self.destination_node == other.destination_node and self.starting_time == other.starting_time
 
-    def get_ending_time(self):
-        return self.total_travel_time + self.starting_time
 
 
 
