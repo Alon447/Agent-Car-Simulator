@@ -53,25 +53,34 @@ class TrafficDictionary:
         interval = datetime.timedelta(minutes=10)
         # Initialize the dictionary
         data = {}
-        for road in roads:
-            data[road] = {}
+        for day in range(7):
+            data[day] = {}
+            for road in roads:
+                data[day][road] = {}
 
         # Loop over the interval and generate random speeds for each road
         current_time = start_time
-        speed=1
         while current_time < end_time:
             time_str = current_time.strftime("%H:%M")
-            for road in roads:
-                if current_time.hour<7 or current_time.hour>18:
-                    speed=int(random.gauss(45, 1))
-                    if speed<=0:
-                        speed=1
-                    data[road][time_str] = speed
+            for day in range(7):
+                if day == 5 or day == 6:
+                    for road in roads:
+                        speed=int(random.gauss(45, 1))
+                        if speed<=0:
+                            speed=1
+                        data[day][road][time_str] = speed
                 else:
-                    speed = int(random.gauss(27, 3))
-                    if speed<=0:
-                        speed=1
-                    data[road][time_str]  = speed
+                    for road in roads:
+                        if current_time.hour<7 or current_time.hour>18:
+                            speed=int(random.gauss(45, 1))
+                            if speed<=0:
+                                speed=1
+                            data[day][road][time_str] = speed
+                        else:
+                            speed = int(random.gauss(27, 3))
+                            if speed<=0:
+                                speed=1
+                            data[day][road][time_str]  = speed
             current_time += interval
 
         # Print the dictionary
@@ -79,6 +88,7 @@ class TrafficDictionary:
         with open('simulation_speeds.json', 'w') as outfile:
             json.dump(data, outfile, indent=4)
         return
+
 
     def read_day_data(self,road_number,hour,minute):
         with open('simulation_speeds.json', 'r') as infile:

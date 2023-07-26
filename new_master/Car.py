@@ -212,12 +212,3 @@ class Car:
         return self.__str__()
     def __eq__(self, other):
         return self.id == other.id and self.source_node == other.source_node and self.destination_node == other.destination_node and self.starting_time == other.starting_time
-
-
-
-
-
-
-
-
-

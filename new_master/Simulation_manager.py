@@ -36,7 +36,8 @@ class Simulation_manager:
         self.simulation_datetime = start_time
         self.simulation_time = datetime.timedelta(seconds=0) # in seconds
         self.last_speed_update_time = start_time
-        self.time_limit= time_limit
+        self.time_limit = time_limit
+        self.day_int=0 # 0-6, 0-sunday, 1-monday, 2-tuesday, 3-wednesday, 4-thursday, 5-friday, 6-saturday
 
         # RESULTS
         self.simulation_results = [] # list of dictionaries, each dictionary is a simulation result
@@ -71,6 +72,7 @@ class Simulation_manager:
         if time_difference.seconds>= 600: # 10 minutes
             # print("Speed updated at:", self.simulation_datetime.strftime("%H:%M:%S"))
             self.read_road_speeds(self.simulation_datetime)
+            print(self.simulation_datetime.strftime("%H:%M:%S"))
         return
 
     def get_simulation_time(self):
@@ -80,7 +82,7 @@ class Simulation_manager:
         self.road_network.generate_random_speeds()
         self.road_network.set_roads_speeds()
 
-    def read_road_speeds(self, datetime_obj):
+    def read_road_speeds(self, datetime_obj: datetime.datetime):
         """
         reads the road speeds from the json file and updates the road_network according to the time
         currently the time slice is every 10 minutes.
@@ -89,6 +91,7 @@ class Simulation_manager:
         """
         self.last_speed_update_time = datetime_obj.replace(second=0, microsecond=0)
         number_of_roads = len(self.road_network.roads_array)
+        self.day_int = (datetime_obj.weekday()+1)%7
         with open('simulation_speeds.json', 'r') as infile:
             data = json.load(infile)
 
@@ -97,10 +100,10 @@ class Simulation_manager:
         # round the minutes to the nearest 10
         minutes = int(datetime_obj.minute / 10) * 10
         time_key = datetime_obj.replace(minute=minutes).strftime("%H:%M")
-
+        day_data = data.get(str(self.day_int), {})
         # Get the number from the JSON data
         for road_number in range(number_of_roads):
-            speed = data.get(str(road_number), {}).get(time_key)
+            speed = day_data.get(str(road_number), {}).get(time_key)
             self.road_network.add_road_speed(road_number, speed)
 
         # now make sure every road has the right speed
@@ -116,7 +119,7 @@ class Simulation_manager:
         self.simulation_datetime = self.simulation_datetime_start
         self.car_manager.clear()
         for car in cars:
-            self.car_manager.add_car(car)
+            self.car_manager.add_car(car, self.simulation_datetime_start)
 
 
 
@@ -125,11 +128,7 @@ class Simulation_manager:
         runs the simulation until there are no more cars in the simulation ot it gets to a time limit
         :return:
         """
-        # rnd = random.randint(0, 1)
-        # if rnd == 0:
-        # self.road_network.block_road(542)
-
-        while self.get_simulation_time() < self.time_limit and self.car_manager.get_cars_in_simulation():
+        while self.get_simulation_time() < self.time_limit and (self.car_manager.get_cars_in_simulation() or self.car_manager.get_cars_waiting_to_enter()):
 
             # rnd = random.randint(0, 100)
             # blocked_roads = self.road_network.get_blocked_roads_array()
@@ -137,10 +136,10 @@ class Simulation_manager:
             #     self.road_network.unblock_all_roads()
             #     print("Roads unblocked")
 
-            time = self.car_manager.get_nearest_update_time()
+            time = self.car_manager.calc_nearest_update_time(self.simulation_datetime)
             SM.update_simulation_clock(time)
+            self.car_manager.update_cars(time,self.simulation_datetime)
             #print("simulation_time:", SM.simulation_time)
-            self.car_manager.update_cars(time)
             #self.car_manager.show_cars_in_simulation()
 
         for carInd in self.car_manager.get_cars_in_simulation():
@@ -200,7 +199,7 @@ class Simulation_manager:
                 car_ending_time = car.get_ending_time_end()
                 car_route = car.get_past_nodes()
                 car_key = car.get_id()
-                day_of_week_str = self.simulation_datetime_start.strftime('%A')
+                day_of_week_str = car.get_starting_time().strftime('%A')
                 # save the important data
                 simulation_results[car_key] = {
                     'reached_destination': car_reached_destination,
@@ -252,7 +251,10 @@ class Simulation_manager:
         get the wanted route drom the wanted simulation
         :return:
         """
-        return self.simulation_results[simulation_number][carInd]['route']
+        if self.simulation_results[simulation_number][carInd]['route'] == None:
+         return None
+        else:
+            return self.simulation_results[simulation_number][carInd]['route']
 
 
     def get_key_from_value(self, dictionary, value):
@@ -320,25 +322,32 @@ class Simulation_manager:
         plt.show()
         return
 
+
 WEEK = 604800
 DAY = 86400
 HOUR = 3600
 MINUTE = 60
 
 # initilazires
-START_TIME1 =datetime.datetime(year=2023,month=6,day=29,hour=7, minute=10, second=0)
-START_TIME2 =datetime.datetime(year=2023,month=6,day=29,hour=19, minute=10, second=0)
+START_TIME1 =datetime.datetime(year=2023,month=6,day=29,hour=8, minute=0, second=0)
+START_TIME2 =datetime.datetime(year=2023,month=6,day=29,hour=19, minute=0, second=0)
+START_TIME3 =datetime.datetime(year=2023,month=6,day=29,hour=21, minute=0, second=0)
+START_TIME4 =datetime.datetime(year=2023,month=6,day=30,hour=12, minute=0, second=0)
+START_TIME5 =datetime.datetime(year=2023,month=7,day=2,hour=15, minute=0, second=0)
 
-SM = Simulation_manager('/graphTLVfix.graphml',2*HOUR,START_TIME1) # graph path, time limit, starting time
+SM = Simulation_manager('/graphTLVfix.graphml',3*DAY,START_TIME1) # graph path, time limit, starting time
 CM = SM.get_car_manager()
 RN = SM.get_road_network()
 
 
 
 NUMBER_OF_SIMULATIONS = 1
-c1 = Car.Car(1,110,700,START_TIME1,RN,route_algorithm="random")
-c2 = Car.Car(2,110,700,START_TIME1,RN,route_algorithm = "shortest_path")
-cars = [c1,c2]
+c1 = Car.Car(1,110,700,START_TIME1,RN,route_algorithm="shortest_path")
+c2 = Car.Car(2,110,700,START_TIME3,RN,route_algorithm = "shortest_path")
+c3 = Car.Car(3,110,700,START_TIME2,RN,route_algorithm = "shortest_path")
+c4 = Car.Car(4,110,700,START_TIME4,RN,route_algorithm = "shortest_path")
+c5 = Car.Car(5,110,700,START_TIME5,RN,route_algorithm = "shortest_path")
+cars = [c1,c2,c3,c4,c5]
 
 SM.run_full_simulation(cars,NUMBER_OF_SIMULATIONS)
 print("***************************")
@@ -346,10 +355,12 @@ print("***************************")
 
 route1 = SM.get_simulation_route(1,0)
 route2 = SM.get_simulation_route(2,0)
+route3 = SM.get_simulation_route(3,0)
 
 # SM.plotting_custom_route(route2)
-SM.car_times_bar_chart(1)
-SM.car_times_bar_chart(2)
+# SM.car_times_bar_chart(1)
+# SM.car_times_bar_chart(2)
+# SM.car_times_bar_chart(3)
 
 SRM = Simulation_Results_Manager()
 SRM.save_results_to_JSON(SM.simulation_results,1)

@@ -1,5 +1,8 @@
 import json
 
+import pandas as pd
+from matplotlib import pyplot as plt
+
 
 class Simulation_Results_Manager:
     def __init__(self):
@@ -14,5 +17,9 @@ class Simulation_Results_Manager:
     def read_results_from_JSON(self):
         with open('simulation_results.json', 'r') as infile:
             new_simulation_results = json.load(infile)
+        # Convert the simulation results to a DataFrame
+        results_df = pd.DataFrame(new_simulation_results)
         return new_simulation_results
 
+SRM = Simulation_Results_Manager()
+SRM.read_results_from_JSON()

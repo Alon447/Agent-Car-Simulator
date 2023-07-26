@@ -15,8 +15,6 @@ class Road:
     # Gets
     def get_id(self):
         return self.id
-    def get_osm_id(self):
-        return self.osm_id
 
     def get_length(self):
         return self.length
@@ -84,16 +82,15 @@ class Road:
         so, we need to convert speed to m/s by dividing by 3.6
         :return:
         """
-
         if self.current_speed is None:
             print("error")
         total_time = 3.6 * self.length/self.current_speed
         if self.get_traffic_lights():
             street_count = self.get_street_count()
             if street_count> 1:
-                total_time += random.randrange(0,30*(self.get_street_count()-1) ,1)
+                total_time += random.randrange(0,15*(self.get_street_count()-1) ,1)
             else:
-                total_time += random.randrange(0,30,1)
+                total_time += random.randrange(0,5,1)
         return round(total_time,2)
 
     def __str__(self):
