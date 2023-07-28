@@ -1,12 +1,17 @@
-import copy
 import datetime
 import json
-import os
-import sys
-import random
+import multiprocessing
 
+import geopandas as gpd
+from shapely.geometry import Point
+import numpy as np
+
+import networkx as nx
 import osmnx as ox
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 import Road_Network
 import Car_manager
 from new_master import Car
@@ -26,7 +31,6 @@ class Simulation_manager:
 
     """
     def __init__(self, graph,time_limit, start_time = datetime.datetime(year=2023,month=6,day=29,hour=8, minute=0, second=0)): # TODO: data path
-
         # MANAGERS
         self.road_network = Road_Network.Road_Network(graph)
         self.car_manager = Car_manager.CarManager()
@@ -78,9 +82,9 @@ class Simulation_manager:
     def get_simulation_time(self):
         return int(self.simulation_time.total_seconds())
 
-    def generate_random_speeds(self):
-        self.road_network.generate_random_speeds()
-        self.road_network.set_roads_speeds()
+    # def generate_random_speeds(self):
+    #     self.road_network.generate_random_speeds()
+    #     self.road_network.set_roads_speeds()
 
     def read_road_speeds(self, datetime_obj: datetime.datetime):
         """
@@ -171,6 +175,10 @@ class Simulation_manager:
         #     print(car.get_id(), car.get_total_travel_time())
 
     def run_full_simulation(self, cars, number_of_simulations=1):
+        self.block_road(0)
+        self.block_road(900)
+        self.block_road(901)
+        self.block_road(902)
         self.read_road_speeds(self.simulation_datetime_start)
         for i in range(number_of_simulations):
             copy_cars= []
@@ -190,7 +198,7 @@ class Simulation_manager:
             self.set_up_simulation(copy_cars)
             self.start_simulation()
             self.end_simulation(i)
-            self.road_network.unblock_all_roads()
+            # self.road_network.unblock_all_roads()
             simulation_results = {}
             for j, car in enumerate(copy_cars):
                 car_reached_destination = self.car_manager.is_car_finished(car)
@@ -300,27 +308,136 @@ class Simulation_manager:
 
         plt.show()
 
-    def plotting_custom_route(self,custom_route):
+    # Define the function that calculates edge colors in a separate process
+    def calculate_edge_colors(self,queue):
+        # Your calculation here, update the edge_colors variable
+        edge_colors = {}  # This should be a dictionary mapping edge IDs to colors
+        graph = self.road_network.graph
+
+        for i in range(len(graph.edges)):
+            road=self.road_network.roads_array[i]
+            if road.is_blocked:
+                edge_colors.append('white')
+            elif road.get_current_speed() <25:
+                edge_colors.append('red')
+            elif road.get_current_speed() <37:
+                edge_colors.append('orange')
+            elif road.get_current_speed() <50:
+                edge_colors.append('green')
+        queue.put(edge_colors)
+
+    # Function to update the edge colors in the plot
+    # def update_edge_colors(self, frame):
+    #     # Receive the edge_colors from the queue
+    #     edge_colors = queue.get()
+    #     # Update the edge colors in the plot
+    #     for edge, color in edge_colors.items():
+    #         edges[edge].set_edgecolor(color)
+    #     return edges.values()
+
+    # Main function to plot the OSMnx graph and start the animation
+    def plot_and_animate_graph(self, edge_colors):
+        G = self.road_network.graph
+        fig, ax = ox.plot_graph(G, show=False, close=False, edge_color=edge_colors, edge_linewidth=1.5)
+
+        # Create a queue to communicate between processes
+        queue = multiprocessing.Queue()
+
+        # Create a separate process to calculate edge colors
+        process = multiprocessing.Process(target=self.calculate_edge_colors, args=(queue,))
+        process.start()
+
+        # Animate the graph plot with updated edge colors
+        self.ani = FuncAnimation(fig, self.calculate_edge_colors, frames=range(1), interval=1000, repeat=True)
+
+        # Display the plot and start the animation
+        plt.show()
+
+        # Clean up the process after the plot is closed
+        process.terminate()
+
+    def plotting_custom_route(self,custom_routes: list):
         """
         this is the way for a car that finished its route to plot it on the map at the end
         saves the function here for future use
         """
         # Define the custom route as a list of node IDs
-        custom_route = self.transform_node_id_route_to_osm_id_route(custom_route)
-        cur = os.getcwd()
-        parent = os.path.dirname(cur)
-        data = os.path.join(parent, "data")
-        graph = ox.load_graphml(data + '/graphTLVfix.graphml')
+        graph = self.road_network.graph
+        new_routes = []
+        origins=[]
+        destinations=[]
+        rc = []
+
+        scatter_list = []
+        orig = []
+        dest = []
+
+        edge_colors = []
+        for i in range(len(graph.edges)):
+            road = self.road_network.roads_array[i]
+            if road.is_blocked:
+                edge_colors.append('white')
+            elif road.get_current_speed() < 25:
+                edge_colors.append('red')
+            elif road.get_current_speed() < 37:
+                edge_colors.append('orange')
+            elif road.get_current_speed() < 50:
+                edge_colors.append('green')
+        # Plot the graph
+        fig, ax = ox.plot_graph(graph,figsize=(15, 15), show=False, close=False, edge_color=edge_colors, node_color='lightgrey', bgcolor='white')
+
+        for j,route in enumerate(routes):
+            new_routes.append(self.transform_node_id_route_to_osm_id_route(route))
+
+            x, y = RN.get_xy_from_node_id(route[0])
+            scatter_list.append(ax.scatter(x,  # x coordiante of the first node of the j route
+                                           y,  # y coordiante of the first node of the j route
+                                           label=f'Car {j}',
+                                           alpha=.75))
+            origin_x, origin_y = RN.get_xy_from_node_id(route[0])
+            geometry_data = [(origin_y, origin_x)]
+            gdf = gpd.GeoDataFrame(geometry=[Point(lon, lat) for lat, lon in geometry_data], crs='epsg:4326')
+            orig.append(gdf)
+
+            dest_x, dest_y = RN.get_xy_from_node_id(route[-1])
+            geometry_data = [(dest_y, dest_x)]
+            gdf = gpd.GeoDataFrame(geometry=[Point(lon, lat) for lat, lon in geometry_data], crs='epsg:4326')
+            dest.append(gdf)
+
+
 
         # Plot the graph
-        fig, ax = ox.plot_graph(graph, show=False, close=False, edge_color='lightgray', node_color='gray', bgcolor='black')
+        for i in range(len(new_routes)):
+            orig[i].plot(ax=ax, color='pink',label=f'Origin {i + 1}')
+            dest[i].plot(ax=ax, color='yellow',label=f'Destination {i + 1}')
+        plt.legend(frameon=False)
 
+        # pick route colors
+
+        rc.append("r")
+        rc.append("b")
         # Plot the custom route
-        ox.plot_graph_route(graph, custom_route, route_color='red', route_linewidth=6, ax=ax)
+        # ox.plot_graph_routes(graph, new_routes, route_colors=rc, route_linewidth=6,  node_size=0, bgcolor='k',ax=ax)
 
         # Show the plot
+        # plt.show()
+        # return
+        self.animate_route(ax,fig,scatter_list, new_routes)
+
+    def animate_route(self, ax,fig,scatter_list, custom_routes):
+        max_route_len = max(len(route) for route in custom_routes)
+
+        def animate(i):
+            for j in range(len(custom_routes)):
+                print(j)
+                try:
+                    x_j, y_j = self.road_network.get_xy_from_osm_id(custom_routes[j][i])
+                    scatter_list[j].set_offsets(np.c_[x_j, y_j])
+                except:
+                    continue
+
+        animation = FuncAnimation(fig, animate, frames=max_route_len, interval=1000, repeat=False)
         plt.show()
-        return
 
 
 WEEK = 604800
@@ -330,34 +447,34 @@ MINUTE = 60
 
 # initilazires
 START_TIME1 =datetime.datetime(year=2023,month=6,day=29,hour=8, minute=0, second=0)
-START_TIME2 =datetime.datetime(year=2023,month=6,day=29,hour=19, minute=0, second=0)
+START_TIME2 =datetime.datetime(year=2023,month=6,day=29,hour=12, minute=0, second=0)
 START_TIME3 =datetime.datetime(year=2023,month=6,day=29,hour=21, minute=0, second=0)
 START_TIME4 =datetime.datetime(year=2023,month=6,day=30,hour=12, minute=0, second=0)
-START_TIME5 =datetime.datetime(year=2023,month=7,day=2,hour=15, minute=0, second=0)
+START_TIME5 =datetime.datetime(year=2023,month=7,day=1,hour=15, minute=0, second=0)
 
-SM = Simulation_manager('/graphTLVfix.graphml',3*DAY,START_TIME1) # graph path, time limit, starting time
+SM = Simulation_manager('/graphTLVfix.graphml',4*DAY,START_TIME1) # graph path, time limit, starting time
 CM = SM.get_car_manager()
 RN = SM.get_road_network()
 
 
 
 NUMBER_OF_SIMULATIONS = 1
-c1 = Car.Car(1,110,700,START_TIME1,RN,route_algorithm="shortest_path")
-c2 = Car.Car(2,110,700,START_TIME3,RN,route_algorithm = "shortest_path")
-c3 = Car.Car(3,110,700,START_TIME2,RN,route_algorithm = "shortest_path")
-c4 = Car.Car(4,110,700,START_TIME4,RN,route_algorithm = "shortest_path")
+c1 = Car.Car(1,400,700,START_TIME1,RN,route_algorithm = "shortest_path")
+c2 = Car.Car(2,400,700,START_TIME3,RN,route_algorithm = "random")
+c3 = Car.Car(3,400,700,START_TIME2,RN,route_algorithm = "random")
+c4 = Car.Car(4,113,703,START_TIME4,RN,route_algorithm = "shortest_path")
 c5 = Car.Car(5,110,700,START_TIME5,RN,route_algorithm = "shortest_path")
-cars = [c1,c2,c3,c4,c5]
+cars = [c1,c3]
 
 SM.run_full_simulation(cars,NUMBER_OF_SIMULATIONS)
 print("***************************")
 
 
 route1 = SM.get_simulation_route(1,0)
-route2 = SM.get_simulation_route(2,0)
+# route2 = SM.get_simulation_route(2,0)
 route3 = SM.get_simulation_route(3,0)
-
-# SM.plotting_custom_route(route2)
+routes=[route1,route3]
+SM.plotting_custom_route(routes)
 # SM.car_times_bar_chart(1)
 # SM.car_times_bar_chart(2)
 # SM.car_times_bar_chart(3)
@@ -366,14 +483,4 @@ SRM = Simulation_Results_Manager()
 SRM.save_results_to_JSON(SM.simulation_results,1)
 SM.simulation_results = SRM.read_results_from_JSON()
 SM.print_simulation_results()
-
-
-
-
-
-
-
-
-
-
 

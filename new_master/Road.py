@@ -88,7 +88,7 @@ class Road:
         if self.get_traffic_lights():
             street_count = self.get_street_count()
             if street_count> 1:
-                total_time += random.randrange(0,15*(self.get_street_count()-1) ,1)
+                total_time += random.randrange(0,20*(self.get_street_count()-1) ,1)
             else:
                 total_time += random.randrange(0,5,1)
         return round(total_time,2)

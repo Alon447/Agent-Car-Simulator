@@ -7,6 +7,13 @@ import networkx as nx
 import datetime
 import random
 
+from matplotlib import pyplot as plt
+from matplotlib.animation import FuncAnimation
+from IPython.display import HTML
+
+from new_master.Road_Network import Road_Network
+
+
 class TrafficDictionary:
     def __init__(self, g):
         self._dictionary = {}
@@ -167,26 +174,78 @@ g = ox.load_graphml(f'../data/graphTLVFix.graphml')
 # roads=[]
 #
 td = TrafficDictionary(g)
-# tr_dic=td.create_available_roads_list(g)
-# sum=0
-# for i in tr_dic:
-#     # print(i,tr_dic[i], len(tr_dic[i]))
-#     sum+=len(tr_dic[i])
-#
-# dis=td.create_distances_matrix(g)
-#
-# print(max(dis[139713]))
 
-# for i,edge in enumerate(g.edges):
-#     destination_node = edge[
-#    ]
-#     for road in (g.edges):
-#         if road[0] == destination_node:
-#             availble_roads.append(edge)
-#             if road not in roads:
-#                 roads.append(edge)
-#         print(availble_roads,len(availble_roads))
-#     availble_roads=[]
-# print(roads,len(roads))
+# td.generate_day_data()
 
-td.generate_day_data()
+import numpy as np
+import geopandas as gpd
+from shapely.geometry import Point
+
+G = ox.load_graphml(f'../data/graphTLVFix.graphml')
+route2 = [400,401,216,60,59,173,398,49,34,48,721,190,618,33,813,244,231,927,910,52,67,726,15,153,360,152,62,23,670,692,669,701,700]
+# route1= [115,111,763,337,705]
+# route2 = [1387191993,3541135157,1387191993]
+routes=[route2]
+origins = [route2[0]]
+destinations = [route2[-1]]
+RN = Road_Network('/graphTLVFix.graphml')
+fig, ax = ox.plot_graph(G, close=False, edge_color='lightgray', node_color='gray',show=False, bgcolor='white')
+# ox.plot_graph_route(G, route1, route_color='red', route_linewidth=6,ax=ax,show=False)
+
+scatter_list = []
+orig=[]
+dest=[]
+for j in range(len(routes)):
+    x,y = RN.get_xy_from_node_id(origins[j])
+    scatter_list.append(ax.scatter(x,  # x coordiante of the first node of the j route
+                                   y,  # y coordiante of the first node of the j route
+                                   label=f'Car {j}',
+                                   alpha=.75))
+    origin_x, origin_y = RN.get_xy_from_node_id(origins[j])
+    geometry_data = [(origin_y, origin_x)]
+    gdf = gpd.GeoDataFrame(geometry=[Point(lon, lat) for lat, lon in geometry_data], crs='epsg:4326')
+    orig.append(gdf)
+
+    dest_x, dest_y = RN.get_xy_from_node_id(destinations[j])
+    geometry_data = [(dest_y, dest_x)]
+    gdf = gpd.GeoDataFrame(geometry=[Point(lon, lat) for lat, lon in geometry_data], crs='epsg:4326')
+    dest.append(gdf)
+
+max_route_len = max(len(route) for route in routes)
+for i in range(len(routes)):
+    orig[i].plot(ax=ax, color='pink', label=f'Origin {i + 1}')
+    dest[i].plot(ax=ax, color='yellow', label=f'Destination {i + 1}')
+plt.legend(frameon=False)
+
+def animate(i):
+    """Animate scatter plot (car movement)
+
+    Args:
+        i (int) : Iterable argument.
+
+    Returns:
+        None
+
+    """
+    # Print some information for debugging
+
+    # Iterate over all routes = number of ambulance cars riding
+    for j in range(len(routes)):
+        # Some routes are shorter than others
+        # Therefore we need to use try except with continue construction
+
+        try:
+            # Try to plot a scatter plot
+            # ox.plot_graph_route(G, routes[j][:i], route_color='red', route_linewidth=6, ax=ax, show=True)
+            x_j, y_j = RN.get_xy_from_node_id(routes[j][i])
+            # x_j = routes[j][i][0]
+            # y_j = routes[j][i][1]
+            scatter_list[j].set_offsets(np.c_[x_j, y_j])
+        except:
+            # If i became > len(current_route) then continue to the next route
+            continue
+# Make the animation
+animation = FuncAnimation(fig, animate, frames=max_route_len, interval=1000, repeat=False)
+plt.show()
+# HTML(animation.to_jshtml()) # to display animation in Jupyter Notebook
+# animation.save('animation.mp4', dpi=300) # to save animation

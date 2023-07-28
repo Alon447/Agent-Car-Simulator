@@ -228,7 +228,21 @@ class Road_Network:
             if road.get_source_node() == source_node:
                 return road
     # def set_connectivity_list(self):
+    def get_xy_from_node_id(self, node_id:id):
+        """
 
+        :param node_id: the id of the node
+        :return:  x,y coordinates of the node
+        """
+        return self.graph_nodes[node_id][2], self.graph_nodes[node_id][3]
+    def get_xy_from_osm_id(self, osm_id:int):
+        """
+
+        :param osm_id: the osm id of the node
+        :return: x,y coordinates of the node
+        """
+        osm_id = self.node_dict[osm_id]
+        return self.graph_nodes[osm_id][2], self.graph_nodes[osm_id][3]
     def get_blocked_roads_array(self):
         return self.blocked_roads_array
     def set_graph(self, graph_path):
