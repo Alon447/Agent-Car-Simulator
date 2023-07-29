@@ -39,6 +39,7 @@ class Simulation_manager:
         self.simulation_datetime_start = start_time
         self.simulation_datetime = start_time
         self.simulation_time = datetime.timedelta(seconds=0) # in seconds
+        self.simulation_update_times=[] # list of times the simulation was updated for the animation
         self.last_speed_update_time = start_time
         self.time_limit = time_limit
         self.day_int=0 # 0-6, 0-sunday, 1-monday, 2-tuesday, 3-wednesday, 4-thursday, 5-friday, 6-saturday
@@ -68,10 +69,11 @@ class Simulation_manager:
     def get_car_manager(self):
         return self.car_manager
 
-    def update_simulation_clock(self, time):
+    def update_simulation_clock(self, time:int):
         # update both the spesific simulation time and the datetime
         self.simulation_time += pd.Timedelta(seconds=time) #time
         self.simulation_datetime += pd.Timedelta(seconds=time) #  time
+        self.simulation_update_times.append(self.simulation_datetime)
         time_difference = self.simulation_datetime - self.last_speed_update_time
         if time_difference.seconds>= 600: # 10 minutes
             # print("Speed updated at:", self.simulation_datetime.strftime("%H:%M:%S"))
@@ -326,35 +328,6 @@ class Simulation_manager:
                 edge_colors.append('green')
         queue.put(edge_colors)
 
-    # Function to update the edge colors in the plot
-    # def update_edge_colors(self, frame):
-    #     # Receive the edge_colors from the queue
-    #     edge_colors = queue.get()
-    #     # Update the edge colors in the plot
-    #     for edge, color in edge_colors.items():
-    #         edges[edge].set_edgecolor(color)
-    #     return edges.values()
-
-    # Main function to plot the OSMnx graph and start the animation
-    def plot_and_animate_graph(self, edge_colors):
-        G = self.road_network.graph
-        fig, ax = ox.plot_graph(G, show=False, close=False, edge_color=edge_colors, edge_linewidth=1.5)
-
-        # Create a queue to communicate between processes
-        queue = multiprocessing.Queue()
-
-        # Create a separate process to calculate edge colors
-        process = multiprocessing.Process(target=self.calculate_edge_colors, args=(queue,))
-        process.start()
-
-        # Animate the graph plot with updated edge colors
-        self.ani = FuncAnimation(fig, self.calculate_edge_colors, frames=range(1), interval=1000, repeat=True)
-
-        # Display the plot and start the animation
-        plt.show()
-
-        # Clean up the process after the plot is closed
-        process.terminate()
 
     def plotting_custom_route(self,custom_routes: list):
         """
@@ -364,25 +337,20 @@ class Simulation_manager:
         # Define the custom route as a list of node IDs
         graph = self.road_network.graph
         new_routes = []
-        origins=[]
-        destinations=[]
+
         rc = []
 
         scatter_list = []
         orig = []
         dest = []
 
-        edge_colors = []
-        for i in range(len(graph.edges)):
-            road = self.road_network.roads_array[i]
-            if road.is_blocked:
-                edge_colors.append('white')
-            elif road.get_current_speed() < 25:
-                edge_colors.append('red')
-            elif road.get_current_speed() < 37:
-                edge_colors.append('orange')
-            elif road.get_current_speed() < 50:
-                edge_colors.append('green')
+        edge_colors = [
+            'white' if road.is_blocked else
+            'red' if road.get_current_speed() < 25 else
+            'orange' if road.get_current_speed() < 37 else
+            'green'
+            for road in self.road_network.roads_array
+        ]
         # Plot the graph
         fig, ax = ox.plot_graph(graph,figsize=(15, 15), show=False, close=False, edge_color=edge_colors, node_color='lightgrey', bgcolor='white')
 
@@ -426,8 +394,13 @@ class Simulation_manager:
 
     def animate_route(self, ax,fig,scatter_list, custom_routes):
         max_route_len = max(len(route) for route in custom_routes)
+        num_updates = len(self.simulation_update_times)  # Get the number of simulation update times
 
         def animate(i):
+            # Calculate the index corresponding to the current frame of the animation
+            update_idx = int(i * num_updates / max_route_len)
+            # Get the simulation datetime corresponding to the current frame
+            current_time = self.simulation_update_times[update_idx]
             for j in range(len(custom_routes)):
                 print(j)
                 try:
@@ -435,8 +408,15 @@ class Simulation_manager:
                     scatter_list[j].set_offsets(np.c_[x_j, y_j])
                 except:
                     continue
+            # Clear previous text annotation
+            ax.texts.clear()
 
-        animation = FuncAnimation(fig, animate, frames=max_route_len, interval=1000, repeat=False)
+            # Add text annotation for simulation time
+            time_text = ax.text(0.95, 0.95, f'Simulation Time: {current_time.strftime("%H:%M:%S")}',
+                                transform=ax.transAxes, color='black', fontsize=12, fontweight='bold',
+                                horizontalalignment='right')
+
+        animation = FuncAnimation(fig, animate, frames=max_route_len, interval=500, repeat=False)
         plt.show()
 
 
@@ -447,12 +427,12 @@ MINUTE = 60
 
 # initilazires
 START_TIME1 =datetime.datetime(year=2023,month=6,day=29,hour=8, minute=0, second=0)
-START_TIME2 =datetime.datetime(year=2023,month=6,day=29,hour=12, minute=0, second=0)
+START_TIME2 =datetime.datetime(year=2023,month=6,day=29,hour=8, minute=0, second=0)
 START_TIME3 =datetime.datetime(year=2023,month=6,day=29,hour=21, minute=0, second=0)
 START_TIME4 =datetime.datetime(year=2023,month=6,day=30,hour=12, minute=0, second=0)
 START_TIME5 =datetime.datetime(year=2023,month=7,day=1,hour=15, minute=0, second=0)
 
-SM = Simulation_manager('/graphTLVfix.graphml',4*DAY,START_TIME1) # graph path, time limit, starting time
+SM = Simulation_manager('/graphTLVfix.graphml',2*HOUR,START_TIME1) # graph path, time limit, starting time
 CM = SM.get_car_manager()
 RN = SM.get_road_network()
 
@@ -460,8 +440,8 @@ RN = SM.get_road_network()
 
 NUMBER_OF_SIMULATIONS = 1
 c1 = Car.Car(1,400,700,START_TIME1,RN,route_algorithm = "shortest_path")
-c2 = Car.Car(2,400,700,START_TIME3,RN,route_algorithm = "random")
-c3 = Car.Car(3,400,700,START_TIME2,RN,route_algorithm = "random")
+c2 = Car.Car(2,400,700,START_TIME3,RN,route_algorithm = "shortest_path")
+c3 = Car.Car(3,200,839,START_TIME2,RN,route_algorithm = "shortest_path")
 c4 = Car.Car(4,113,703,START_TIME4,RN,route_algorithm = "shortest_path")
 c5 = Car.Car(5,110,700,START_TIME5,RN,route_algorithm = "shortest_path")
 cars = [c1,c3]
