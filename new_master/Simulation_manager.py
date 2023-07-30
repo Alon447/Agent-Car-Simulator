@@ -432,7 +432,7 @@ START_TIME3 =datetime.datetime(year=2023,month=6,day=29,hour=21, minute=0, secon
 START_TIME4 =datetime.datetime(year=2023,month=6,day=30,hour=12, minute=0, second=0)
 START_TIME5 =datetime.datetime(year=2023,month=7,day=1,hour=15, minute=0, second=0)
 
-SM = Simulation_manager('/graphTLVfix.graphml',2*HOUR,START_TIME1) # graph path, time limit, starting time
+SM = Simulation_manager('/TLV_with_eta.graphml',2*HOUR,START_TIME1) # graph path, time limit, starting time
 CM = SM.get_car_manager()
 RN = SM.get_road_network()
 

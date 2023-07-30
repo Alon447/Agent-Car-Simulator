@@ -4,6 +4,7 @@ import Road
 import pandas as pd
 import networkx as nx
 import random
+import numpy as np
 
 
 class Road_Network:
@@ -28,10 +29,10 @@ class Road_Network:
         self.graph_nodes = {} # dict that includes: 0. node_id 1. osm_id 2.x 3.y 4. street_count 5. traffic_light
 
         self.roads_speeds = {}
-        self.node_dict={} #maps osm ids to our new ids
-        self.reverse_node_dict={} #maps our new ids to osm ids
+        self.node_dict={} # maps osm ids to our new ids
+        self.reverse_node_dict={} # maps our new ids to osm ids
         self.road_dict = {}
-        self.node_roads_count = {} # list the id of the roads that starts from a node
+        self.node_connectivity_dict = {} # node id to list of connected nodes ids
         self.blocked_roads_array = []
 
         # initialize functions
@@ -43,10 +44,6 @@ class Road_Network:
         self.next_node_matrix = [[-1] * len(self.node_dict) for _ in range(len(self.node_dict))] # cache for the distance matrix
         self.distances_matrix = [[-1] * len(self.node_dict) for _ in range(len(self.node_dict))] # cache for the distance matrix
 
-        #self.distance_matrix = self.calc_dist_mat()
-        #self.remove_blocked_roads()
-        # maybe remove all the blocked roads from the graph
-        # only problem is that we will create more blocked roads in the simulation
 
 
     ################
@@ -81,10 +78,10 @@ class Road_Network:
                                  self.graph.edges[edge]['length'],int(self.graph.edges[edge]['maxspeed']))
             self.roads_array.append(new_road)
             self.road_dict[(new_road.get_source_node(),new_road.get_destination_node())] = new_road.get_id()
-            if start_node in self.node_roads_count and isinstance(self.node_roads_count[start_node], list):
-                self.node_roads_count[start_node].append(new_road.get_id())
+            if start_node in self.node_connectivity_dict and isinstance(self.node_connectivity_dict[start_node], list):
+                self.node_connectivity_dict[start_node].append(new_road.get_destination_node())
             else:
-                self.node_roads_count[start_node] = [new_road.get_id()]
+                self.node_connectivity_dict[start_node] = [new_road.get_destination_node()]
 
             # print(new_road)
         return
@@ -142,9 +139,21 @@ class Road_Network:
             self.unblock_road(road)
         return
     def set_roads_speeds(self):
+        """
+        updates the speeds of all the roads in the graph based on self.roads_speeds
+        adds the eta and current_speed to the graphml file but not saves it
+        :return:
+        """
         for road in self.roads_array:
-            road.update_speed(self.roads_speeds[road.get_id()])
-        pass
+            road_id = road.get_id()
+            src = road.get_source_node_osm_id()
+            dst = road.get_destination_node_osm_id()
+            eta = road.update_speed(self.roads_speeds[road_id])
+            graph_road = self.graph[src][dst][0]
+            graph_road.update({'eta': float(eta), 'current_speed': int(self.roads_speeds[road_id])})
+            print(graph_road)
+        ox.save_graphml(self.graph, '../data/TLV_with_eta.graphml')
+        return
 
     def add_road_speed(self,road_id,speed):
         self.roads_speeds[road_id] = speed
@@ -213,6 +222,8 @@ class Road_Network:
     def get_graph(self):
         return self.graph
 
+    def get_node_connectivity_dict(self):
+        return self.node_connectivity_dict
     def get_roads_array(self):
         return self.roads_array
 
@@ -227,7 +238,6 @@ class Road_Network:
         for road in self.roads_array:
             if road.get_source_node() == source_node:
                 return road
-    # def set_connectivity_list(self):
     def get_xy_from_node_id(self, node_id:id):
         """
 
@@ -243,6 +253,8 @@ class Road_Network:
         """
         osm_id = self.node_dict[osm_id]
         return self.graph_nodes[osm_id][2], self.graph_nodes[osm_id][3]
+    def get_graph_nodes(self):
+        return self.graph_nodes
     def get_blocked_roads_array(self):
         return self.blocked_roads_array
     def set_graph(self, graph_path):

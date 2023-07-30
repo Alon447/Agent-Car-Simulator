@@ -92,7 +92,7 @@ class Shortest_path_route(Route):
 
     def get_next_road(self, source_node, destination_node, adjacency_list, road_network,time):
         # TODO: update according to distance matrix implementation
-        if(source_node==destination_node):
+        if source_node==destination_node:
             return None
         return road_network.get_next_road(source_node, destination_node)
 

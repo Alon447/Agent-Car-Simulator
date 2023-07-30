@@ -91,7 +91,7 @@ class Car:
         :return:
         """
         self.current_road_time += pd.Timedelta(seconds=time) #time
-        if(self.check_if_finished()):
+        if self.check_if_finished():
             return None
 
 
@@ -113,7 +113,7 @@ class Car:
 
         id = int(next_road.get_id())
         self.current_road = self.road_network.get_roads_array()[id]
-        self.road_network.get_roads_array()[id].add_car_to_road(self)
+        # self.road_network.get_roads_array()[id].add_car_to_road(self)
         #TODO: remove car from current road
         self.update_time_until_next_road(self.current_road)
         #self.set_time_until_next_road(self.current_road.get_length()*3.6 / self.current_road.get_current_speed())
@@ -178,6 +178,7 @@ class Car:
         return self.route_algorithm
 
     def get_time_until_next_road(self):
+        # self.time_until_next_road is a timedelta object
         if self.is_blocked:
             self.time_until_next_road = 600
         return int(self.time_until_next_road.total_seconds())

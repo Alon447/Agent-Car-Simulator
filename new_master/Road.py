@@ -10,8 +10,10 @@ class Road:
         self.current_speed = 10
         self.max_speed = max_speed
         self.is_blocked= False
-        self.cars_on_road = []
+        # self.cars_on_road = []
         self.adjacent_roads = [] # list of adjacent roads to this road, includes only the ids of the roads
+        self.estimated_time = float('inf')
+        self.calculate_time() # initialize the estimated time
     # Gets
     def get_id(self):
         return self.id
@@ -37,6 +39,9 @@ class Road:
     def get_source_node(self):
         # return the new id of the source node
         return self.source_node[0]
+    def get_source_node_osm_id(self):
+        # return the osm id of the source node
+        return self.source_node[1]
 
     def get_destination_node(self):
         # return the new id of the destination node
@@ -59,8 +64,7 @@ class Road:
     # Sets
     def set_current_speed(self, speed):
         self.current_speed = speed
-    # def set_adjacent_roads(self, adjacent_roads):#not used
-    #     self.adjacent_roads = adjacent_roads
+
     # Functions
     def block(self):
         self.is_blocked = True
@@ -72,6 +76,8 @@ class Road:
         self.cars_on_road.remove(car)
     def update_speed(self, new_speed):
         self.current_speed = new_speed
+        eta = self.calculate_time()
+        return eta
 
     def calculate_time(self):
         """
@@ -80,18 +86,20 @@ class Road:
         speed - km/h
         time - seconds
         so, we need to convert speed to m/s by dividing by 3.6
-        :return:
+        :return: time in seconds
         """
         if self.current_speed is None:
             print("error")
+
         total_time = 3.6 * self.length/self.current_speed
         if self.get_traffic_lights():
             street_count = self.get_street_count()
-            if street_count> 1:
+            if street_count > 1:
                 total_time += random.randrange(0,20*(self.get_street_count()-1) ,1)
             else:
                 total_time += random.randrange(0,5,1)
-        return round(total_time,2)
+        self.estimated_time = round(total_time,2)
+        return self.estimated_time
 
     def __str__(self):
         return "Road id: " + str(self.id) + ", source node: " + str(self.source_node) + ", destination node: " + str(self.destination_node) + ", length: " + str(self.length) + ", max speed: " + str(self.max_speed) + ", current speed: " + str(self.current_speed) + ", is blocked: " + str(self.is_blocked) #+ ", cars on road: " + str(self.cars_on_road)

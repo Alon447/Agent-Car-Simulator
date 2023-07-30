@@ -142,7 +142,7 @@ class TrafficDictionary:
         cur = os.getcwd()
         parent = os.path.dirname(cur)
         data = os.path.join(parent, "data")
-        graph = ox.load_graphml(data + '/graphTLVfix.graphml')
+        graph = ox.load_graphml(data + '/TLV_with_eta.graphml')
 
         # Plot the graph
         fig, ax = ox.plot_graph(graph, show=False, close=False, edge_color='lightgray', node_color='gray',
@@ -167,85 +167,27 @@ class TrafficDictionary:
         for number, count in counts.items():
             print(f"Number {number} appears {count} times")
 
-# a=ox.graph_from_place("tel aviv")
 
-g = ox.load_graphml(f'../data/graphTLVFix.graphml')
-# availble_roads=[]
-# roads=[]
-#
+# g = ox.load_graphml(f'../data/graphTLVFix.graphml')
+
+RN = Road_Network('/TLV_with_eta.graphml')
+g = RN.get_graph()
 td = TrafficDictionary(g)
-
+src = RN.reverse_node_dict[400]
+dest = RN.reverse_node_dict[700]
+for u, v, key, data in g.edges(keys=True, data=True):
+    if 'eta' in data:
+        # Convert the 'eta' attribute from string to float
+        data['eta'] = float(data['eta'])
 # td.generate_day_data()
-
-import numpy as np
-import geopandas as gpd
-from shapely.geometry import Point
-
-G = ox.load_graphml(f'../data/graphTLVFix.graphml')
+path = nx.shortest_path(RN.graph, src, dest, weight='eta')
+paths = nx.all_shortest_paths(RN.graph, src, dest, weight='eta')
+for p in paths:
+    print(p)
+path_length = nx.shortest_path_length(RN.graph, src, dest, weight='eta')
+# G = ox.load_graphml(f'../data/graphTLVFix.graphml')
 route2 = [400,401,216,60,59,173,398,49,34,48,721,190,618,33,813,244,231,927,910,52,67,726,15,153,360,152,62,23,670,692,669,701,700]
-# route1= [115,111,763,337,705]
-# route2 = [1387191993,3541135157,1387191993]
-routes=[route2]
-origins = [route2[0]]
-destinations = [route2[-1]]
-RN = Road_Network('/graphTLVFix.graphml')
-fig, ax = ox.plot_graph(G, close=False, edge_color='lightgray', node_color='gray',show=False, bgcolor='white')
+
+# fig, ax = ox.plot_graph(G, close=False, edge_color='lightgray', node_color='gray',show=False, bgcolor='white')
 # ox.plot_graph_route(G, route1, route_color='red', route_linewidth=6,ax=ax,show=False)
 
-scatter_list = []
-orig=[]
-dest=[]
-for j in range(len(routes)):
-    x,y = RN.get_xy_from_node_id(origins[j])
-    scatter_list.append(ax.scatter(x,  # x coordiante of the first node of the j route
-                                   y,  # y coordiante of the first node of the j route
-                                   label=f'Car {j}',
-                                   alpha=.75))
-    origin_x, origin_y = RN.get_xy_from_node_id(origins[j])
-    geometry_data = [(origin_y, origin_x)]
-    gdf = gpd.GeoDataFrame(geometry=[Point(lon, lat) for lat, lon in geometry_data], crs='epsg:4326')
-    orig.append(gdf)
-
-    dest_x, dest_y = RN.get_xy_from_node_id(destinations[j])
-    geometry_data = [(dest_y, dest_x)]
-    gdf = gpd.GeoDataFrame(geometry=[Point(lon, lat) for lat, lon in geometry_data], crs='epsg:4326')
-    dest.append(gdf)
-
-max_route_len = max(len(route) for route in routes)
-for i in range(len(routes)):
-    orig[i].plot(ax=ax, color='pink', label=f'Origin {i + 1}')
-    dest[i].plot(ax=ax, color='yellow', label=f'Destination {i + 1}')
-plt.legend(frameon=False)
-
-def animate(i):
-    """Animate scatter plot (car movement)
-
-    Args:
-        i (int) : Iterable argument.
-
-    Returns:
-        None
-
-    """
-    # Print some information for debugging
-
-    # Iterate over all routes = number of ambulance cars riding
-    for j in range(len(routes)):
-        # Some routes are shorter than others
-        # Therefore we need to use try except with continue construction
-
-        try:
-            # Try to plot a scatter plot
-            # ox.plot_graph_route(G, routes[j][:i], route_color='red', route_linewidth=6, ax=ax, show=True)
-            x_j, y_j = RN.get_xy_from_node_id(routes[j][i])
-            # x_j = routes[j][i][0]
-            # y_j = routes[j][i][1]
-            scatter_list[j].set_offsets(np.c_[x_j, y_j])
-        except:
-            # If i became > len(current_route) then continue to the next route
-            continue
-# Make the animation
-animation = FuncAnimation(fig, animate, frames=max_route_len, interval=1000, repeat=False)
-plt.show()
-# HTML(animation.to_jshtml()) # to display animation in Jupyter Notebook
-# animation.save('animation.mp4', dpi=300) # to save animation
