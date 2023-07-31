@@ -204,6 +204,15 @@ class Car:
         self.is_blocked = False
         return
 
+    # for the q learning test
+    def set_current_road(self, road):
+        if self.current_road is not None:
+            self.past_roads.append({self.current_road.get_id(): round(time_delta_to_seconds(self.current_road_time), 2)})
+            self.past_nodes.append(self.current_road.get_destination_node())
+        self.current_road = road
+
+        return
+
 
 
     def __str__(self) -> str:

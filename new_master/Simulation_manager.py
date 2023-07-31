@@ -310,24 +310,6 @@ class Simulation_manager:
 
         plt.show()
 
-    # Define the function that calculates edge colors in a separate process
-    def calculate_edge_colors(self,queue):
-        # Your calculation here, update the edge_colors variable
-        edge_colors = {}  # This should be a dictionary mapping edge IDs to colors
-        graph = self.road_network.graph
-
-        for i in range(len(graph.edges)):
-            road=self.road_network.roads_array[i]
-            if road.is_blocked:
-                edge_colors.append('white')
-            elif road.get_current_speed() <25:
-                edge_colors.append('red')
-            elif road.get_current_speed() <37:
-                edge_colors.append('orange')
-            elif road.get_current_speed() <50:
-                edge_colors.append('green')
-        queue.put(edge_colors)
-
 
     def plotting_custom_route(self,custom_routes: list):
         """
@@ -402,7 +384,7 @@ class Simulation_manager:
             # Get the simulation datetime corresponding to the current frame
             current_time = self.simulation_update_times[update_idx]
             for j in range(len(custom_routes)):
-                print(j)
+                # print(j)
                 try:
                     x_j, y_j = self.road_network.get_xy_from_osm_id(custom_routes[j][i])
                     scatter_list[j].set_offsets(np.c_[x_j, y_j])
@@ -432,7 +414,7 @@ START_TIME3 =datetime.datetime(year=2023,month=6,day=29,hour=21, minute=0, secon
 START_TIME4 =datetime.datetime(year=2023,month=6,day=30,hour=12, minute=0, second=0)
 START_TIME5 =datetime.datetime(year=2023,month=7,day=1,hour=15, minute=0, second=0)
 
-SM = Simulation_manager('/TLV_with_eta.graphml',2*HOUR,START_TIME1) # graph path, time limit, starting time
+SM = Simulation_manager('/TLV_with_eta.graphml',10*HOUR,START_TIME1) # graph path, time limit, starting time
 CM = SM.get_car_manager()
 RN = SM.get_road_network()
 

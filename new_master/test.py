@@ -1,66 +1,75 @@
-import pandas as pd
-import random
-import numpy as np
-import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
-from scipy.interpolate import CubicSpline
+import csv
+from datetime import datetime
 
-# Function to generate random speed for a given hour
-def generate_random_speed(hour):
-    if 6 <= hour < 9:  # Morning rush hour (slow-moving traffic)
-        return random.randint(10, 30)
-    elif 9 <= hour < 16:  # Daytime (moderate speed)
-        return random.randint(40, 60)
-    elif 16 <= hour < 19:  # Evening rush hour (slow-moving traffic)
-        return random.randint(10, 30)
-    else:  # Nighttime (faster speed)
-        return random.randint(70, 100)
+from matplotlib import pyplot as plt
 
-# Generate synthetic data for three days
-start_date = datetime(2023, 7, 30, 6, 0)  # Start at 6:00 AM
-end_date = datetime(2023, 8, 1, 5, 59)  # End at 5:59 AM
-time_interval = timedelta(hours=1)  # Data for every hour
 
-data = []
-current_date = start_date
+def get_speeds_for_id(csv_filename, target_id):
+    speeds_list = []
+    dates=[]
 
-while current_date <= end_date:
-    speed = generate_random_speed(current_date.hour)
-    data.append({
-        "Timestamp": current_date,
-        "Road Speed": speed,
-    })
-    current_date += time_interval
+    with open(csv_filename, newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter='\t')
 
-# Create a DataFrame from the generated data
-df = pd.DataFrame(data)
+        # Skip the header row
+        next(reader)
 
-# Sort the DataFrame by Timestamp
-df = df.sort_values(by="Timestamp")
+        # Iterate through the rows and find the speeds for the specific ID
+        for row in reader:
+            r = row[0].split(",")
+            current_id = r[0]
 
-# Convert Timestamp to numeric values (for interpolation)
-timestamps_numeric = df["Timestamp"].astype(np.int64)
+            if current_id == target_id:
+                speeds=[]
+                for i in range(2, 32, 5):
+                    date_time_str = r[i+3]
+                    date_time_obj = datetime.strptime(date_time_str, '%Y-%m-%d %H:%M')
 
-# Perform cubic spline interpolation
-cs = CubicSpline(timestamps_numeric, df["Road Speed"])
+                    dates.append(date_time_obj)
+                    if r[i] == 'ND':
+                        if i == 2:
+                            speeds.append(speeds_list[-1])
+                        else:
+                            speeds.append(speeds[-1])
+                    else:
+                        speeds.append(float(r[i]))
 
-# Generate timestamps for smooth curve (more data points for smoothness)
-timestamps_smooth = np.linspace(timestamps_numeric.min(), timestamps_numeric.max(), num=1000)
+                # speeds = [r[2], r[7], r[12], r[17], r[22], r[27]]
+                speeds_list.extend(speeds)
 
-# Get interpolated road speed values
-road_speed_smooth = cs(timestamps_smooth)
+    return dates, speeds_list
 
-# Convert interpolated timestamps back to datetime format
-timestamps_smooth_datetime = pd.to_datetime(timestamps_smooth)
+# Replace 'data.csv' with the actual filename of your CSV file
+csv_filename = 'trafficinfo.csv'
+target_id = '1210030100'  # Replace with the specific ID you want to extract speeds for
 
-# Plot the graph with smooth curve
-plt.figure(figsize=(12, 6))
-plt.plot(timestamps_smooth_datetime, road_speed_smooth, label="Smooth Road Speed", color="blue")
-plt.scatter(df["Timestamp"], df["Road Speed"], marker="o", color="red", label="Data Points")
-plt.xlabel("Time of Day")
-plt.ylabel("Road Speed (km/h)")
-plt.title("Average Road Speed During the Day (Smoothed)")
+dates, speeds_for_id = get_speeds_for_id(csv_filename, target_id)
+print("Speeds for ID {}: {}".format(target_id, speeds_for_id))
+# Plot the graph
+plt.figure(figsize=(10, 6))
+plt.plot(dates, speeds_for_id, marker='o', linestyle='-')
+plt.xlabel("Time")
+plt.ylabel("Speed (km/h)")
+plt.title("Speeds over Time")
 plt.xticks(rotation=45)
-plt.legend()
 plt.tight_layout()
 plt.show()
+
+# import numpy as np
+# import matplotlib.pyplot as plt
+#
+# # Set the parameters for the normal distribution
+# mean = 40  # Mean of the distribution
+# std_dev = 1  # Standard deviation of the distribution
+# num_samples = 10000  # Number of samples in the list
+#
+# # Generate the list of numbers following a normal distribution
+# normal_distribution_data = np.random.normal(mean, std_dev, num_samples)
+#
+# # Plot the histogram to visualize the distribution
+# plt.hist(normal_distribution_data, bins=50, density=True, alpha=0.6, color='g')
+# plt.xlabel('Value')
+# plt.ylabel('Frequency')
+# plt.title('Random Numbers Following Normal Distribution')
+# plt.grid(True)
+# plt.show()

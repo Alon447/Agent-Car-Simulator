@@ -151,8 +151,8 @@ class Road_Network:
             eta = road.update_speed(self.roads_speeds[road_id])
             graph_road = self.graph[src][dst][0]
             graph_road.update({'eta': float(eta), 'current_speed': int(self.roads_speeds[road_id])})
-            print(graph_road)
-        ox.save_graphml(self.graph, '../data/TLV_with_eta.graphml')
+            # print(graph_road)
+        # ox.save_graphml(self.graph, '../data/TLV_with_eta.graphml')
         return
 
     def add_road_speed(self,road_id,speed):
