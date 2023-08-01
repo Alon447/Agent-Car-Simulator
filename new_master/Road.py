@@ -61,6 +61,9 @@ class Road:
     def get_traffic_lights(self):
         # return the destination node traffic lights
         return self.destination_node[5]
+
+    def get_eta(self):
+        return self.estimated_time
     # Sets
     def set_current_speed(self, speed):
         self.current_speed = speed
