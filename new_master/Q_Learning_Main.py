@@ -1,8 +1,11 @@
+import copy
+import csv
 import datetime
 import random
 import osmnx as ox
 import networkx as nx
 from matplotlib import pyplot as plt
+import pandas as pd
 
 from new_master.Car import Car
 from new_master.Q_Learning_Functions import QLearning
@@ -66,8 +69,8 @@ def test(road_network, number_of_tests = 1):
     for i in range(number_of_tests):
         print("test number: ", i)
         src, dst = choose_random_src_dst(road_network)
-        src= 956
-        dst = 453
+        # src= 945
+        # dst = 712
         # print("src: ", src, "dst: ", dst)
         path = nx.shortest_path(road_network.get_graph(), road_network.reverse_node_dict[src], road_network.reverse_node_dict[dst], weight='length')
         shortest_path_time = calculate_route_eta(path, road_network)
@@ -76,21 +79,14 @@ def test(road_network, number_of_tests = 1):
         c1 = Car(1, src, dst, datetime.datetime.now(), road_network)
 
         # Train the agent
-        num_episodes = 5000
+        num_episodes = 3000
         max_steps_per_episode = 100
         agent.train(num_episodes, c1, max_steps_per_episode=max_steps_per_episode)
 
         # Test the agent
         test_reward, agent_path = agent.test(c1)  # this will be the test function
 
-        if agent_path == shortest_path: #test_reward > 500:
-            test_rewards.append(1)
-        else:
-            test_rewards.append(0)
 
-        # test_rewards.append(test_reward)
-        percentage = 100 * sum(test_rewards) / len(test_rewards)
-        print("percentage: ", percentage)
 
         rc= []
         new_routes = [node_route_to_osm_route(agent_path, road_network), node_route_to_osm_route(shortest_path, road_network)]
@@ -98,32 +94,23 @@ def test(road_network, number_of_tests = 1):
         rc.append("r")
         rc.append("b")
         print("times: ", times)
-        # Plot the custom route
-        # ox.plot_graph_routes(road_network.get_graph(), new_routes, route_colors=rc, route_linewidth=6,  node_size=0, bgcolor='k')
+        if times[0] <= times[1]:  # test_reward > 500:
+            test_rewards.append(1)
+        else:
+            test_rewards.append(0)
 
-NUM_OF_TESTS = 1
+            # test_rewards.append(test_reward)
+        percentage = 100 * sum(test_rewards) / len(test_rewards)
+        print("percentage: ", percentage)
+        print("************************************************************************")
+
+        # Plot the custom route
+        ox.plot_graph_routes(road_network.get_graph(), new_routes, route_colors=rc, route_linewidth=6,  node_size=0, bgcolor='k')
+
+NUM_OF_TESTS = 10
 road_network = Road_Network("/TLV_with_eta.graphml")  # Replace with the correct path to your graphml file
 test(road_network, number_of_tests = NUM_OF_TESTS)
 
 
 
-# agent = QLearning(road_network, learning_rate=0.1, discount_factor=0.9, epsilon=0.1)
-# src = random.Random().randint(0, len(road_network.get_node_connectivity_dict()) - 1)
-# dst = random.Random().randint(0, len(road_network.get_node_connectivity_dict()) - 1)
-# print("src: ", src, "dst: ", dst)
-# src_osm = road_network.reverse_node_dict[src]
-# dest_osm = road_network.reverse_node_dict[dst]
-# if not nx.has_path(road_network.get_graph(), src_osm, dest_osm):
-#     print(f"There is no path between {src} and {dst}.")
-#     exit(1)
-# c1 = Car(1, src, dst, datetime.datetime.now(), road_network)
-# cars = [c1]
-# # Train the agent
-# num_episodes = 6200
-# max_steps_per_episode = 100
-# agent.train(num_episodes, c1,  max_steps_per_episode=max_steps_per_episode)
-# agent.test(c1) # this will be the test function
-
-# Print average test rewards
-# average_test_reward = sum(test_rewards) / num_test_episodes
-# print("Average test reward: ", average_test_reward)
+agent = QLearning(road_network, learning_rate=0.1, discount_factor=0.9, epsilon=0.1)

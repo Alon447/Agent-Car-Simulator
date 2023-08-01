@@ -40,7 +40,7 @@ class Road_Network:
         self.set_graph_nodes()
         self.set_roads_array()
         self.set_adjacency_roads()
-
+        self.make_graph_edges_csv()
         self.next_node_matrix = [[-1] * len(self.node_dict) for _ in range(len(self.node_dict))] # cache for the distance matrix
         self.distances_matrix = [[-1] * len(self.node_dict) for _ in range(len(self.node_dict))] # cache for the distance matrix
 
@@ -112,6 +112,14 @@ class Road_Network:
                 src_node = edge2.get_source_node()
                 if dest_node == src_node:
                     edge1.adjacent_roads.append(edge2)
+        return
+
+    def make_graph_edges_csv(self):
+        edges = []
+        for road in self.roads_array:
+            edges.append([road.get_source_node(),road.get_destination_node(),road.get_eta()])
+        df = pd.DataFrame(edges, columns=['source', 'target', 'eta'])
+        df.to_csv('../data/graph_edges.csv', index=False)
         return
 
     def remove_blocked_roads(self):

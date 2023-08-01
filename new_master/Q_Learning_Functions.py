@@ -85,8 +85,7 @@ class QLearning:
         # Calculate the reward based on the car's progress and other factors
         if car.get_destination_node() == next_state:
             # High reward for reaching the destination
-            return max(1000 - 3*delta_time, 1)
-            # return 1000
+            return 1000
         elif len(self.q_table[next_state]) == 0:
             # Penalty for getting blocked
             return -100
@@ -99,12 +98,12 @@ class QLearning:
         if reward == -100:
             max_next_q_value = -100
         else:
-            max_next_q_value = np.max(self.q_table[next_state])
+            max_next_q_value = np.max(self.q_table[next_state])  #
         new_q_value = (1 - self.learning_rate) * current_q_value + self.learning_rate * (reward - self.discount_factor * (1 / eta) + self.discount_factor * max_next_q_value)
         self.q_table[state][action] = new_q_value
 
 
-    def train(self, num_episodes: int, car: Car, max_steps_per_episode=100, epsilon_decay_rate=0.99, mean_rewards_interval=10):
+    def train(self, num_episodes: int, car: Car, max_steps_per_episode=100, epsilon_decay_rate=0.99, mean_rewards_interval=100):
         # print("*********************************************")
         # print("          Training Started                   ")
         # print("*********************************************")
@@ -165,10 +164,10 @@ class QLearning:
             mean_reward_sum += total_episode_reward
 
             if episode % mean_rewards_interval == 0:
-                # print("episode: ", episode)
+                print("episode: ", episode)
                 # print("path nodes: ", path_nodes)
                 # # print("path roads: ", path_roads)
-                # print("total episode reward: ", total_episode_reward)
+                print("total episode reward: ", total_episode_reward)
                 mean_reward = mean_reward_sum / mean_rewards_interval
                 mean_rewards.append(mean_reward)
                 # if mean_reward > 960:
@@ -188,11 +187,13 @@ class QLearning:
         # print("*********************************************")
 
         # Plot mean rewards
+
         plt.plot(range(1, len(mean_rewards) + 1), mean_rewards)
         plt.xlabel('Interval (Every 10 Episodes)')
         plt.ylabel('Mean Episode Reward')
         plt.title('Mean Rewards over Training')
         plt.show()
+
         return
     def test(self,car:Car, max_steps_per_episode=100):
         src = car.get_source_node()
@@ -201,9 +202,9 @@ class QLearning:
                                 self.road_network.reverse_node_dict[dst], weight='length')
         shortest_path_time = self.calculate_route_eta(path, self.road_network)
         # print("*********************************************")
-        print("          Testing Started                    ")
+        # print("          Testing Started                    ")
         print(f"Source: {src}, Destination: {dst}")
-        print("*********************************************")
+        # print("*********************************************")
 
 
 
@@ -240,10 +241,10 @@ class QLearning:
             if state == car.get_destination_node():
                 # print("car reached destination")
                 break
-        print("path nodes: ", path_nodes)
+        # print("path nodes: ", path_nodes)
         # print("path roads: ", path_roads)
         print(f"Test reward: {test_rewards:.2f}")
-        print("*********************************************")
+        # print("*********************************************")
         return test_rewards, path_nodes
     def save_q_table(self, filename):
         np.save(filename, self.q_table)
