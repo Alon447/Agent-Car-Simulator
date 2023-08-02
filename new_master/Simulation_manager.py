@@ -176,25 +176,26 @@ class Simulation_manager:
         # for car in self.car_manager.get_cars_stuck():
         #     print(car.get_id(), car.get_total_travel_time())
 
-    def run_full_simulation(self, cars, number_of_simulations=1):
-        self.block_road(0)
-        self.block_road(900)
-        self.block_road(901)
-        self.block_road(902)
+    def run_full_simulation(self, cars, number_of_simulations=1, activate_traffic_lights = False):
+        # self.block_road(0)
+        # self.block_road(900)
+        # self.block_road(901)
+        # self.block_road(902)
         self.read_road_speeds(self.simulation_datetime_start)
         for i in range(number_of_simulations):
             copy_cars= []
             # make a deep copy of the cars list
-            for car in cars:
-                new_car = Car.Car(car.get_id(),
-                                  car.get_source_node(),
-                                  car.get_destination_node(),
-                                  car.get_starting_time(),
-                                  self.road_network,
-                                    car.get_routing_algorithm())
-                copy_cars.append(new_car)
-
-            # block a random road
+            if number_of_simulations > 1:
+                for car in cars:
+                    new_car = Car.Car(car.get_id(),
+                                      car.get_source_node(),
+                                      car.get_destination_node(),
+                                      car.get_starting_time(),
+                                      self.road_network,
+                                        car.get_routing_algorithm())
+                    copy_cars.append(new_car)
+            else:
+                copy_cars = cars
 
             # set up the simulation
             self.set_up_simulation(copy_cars)
@@ -414,28 +415,29 @@ START_TIME3 =datetime.datetime(year=2023,month=6,day=29,hour=21, minute=0, secon
 START_TIME4 =datetime.datetime(year=2023,month=6,day=30,hour=12, minute=0, second=0)
 START_TIME5 =datetime.datetime(year=2023,month=7,day=1,hour=15, minute=0, second=0)
 
-SM = Simulation_manager('/TLV_with_eta.graphml',10*HOUR,START_TIME1) # graph path, time limit, starting time
+SM = Simulation_manager('/TLV_with_eta.graphml',20*HOUR,START_TIME1) # graph path, time limit, starting time
 CM = SM.get_car_manager()
 RN = SM.get_road_network()
 
 
 
 NUMBER_OF_SIMULATIONS = 1
-c1 = Car.Car(1,400,700,START_TIME1,RN,route_algorithm = "shortest_path")
-c2 = Car.Car(2,400,700,START_TIME3,RN,route_algorithm = "shortest_path")
-c3 = Car.Car(3,200,839,START_TIME2,RN,route_algorithm = "shortest_path")
+TRAFFIC_LIGHTS = False
+c1 = Car.Car(1,400,700,START_TIME3,RN,route_algorithm = "q")
+c2 = Car.Car(2,400,700,START_TIME2,RN,route_algorithm = "shortest_path")
+c3 = Car.Car(3,200,839,START_TIME3,RN,route_algorithm = "q")
 c4 = Car.Car(4,113,703,START_TIME4,RN,route_algorithm = "shortest_path")
 c5 = Car.Car(5,110,700,START_TIME5,RN,route_algorithm = "shortest_path")
-cars = [c1,c3]
+cars = [c1,c2,c3]
 
-SM.run_full_simulation(cars,NUMBER_OF_SIMULATIONS)
+SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS,TRAFFIC_LIGHTS)
 print("***************************")
 
 
 route1 = SM.get_simulation_route(1,0)
-# route2 = SM.get_simulation_route(2,0)
+route2 = SM.get_simulation_route(2,0)
 route3 = SM.get_simulation_route(3,0)
-routes=[route1,route3]
+routes=[route1,route2,route3]
 SM.plotting_custom_route(routes)
 # SM.car_times_bar_chart(1)
 # SM.car_times_bar_chart(2)

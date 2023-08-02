@@ -71,7 +71,6 @@ def test(road_network, number_of_tests = 1):
         src, dst = choose_random_src_dst(road_network)
         # src= 945
         # dst = 712
-        # print("src: ", src, "dst: ", dst)
         path = nx.shortest_path(road_network.get_graph(), road_network.reverse_node_dict[src], road_network.reverse_node_dict[dst], weight='length')
         shortest_path_time = calculate_route_eta(path, road_network)
         shortest_path = osm_route_to_node_route(path,road_network)
@@ -81,7 +80,7 @@ def test(road_network, number_of_tests = 1):
         # Train the agent
         num_episodes = 3000
         max_steps_per_episode = 100
-        agent.train(num_episodes, c1, max_steps_per_episode=max_steps_per_episode)
+        agent.train(c1, num_episodes,  max_steps_per_episode=max_steps_per_episode)
 
         # Test the agent
         test_reward, agent_path = agent.test(c1)  # this will be the test function
@@ -106,6 +105,8 @@ def test(road_network, number_of_tests = 1):
 
         # Plot the custom route
         ox.plot_graph_routes(road_network.get_graph(), new_routes, route_colors=rc, route_linewidth=6,  node_size=0, bgcolor='k')
+
+
 
 NUM_OF_TESTS = 10
 road_network = Road_Network("/TLV_with_eta.graphml")  # Replace with the correct path to your graphml file

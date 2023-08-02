@@ -1,17 +1,22 @@
+import datetime
 from abc import abstractmethod, ABC
 import random
 
+import numpy as np
+
+from new_master.Q_Learning_Functions import QLearning
 from new_master.Road_Network import Road_Network
 
 
 class Route(ABC):
     @abstractmethod
+    def decide_first_road(self, source_node, road_network):
+        pass
+    @abstractmethod
     def get_next_road(self, source_road, destination_node, adjacency_list,road_network,time):
         pass
 
-    @abstractmethod
-    def decide_first_road(self, source_node, road_network):
-        pass
+
 
     def get_alt_road(self, source_road, destination_node, adjacency_list,road_network,time):
         """
@@ -65,6 +70,47 @@ class Random_route(Route):
         return None
 
 class Q_Learning_Route(Route):
+    def __init__(self, src_node, dst_node, road_network):
+        # self.q_table = None
+        # src and dst dosent change during the run
+        self.src_node = src_node
+        self.dst_node = dst_node
+        # current node changes during the run, it represents the current's road destination node
+        self.current_node = src_node
+
+        self.road_network = road_network
+        self.agent = QLearning(road_network, learning_rate=0.1, discount_factor=0.9, epsilon=0.1)
+
+        num_episodes = 1800
+        max_steps_per_episode = 150
+        if self.agent.load_q_table(self.src_node, self.dst_node):
+            self.q_table = self.agent.get_q_table()
+        else:
+            self.q_table = self.agent.train_src_dst(src_node, dst_node, num_episodes, max_steps_per_episode=max_steps_per_episode)
+            self.agent.save_q_table(self.src_node, self.dst_node)
+        # Test the agent
+        test_reward, agent_path = self.agent.test_src_dst(src_node, dst_node)  # this will be the test function
+        self.path = agent_path
+
+
+    def decide_first_road(self, source_node, road_network):
+
+        """
+
+        :param source_node:
+        :param road_network:
+        :return:
+        """
+        action = np.argmax(self.q_table[self.src_node]) # action is the index of the destination node in the q table
+        dest_node = self.road_network.get_node_connectivity_dict()[self.src_node][action]
+        self.current_node = dest_node
+        road_index = self.road_network.road_dict[(self.src_node, dest_node)]
+        return self.road_network.get_roads_array()[road_index]
+        # for road in road_network.get_roads_array():
+        #     if road.get_source_node() == source_node:
+        #         return road
+
+
     def get_next_road(self, source_road, destination_node, adjacency_list, road_network,time):
         """
 
@@ -75,31 +121,46 @@ class Q_Learning_Route(Route):
         :param road_network:
         :return:
         """
+        action = np.argmax(self.q_table[self.current_node])  # action is the index of the destination node in the q table
+        dest_node = self.road_network.get_node_connectivity_dict()[self.current_node][action]
 
+        road_index = self.road_network.road_dict[(self.current_node, dest_node)]
+        self.current_node = dest_node
+        return self.road_network.get_roads_array()[road_index]
         # Implement Q-learning route logic here
         # Return a new edge based on the Q-learning algorithm
-        pass
 
-    def decide_first_road(self, source_node, road_network):
-        for road in road_network.get_roads_array():
-            if road.get_source_node() == source_node:
-                return road
+
 
     def get_alt_road(self, source_road, destination_node, adjacency_list, road_network, time):
         pass #TODO: implement
 
 class Shortest_path_route(Route):
+    def __init__(self, src_node, dst_node, road_network):
+        self.src_node = src_node
+        self.dst_node = dst_node
+
+        # current node changes during the run, it represents the current's road destination node
+        self.current_node = src_node
+        self.road_network = road_network
+
+    def decide_first_road(self, source_node, road_network):
+        if self.src_node == self.dst_node:
+            return None
+        first_road = self.road_network.get_next_road_shortest_path(self.src_node, self.dst_node)
+        self.current_node = first_road.get_destination_node()
+        return first_road
+        # for road in road_network.get_roads_array():
+        #     if road.get_source_node() == source_node:
+        #         return road
 
     def get_next_road(self, source_node, destination_node, adjacency_list, road_network,time):
         # TODO: update according to distance matrix implementation
-        if source_node==destination_node:
+        if self.current_node == self.dst_node:
             return None
-        return road_network.get_next_road(source_node, destination_node)
-
-    def decide_first_road(self, source_node, road_network):
-        for road in road_network.get_roads_array():
-            if road.get_source_node() == source_node:
-                return road
+        next_road = self.road_network.get_next_road_shortest_path(self.current_node, self.dst_node)
+        self.current_node = next_road.get_destination_node()
+        return next_road
 
     def get_alt_road(self, source_road, destination_node, adjacency_list, road_network, time):
         minimum_distance = 999999999

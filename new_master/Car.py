@@ -15,6 +15,7 @@ class Car:
 
         # ID
         self.id = id # car id
+        self.road_network = road_network # the road network the car is in
 
         # Nodes
         self.source_node = source_node # source node
@@ -40,33 +41,44 @@ class Car:
         self.is_blocked = False # indicates if the car is blocked
         # Route
         self.route_algorithm = route_algorithm # the algorithm the car will use to decide its route
-        self.route = self.decide_route_algorithm(route_algorithm) # the route the car will take
-        self.road_network = road_network # the road network the car is in
+        self.route = self.decide_route_algorithm(route_algorithm, source_node, destination_node) # the route the car will take
         ###############################################
         # we need to pass rods to Route and not nodes
         ###############################################
 
     # FUNCTIONS
-    def decide_route_algorithm(self, route_algorithm):
-        if route_algorithm == "q learning":
-           return Route.Q_Learning_Route()
-        elif route_algorithm == "shortest_path":
-            return Route.Shortest_path_route()
+    def decide_route_algorithm(self, route_algorithm: str, source_node: int, destination_node: int):
+        """
+
+        :param route_algorithm: string that represents the route algorithm
+        :return: route object that represents the route algorithm
+        """
+        q_learning_names = [ "q learning", "Q learning", "Q Learning", "q Learning","q","Q"]
+        shortest_path_names = ["shortest_path", "shortest path", "Shortest Path", "Shortest path", "shortest", "Shortest","SP","sp"]
+        if route_algorithm in q_learning_names:
+           return Route.Q_Learning_Route(source_node, destination_node, self.road_network)
+        elif route_algorithm in shortest_path_names:
+            return Route.Shortest_path_route(source_node,destination_node, self.road_network)
         else:
             return Route.Random_route()
 
     def start_car(self):
-        #  move the car to the first road-based on starting node
-        #  update car's time until next road
-        self.current_road =self.road_network.get_road_by_source_node(self.source_node)
-        #print(self.current_road)
+        """
+        move the car to the first road-based on starting node and update car's time until next road
+
+        :return:  the first road the car will travel to
+        """
+        first_road = self.route.decide_first_road(self.source_node, self.road_network)
+        self.current_road = first_road
         self.update_time_until_next_road(self.current_road)
         self.past_nodes.append(self.source_node)
         return self.current_road
 
     def decide_next_road(self):
-        # return the ID of the next road the car will travel to
-
+        """
+        decide the next road the car will travel to
+        :return: Road object that corresponds the next road place in the roads_array in road_network
+        """
         #self.route.get_next_road parameters: (source_road_id, destination_node, time)
         next_road = self.route.get_next_road(self.current_road.get_destination_node(),
                                              self.destination_node,self.current_road.get_adjacent_roads(),
@@ -133,13 +145,7 @@ class Car:
     def force_finish(self):
         self.past_roads.append({self.current_road.get_id(): round(time_delta_to_seconds(self.current_road_time), 2)})
         # self.past_nodes.append(self.current_road.get_destination_node())
-    def get_travel_data(self):
-        # return the  total travel time, path taken, travel time in each road, starting time, ending time.
-        return self.total_travel_time, self.past_roads, self.starting_time, self.total_travel_time
-    def get_distance_travelled(self):
-        return self.distance_traveled
-    def get_past_nodes(self):
-        return self.past_nodes
+
 
     def update_time_until_next_road(self, road):
         time = road.calculate_time()
@@ -153,6 +159,14 @@ class Car:
         return
 
     # Gets
+    def get_travel_data(self):
+        # return the  total travel time, path taken, travel time in each road, starting time, ending time.
+        return self.total_travel_time, self.past_roads, self.starting_time, self.total_travel_time
+    def get_distance_travelled(self):
+        return self.distance_traveled
+    def get_past_nodes(self):
+        return self.past_nodes
+
     def get_id(self):
         return self.id
     def get_source_node(self):
@@ -175,7 +189,15 @@ class Car:
     def get_is_blocked(self):
         return self.is_blocked
     def get_routing_algorithm(self):
-        return self.route_algorithm
+        q_learning_names = ["q learning", "Q learning", "Q Learning", "q Learning", "q", "Q"]
+        shortest_path_names = ["shortest_path", "shortest path", "Shortest Path", "Shortest path", "shortest",
+                               "Shortest", "SP", "sp"]
+        if self.route_algorithm in q_learning_names:
+            return "Q Learning"
+        elif self.route_algorithm in shortest_path_names:
+            return "Shortest Path"
+        else:
+            return "Random Route"
 
     def get_time_until_next_road(self):
         # self.time_until_next_road is a timedelta object

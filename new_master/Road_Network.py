@@ -195,8 +195,10 @@ class Road_Network:
         #print(dest_to_src)
         return dest_to_src
 
-    # GETS
-    def add_shortest_path_to_matrix(self,src,dest):
+    """
+    Shortest Path Functions
+    """
+    def add_shortest_path_to_matrix(self, src, dest):
         #src and destination are node ids as we defined in the graph
         #we need to get the osm node ids to use the networkx's shortest path function
         temp_src = self.reverse_node_dict[src]
@@ -219,13 +221,16 @@ class Road_Network:
     def get_remaining_distance(self,src_id,dst_id):
         return self.distances_matrix[src_id][dst_id]
 
-    def get_next_road(self, src_id, dst_id):
+    def get_next_road_shortest_path(self, src_id, dst_id):
         #checks if the next node is filled in the distance matrix.
         #if it is, returns the next road. otherwise, calculate path and update matrix.
         if self.next_node_matrix[src_id][dst_id] == -1:
             self.add_shortest_path_to_matrix(src_id,dst_id)
         return self.get_next_road_from_matrix(src_id,dst_id)
 
+    """
+    GET FUNCTIONS
+    """
 
     def get_graph(self):
         return self.graph
