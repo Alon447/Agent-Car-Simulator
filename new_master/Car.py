@@ -10,64 +10,76 @@ def time_delta_to_seconds(time):
 
 class Car:
 
-    def __init__(self, id, source_node, destination_node, starting_time, road_network, route_algorithm='random'):
+
+    def __init__(self, id, source_node, destination_node, starting_time, road_network, route_algorithm = 'random' ):
 
         # ID
-        self.id = id  # car id
+        self.id = id # car id
+        self.road_network = road_network # the road network the car is in
 
         # Nodes
-        self.source_node = source_node  # source node
-        self.destination_node = destination_node  # destination node
+        self.source_node = source_node # source node
+        self.destination_node = destination_node # destination node
 
         # Roads
-        self.current_road = None  # the car's current road
-        self.past_roads = []  # a list of the roads the car has been on, and his entering time to each one
-        self.past_nodes = []  # a list of the nodes the car has been on, and his entering time to each one
-        self.distance_traveled = 0  # the distance the car has traveled so far
+        self.current_road = None # the car's current road
+        self.past_roads = [] # a list of the roads the car has been on, and his entering time to each one
+        self.past_nodes= [] # a list of the nodes the car has been on, and his entering time to each one
+        self.distance_traveled = 0 # the distance the car has traveled so far
         # self.source_road = None  # source road
         # self.destination_road = None  # destination road
 
         # Time
-        self.starting_time = starting_time  # the time the car started its journey
-        self.time_until_next_road = datetime.timedelta(
-            seconds=0)  # the time until the car reaches the next road *IN SECONDS*
-        self.total_travel_time = datetime.timedelta(seconds=0)  # the total travel time of the car
-        self.current_road_time = datetime.timedelta(seconds=0)  # the time the car has been on the current road
+        self.starting_time = starting_time # the time the car started its journey
+        self.time_until_next_road = datetime.timedelta(seconds=0) # the time until the car reaches the next road *IN SECONDS*
+        self.total_travel_time = datetime.timedelta(seconds=0) # the total travel time of the car
+        self.current_road_time = datetime.timedelta(seconds=0) # the time the car has been on the current road
 
         # Flags
-        self.is_finished = False  # indicates if the car has reached its destination
-        self.car_in_destination = False  # indicates if the car is in the destination node
-        self.is_blocked = False  # indicates if the car is blocked
+        self.is_finished = False # indicates if the car has reached its destination
+        self.car_in_destination = False # indicates if the car is in the destination node
+        self.is_blocked = False # indicates if the car is blocked
         # Route
-        self.route_algorithm = route_algorithm  # the algorithm the car will use to decide its route
-        self.route = self.decide_route_algorithm(route_algorithm)  # the route the car will take
-        self.road_network = road_network  # the road network the car is in
+        self.route_algorithm = route_algorithm # the algorithm the car will use to decide its route
+        self.route = self.decide_route_algorithm(route_algorithm, source_node, destination_node) # the route the car will take
         ###############################################
         # we need to pass rods to Route and not nodes
         ###############################################
 
     # FUNCTIONS
-    def decide_route_algorithm(self, route_algorithm):
-        if route_algorithm == "q learning":
-            return Route.Q_Learning_Route()
-        elif route_algorithm == "shortest_path":
-            return Route.Shortest_path_route()
+    def decide_route_algorithm(self, route_algorithm: str, source_node: int, destination_node: int):
+        """
+
+        :param route_algorithm: string that represents the route algorithm
+        :return: route object that represents the route algorithm
+        """
+        q_learning_names = [ "q learning", "Q learning", "Q Learning", "q Learning","q","Q"]
+        shortest_path_names = ["shortest_path", "shortest path", "Shortest Path", "Shortest path", "shortest", "Shortest","SP","sp"]
+        if route_algorithm in q_learning_names:
+           return Route.Q_Learning_Route(source_node, destination_node, self.road_network)
+        elif route_algorithm in shortest_path_names:
+            return Route.Shortest_path_route(source_node,destination_node, self.road_network)
         else:
             return Route.Random_route()
 
     def start_car(self):
-        #  move the car to the first road-based on starting node
-        #  update car's time until next road
-        self.current_road = self.road_network.get_road_by_source_node(self.source_node)
-        # print(self.current_road)
+        """
+        move the car to the first road-based on starting node and update car's time until next road
+
+        :return:  the first road the car will travel to
+        """
+        first_road = self.route.decide_first_road(self.source_node, self.road_network)
+        self.current_road = first_road
         self.update_time_until_next_road(self.current_road)
         self.past_nodes.append(self.source_node)
         return self.current_road
 
     def decide_next_road(self):
-        # return the ID of the next road the car will travel to
-
-        # self.route.get_next_road parameters: (source_road_id, destination_node, time)
+        """
+        decide the next road the car will travel to
+        :return: Road object that corresponds the next road place in the roads_array in road_network
+        """
+        #self.route.get_next_road parameters: (source_road_id, destination_node, time)
         next_road = self.route.get_next_road(self.current_road.get_destination_node(),
                                              self.destination_node, self.current_road.get_adjacent_roads(),
                                              self.road_network,
@@ -136,15 +148,7 @@ class Car:
         self.past_roads.append({self.current_road.get_id(): round(time_delta_to_seconds(self.current_road_time), 2)})
         # self.past_nodes.append(self.current_road.get_destination_node())
 
-    def get_travel_data(self):
-        # return the  total travel time, path taken, travel time in each road, starting time, ending time.
-        return self.total_travel_time, self.past_roads, self.starting_time, self.total_travel_time
 
-    def get_distance_travelled(self):
-        return self.distance_traveled
-
-    def get_past_nodes(self):
-        return self.past_nodes
 
     def update_time_until_next_road(self, road):
         time = road.calculate_time()
@@ -159,6 +163,14 @@ class Car:
         return
 
     # Gets
+    def get_travel_data(self):
+        # return the  total travel time, path taken, travel time in each road, starting time, ending time.
+        return self.total_travel_time, self.past_roads, self.starting_time, self.total_travel_time
+    def get_distance_travelled(self):
+        return self.distance_traveled
+    def get_past_nodes(self):
+        return self.past_nodes
+
     def get_id(self):
         return self.id
 
@@ -186,7 +198,15 @@ class Car:
         return self.is_blocked
 
     def get_routing_algorithm(self):
-        return self.route_algorithm
+        q_learning_names = ["q learning", "Q learning", "Q Learning", "q Learning", "q", "Q"]
+        shortest_path_names = ["shortest_path", "shortest path", "Shortest Path", "Shortest path", "shortest",
+                               "Shortest", "SP", "sp"]
+        if self.route_algorithm in q_learning_names:
+            return "Q Learning"
+        elif self.route_algorithm in shortest_path_names:
+            return "Shortest Path"
+        else:
+            return "Random Route"
 
     def get_time_until_next_road(self):
         # self.time_until_next_road is a timedelta object
@@ -219,6 +239,15 @@ class Car:
 
     def set_unblocked(self):
         self.is_blocked = False
+        return
+
+    # for the q learning test
+    def set_current_road(self, road):
+        if self.current_road is not None:
+            self.past_roads.append({self.current_road.get_id(): round(time_delta_to_seconds(self.current_road_time), 2)})
+            self.past_nodes.append(self.current_road.get_destination_node())
+        self.current_road = road
+
         return
 
     def get_xy_source(self):

@@ -40,7 +40,7 @@ class Road_Network:
         self.set_graph_nodes()
         self.set_roads_array()
         self.set_adjacency_roads()
-
+        self.make_graph_edges_csv()
         self.next_node_matrix = [[-1] * len(self.node_dict) for _ in range(len(self.node_dict))] # cache for the distance matrix
         self.distances_matrix = [[-1] * len(self.node_dict) for _ in range(len(self.node_dict))] # cache for the distance matrix
 
@@ -114,6 +114,14 @@ class Road_Network:
                     edge1.adjacent_roads.append(edge2)
         return
 
+    def make_graph_edges_csv(self):
+        edges = []
+        for road in self.roads_array:
+            edges.append([road.get_source_node(),road.get_destination_node(),road.get_eta()])
+        df = pd.DataFrame(edges, columns=['source', 'target', 'eta'])
+        df.to_csv('../data/graph_edges.csv', index=False)
+        return
+
     def remove_blocked_roads(self):
         for road in self.roads_array:
             if len(road.get_adjacent_roads()) == 0:
@@ -151,8 +159,8 @@ class Road_Network:
             eta = road.update_speed(self.roads_speeds[road_id])
             graph_road = self.graph[src][dst][0]
             graph_road.update({'eta': float(eta), 'current_speed': int(self.roads_speeds[road_id])})
-            print(graph_road)
-        ox.save_graphml(self.graph, '../data/TLV_with_eta.graphml')
+            # print(graph_road)
+        # ox.save_graphml(self.graph, '../data/TLV_with_eta.graphml')
         return
 
     def add_road_speed(self,road_id,speed):
@@ -187,8 +195,10 @@ class Road_Network:
         #print(dest_to_src)
         return dest_to_src
 
-    # GETS
-    def add_shortest_path_to_matrix(self,src,dest):
+    """
+    Shortest Path Functions
+    """
+    def add_shortest_path_to_matrix(self, src, dest):
         #src and destination are node ids as we defined in the graph
         #we need to get the osm node ids to use the networkx's shortest path function
         temp_src = self.reverse_node_dict[src]
@@ -211,13 +221,16 @@ class Road_Network:
     def get_remaining_distance(self,src_id,dst_id):
         return self.distances_matrix[src_id][dst_id]
 
-    def get_next_road(self, src_id, dst_id):
+    def get_next_road_shortest_path(self, src_id, dst_id):
         #checks if the next node is filled in the distance matrix.
         #if it is, returns the next road. otherwise, calculate path and update matrix.
         if self.next_node_matrix[src_id][dst_id] == -1:
             self.add_shortest_path_to_matrix(src_id,dst_id)
         return self.get_next_road_from_matrix(src_id,dst_id)
 
+    """
+    GET FUNCTIONS
+    """
 
     def get_graph(self):
         return self.graph

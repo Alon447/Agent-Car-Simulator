@@ -177,25 +177,26 @@ class Simulation_manager:
         # for car in self.car_manager.get_cars_stuck():
         #     print(car.get_id(), car.get_total_travel_time())
 
-    def run_full_simulation(self, cars, number_of_simulations=1):
-        self.block_road(0)
-        self.block_road(900)
-        self.block_road(901)
-        self.block_road(902)
+    def run_full_simulation(self, cars, number_of_simulations=1, activate_traffic_lights = False):
+        # self.block_road(0)
+        # self.block_road(900)
+        # self.block_road(901)
+        # self.block_road(902)
         self.read_road_speeds(self.simulation_datetime_start)
         for i in range(number_of_simulations):
             copy_cars = []
             # make a deep copy of the cars list
-            for car in cars:
-                new_car = Car.Car(car.get_id(),
-                                  car.get_source_node(),
-                                  car.get_destination_node(),
-                                  car.get_starting_time(),
-                                  self.road_network,
-                                  car.get_routing_algorithm())
-                copy_cars.append(new_car)
-
-            # block a random road
+            if number_of_simulations > 1:
+                for car in cars:
+                    new_car = Car.Car(car.get_id(),
+                                      car.get_source_node(),
+                                      car.get_destination_node(),
+                                      car.get_starting_time(),
+                                      self.road_network,
+                                        car.get_routing_algorithm())
+                    copy_cars.append(new_car)
+            else:
+                copy_cars = cars
 
             # set up the simulation
             self.set_up_simulation(copy_cars)
@@ -311,25 +312,8 @@ class Simulation_manager:
 
         plt.show()
 
-    # Define the function that calculates edge colors in a separate process
-    def calculate_edge_colors(self, queue):
-        # Your calculation here, update the edge_colors variable
-        edge_colors = {}  # This should be a dictionary mapping edge IDs to colors
-        graph = self.road_network.graph
 
-        for i in range(len(graph.edges)):
-            road = self.road_network.roads_array[i]
-            if road.is_blocked:
-                edge_colors.append('white')
-            elif road.get_current_speed() < 25:
-                edge_colors.append('red')
-            elif road.get_current_speed() < 37:
-                edge_colors.append('orange')
-            elif road.get_current_speed() < 50:
-                edge_colors.append('green')
-        queue.put(edge_colors)
-
-    def plotting_custom_route(self, custom_routes: list):
+    def plotting_custom_route(self,custom_routes: list):
         """
         this is the way for a car that finished its route to plot it on the map at the end
         saves the function here for future use
@@ -451,12 +435,6 @@ class Simulation_manager:
         animation = FuncAnimation(fig, animate, frames=num_updates, interval=200, repeat=False)
         plt.show()
 
-    # def get_xy_by_osmid_time(self,osmid,current_time,car_id):
-    #     if self.car_manager.get_starting_time(car_id) > current_time:
-    #         return -1,-1
-    #     else:
-    #         id =  self.car_manager.get_osmid_from_time_car_id(car_id, current_time)
-
 
 WEEK = 604800
 DAY = 86400
@@ -475,21 +453,22 @@ CM = SM.get_car_manager()
 RN = SM.get_road_network()
 
 NUMBER_OF_SIMULATIONS = 1
-c1 = Car.Car(1, 400, 700, START_TIME1, RN, route_algorithm="shortest_path")
-c2 = Car.Car(2, 400, 700, START_TIME2, RN, route_algorithm="shortest_path")
-c3 = Car.Car(3, 200, 839, START_TIME2, RN, route_algorithm="shortest_path")
-c4 = Car.Car(4, 113, 703, START_TIME4, RN, route_algorithm="shortest_path")
-c5 = Car.Car(5, 110, 700, START_TIME5, RN, route_algorithm="shortest_path")
-cars = [c1, c3, c4]
+TRAFFIC_LIGHTS = False
+c1 = Car.Car(1,400,700,START_TIME3,RN,route_algorithm = "q")
+c2 = Car.Car(2,400,700,START_TIME2,RN,route_algorithm = "shortest_path")
+c3 = Car.Car(3,200,839,START_TIME3,RN,route_algorithm = "q")
+c4 = Car.Car(4,113,703,START_TIME4,RN,route_algorithm = "shortest_path")
+c5 = Car.Car(5,110,700,START_TIME5,RN,route_algorithm = "shortest_path")
+cars = [c1,c2,c3]
 
-SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS)
+SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS,TRAFFIC_LIGHTS)
 print("***************************")
 
-route1 = SM.get_simulation_route(1, 0)
-# route2 = SM.get_simulation_route(2,0)
-route3 = SM.get_simulation_route(3, 0)
-route4 = SM.get_simulation_route(4, 0)
-routes = [route1, route3, route4]
+
+route1 = SM.get_simulation_route(1,0)
+route2 = SM.get_simulation_route(2,0)
+route3 = SM.get_simulation_route(3,0)
+routes=[route1,route2,route3]
 SM.plotting_custom_route(routes)
 # SM.car_times_bar_chart(1)
 # SM.car_times_bar_chart(2)

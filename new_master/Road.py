@@ -61,6 +61,9 @@ class Road:
     def get_traffic_lights(self):
         # return the destination node traffic lights
         return self.destination_node[5]
+
+    def get_eta(self):
+        return self.estimated_time
     # Sets
     def set_current_speed(self, speed):
         self.current_speed = speed
@@ -70,14 +73,6 @@ class Road:
         self.is_blocked = True
     def unblock(self):
         self.is_blocked = False
-    def add_car_to_road(self, car):
-        self.cars_on_road.append(car)
-    def remove_car_from_road(self, car):
-        self.cars_on_road.remove(car)
-    def update_speed(self, new_speed):
-        self.current_speed = new_speed
-        eta = self.calculate_time()
-        return eta
 
     def calculate_time(self):
         """
@@ -91,15 +86,22 @@ class Road:
         if self.current_speed is None:
             print("error")
 
-        total_time = 3.6 * self.length/self.current_speed
+        total_time = 3.6 * self.length / self.current_speed
         if self.get_traffic_lights():
             street_count = self.get_street_count()
-            if street_count > 1:
-                total_time += random.randrange(0,20*(self.get_street_count()-1) ,1)
-            else:
-                total_time += random.randrange(0,5,1)
-        self.estimated_time = round(total_time,2)
+            # Activate the traffic lights
+            # if street_count > 1:
+            #     total_time += random.randrange(0, 20 * (self.get_street_count() - 1), 1)
+            # else:
+            #     total_time += random.randrange(0, 5, 1)
+        self.estimated_time = round(total_time, 2)
         return self.estimated_time
+
+    def update_speed(self, new_speed):
+        self.current_speed = new_speed
+        eta = self.calculate_time()
+        return eta
+
 
     def __str__(self):
         return "Road id: " + str(self.id) + ", source node: " + str(self.source_node) + ", destination node: " + str(self.destination_node) + ", length: " + str(self.length) + ", max speed: " + str(self.max_speed) + ", current speed: " + str(self.current_speed) + ", is blocked: " + str(self.is_blocked) #+ ", cars on road: " + str(self.cars_on_road)
