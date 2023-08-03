@@ -238,7 +238,7 @@ class Road_Network:
         for road in self.roads_array:
             if road.get_source_node() == source_node:
                 return road
-    def get_xy_from_node_id(self, node_id:id):
+    def get_xy_from_node_id(self, node_id:int):
         """
 
         :param node_id: the id of the node
@@ -268,5 +268,7 @@ class Road_Network:
 
     def __repr__(self):
         return "Road_Network"
+
+
 
 
