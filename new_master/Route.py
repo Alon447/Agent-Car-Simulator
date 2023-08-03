@@ -70,26 +70,26 @@ class Random_route(Route):
         return None
 
 class Q_Learning_Route(Route):
-    def __init__(self, src_node, dst_node, road_network):
+    def __init__(self, src_node: int, dst_node: int, road_network: Road_Network, start_time: datetime.datetime):
         # self.q_table = None
         # src and dst dosent change during the run
         self.src_node = src_node
         self.dst_node = dst_node
         # current node changes during the run, it represents the current's road destination node
         self.current_node = src_node
-
+        self.start_time = start_time
         self.road_network = road_network
-        self.agent = QLearning(road_network, learning_rate=0.1, discount_factor=0.9, epsilon=0.1)
+        self.agent = QLearning(road_network, learning_rate=0.1, discount_factor=0.9, epsilon=0.2)
 
-        num_episodes = 1800
-        max_steps_per_episode = 150
+        num_episodes = 2000
+        max_steps_per_episode = 250
         if self.agent.load_q_table(self.src_node, self.dst_node):
             self.q_table = self.agent.get_q_table()
         else:
-            self.q_table = self.agent.train_src_dst(src_node, dst_node, num_episodes, max_steps_per_episode=max_steps_per_episode)
+            self.q_table = self.agent.train_src_dst(src_node, dst_node, self.start_time, num_episodes, max_steps_per_episode=max_steps_per_episode)
             self.agent.save_q_table(self.src_node, self.dst_node)
         # Test the agent
-        test_reward, agent_path = self.agent.test_src_dst(src_node, dst_node)  # this will be the test function
+        test_reward, agent_path = self.agent.test_src_dst(src_node, dst_node, self.start_time)  # this will be the test function
         self.path = agent_path
 
 

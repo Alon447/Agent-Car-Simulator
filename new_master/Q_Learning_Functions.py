@@ -6,6 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from new_master.Car import Car
+from geopy.distance import great_circle
+
 from new_master.Road_Network import Road_Network
 
 def node_route_to_osm_route(node_route, road_network):
@@ -28,6 +30,7 @@ class QLearning:
         self.node_list = self.road_network.get_node_connectivity_dict()
         self.q_table = self.initialize_q_table()
         self.rewards = []
+        self.simulation_time = 0
 
     def initialize_q_table(self):
         q_values = []
@@ -82,16 +85,38 @@ class QLearning:
         :return:
         """
         car.set_current_road(next_road)
-    def calculate_reward(self, car, next_state, delta_time):
+        return
+
+    def calculate_distance(self, src:int, dst:int):
+        """
+        :param src: source node
+        :param dst: destination node
+        :return: the distance between the two nodes
+        """
+        point_src = (self.road_network.graph_nodes[src][3],self.road_network.graph_nodes[src][2])
+        point_dst = (self.road_network.graph_nodes[dst][3],self.road_network.graph_nodes[dst][2])
+        distance = great_circle(point_src, point_dst)
+        return distance
+    def calculate_reward(self, car, next_state, src, dst, eta, path_nodes, delta_time):
         # Calculate the reward based on the car's progress and other factors
+        src_dst_distance = self.calculate_distance(src, dst)
+        next_state_dst_distance = self.calculate_distance(next_state, dst)
+        distance_delta = src_dst_distance - next_state_dst_distance # positive if the car is closer to the destination
+
         if car.get_destination_node() == next_state:
             # High reward for reaching the destination
-            return 1000#max(1000 - 100*delta_time, 1)
+
+            return 1000
         elif len(self.q_table[next_state]) == 0:
             # Penalty for getting blocked
             return -100
         else:
-            return -1
+            # if next_state in path_nodes:
+            #     return -1000
+            # elif distance_delta < 0:
+            #     return -1
+            # else:
+                return -1
 
     def update_q_table(self, state, action, next_state, reward, eta):
         # Q-learning update rule
@@ -111,6 +136,9 @@ class QLearning:
         plt.show()
 
     def train(self,car: Car, num_episodes: int,  max_steps_per_episode=100, epsilon_decay_rate=0.99, mean_rewards_interval=100):
+        ###############################
+        # NOT FOR THE SIMULATION
+        ###############################
         # print("*********************************************")
         # print("          Training Started                   ")
         # print("*********************************************")
@@ -199,6 +227,9 @@ class QLearning:
         return
 
     def test(self,car:Car, max_steps_per_episode=100):
+        ###############################
+        # NOT FOR THE SIMULATION
+        ###############################
         src = car.get_source_node()
         dst = car.get_destination_node()
         path = nx.shortest_path(self.road_network.get_graph(), self.road_network.reverse_node_dict[src],
@@ -267,19 +298,22 @@ class QLearning:
 
 
     # functions for the Route class, gets src and dst instead of car
-    def train_src_dst(self, src: int, dst: int, num_episodes: int,  max_steps_per_episode=100, epsilon_decay_rate=0.99, mean_rewards_interval=100):
+    def train_src_dst(self, src: int, dst: int, start_time:datetime, num_episodes: int,  max_steps_per_episode=100, epsilon_decay_rate=0.99, mean_rewards_interval=100):
         # print("*********************************************")
         # print("          Training Started                   ")
         # print("*********************************************")
-        car = Car(1, src, dst, datetime.datetime.now(), self.road_network)
+        car = Car(1, src, dst, start_time, self.road_network)
         path = nx.shortest_path(self.road_network.get_graph(), self.road_network.reverse_node_dict[src],self.road_network.reverse_node_dict[dst], weight='length')
         shortest_path_time = self.calculate_route_eta(path, self.road_network)
+
+
 
         mean_rewards = []  # List to store mean rewards for every 10 episodes
         mean_reward_sum = 0  # Variable to keep track of the sum of rewards in the last 10 episodes
 
         for episode in range(num_episodes):
             # Initialize parameters to evaluate the episode
+            self.simulation_time = start_time
             total_episode_reward = 0
             path_nodes = []
             path_roads = []
@@ -299,17 +333,27 @@ class QLearning:
                 action = self.choose_action(state)
                 next_road = self.get_next_road(state, action)
                 next_state = next_road.get_destination_node()
-                eta = float(next_road.get_eta())
+
+
+                # Calculate the rounded minutes
+                rounded_minutes = self.simulation_time.minute - (self.simulation_time.minute % 10)
+                time_obj = self.simulation_time.replace(minute=rounded_minutes,second=0, microsecond=0)
+                time_str = time_obj.strftime("%H:%M")
+
+                eta = float(next_road.get_eta(time_str)) # eta in seconds
+                self.simulation_time += datetime.timedelta(seconds=eta)
+                drive_time = (self.simulation_time - start_time).total_seconds()
+                delta_time = drive_time - shortest_path_time  # positive if the car is slower than the shortest path
+                reward = self.calculate_reward(car, next_state, src, dst, eta, path_nodes, delta_time)
 
                 path_roads.append(next_road.get_id())
                 path_nodes.append(next_road.get_destination_node())
-                path_time = self.calculate_route_eta(node_route_to_osm_route(path_nodes, self.road_network), self.road_network)
-                delta_time = path_time - shortest_path_time # positive if the car is slower than the shortest path
+                # path_time = self.calculate_route_eta(node_route_to_osm_route(path_nodes, self.road_network), self.road_network)
+                # delta_time = path_time - shortest_path_time # positive if the car is slower than the shortest path
 
-                reward = self.calculate_reward(car, next_state, delta_time)
                 total_episode_reward += reward
                 self.update_q_table(state, action, next_state, reward, eta)
-
+                # print("simulation time: ", self.simulation_time)
 
 
                 if next_state == car.get_destination_node():
@@ -353,7 +397,8 @@ class QLearning:
         self.plot_rewards(mean_rewards)
         return self.q_table
 
-    def test_src_dst(self, src: int, dst: int, max_steps_per_episode=100):
+    def test_src_dst(self, src: int, dst: int, start_time:datetime, max_steps_per_episode=100):
+        self.simulation_time = start_time
 
         car = Car(1, src, dst, datetime.datetime.now(), self.road_network)
         path = nx.shortest_path(self.road_network.get_graph(), self.road_network.reverse_node_dict[src],
@@ -375,7 +420,15 @@ class QLearning:
             action = np.argmax(self.q_table[state])
             next_road = self.get_next_road(state, action)
             next_state = next_road.get_destination_node()
-            eta = float(next_road.get_eta())
+            # Calculate the rounded minutes
+            rounded_minutes = self.simulation_time.minute - (self.simulation_time.minute % 10)
+            time_obj = self.simulation_time.replace(minute=rounded_minutes, second=0, microsecond=0)
+            time_str = time_obj.strftime("%H:%M")
+            eta = float(next_road.get_eta(time_str))  # eta in seconds
+            self.simulation_time += datetime.timedelta(seconds=eta)
+            drive_time = (self.simulation_time - start_time).total_seconds()
+            delta_time = drive_time - shortest_path_time  # positive if the car is slower than the shortest path
+            reward = self.calculate_reward(car, next_state, src, dst, eta, path_nodes, delta_time)
 
             path_roads.append(next_road.get_id())
             path_nodes.append(next_road.get_destination_node())
@@ -383,7 +436,6 @@ class QLearning:
                                                  self.road_network)
             delta_time = path_time - shortest_path_time  # positive if the car is slower than the shortest path
 
-            reward = self.calculate_reward(car, next_state, delta_time)
             test_rewards += reward
             # path_roads.append(next_road.get_id())
             # path_nodes.append(next_road.get_destination_node())

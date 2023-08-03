@@ -11,7 +11,7 @@ def time_delta_to_seconds(time):
 class Car:
 
 
-    def __init__(self, id, source_node, destination_node, starting_time, road_network, route_algorithm = 'random' ):
+    def __init__(self, id:int, source_node:int, destination_node:int, starting_time:datetime, road_network:Road_Network, route_algorithm = 'random' ):
 
         # ID
         self.id = id # car id
@@ -56,7 +56,7 @@ class Car:
         q_learning_names = [ "q learning", "Q learning", "Q Learning", "q Learning","q","Q"]
         shortest_path_names = ["shortest_path", "shortest path", "Shortest Path", "Shortest path", "shortest", "Shortest","SP","sp"]
         if route_algorithm in q_learning_names:
-           return Route.Q_Learning_Route(source_node, destination_node, self.road_network)
+           return Route.Q_Learning_Route(source_node, destination_node, self.road_network, self.starting_time)
         elif route_algorithm in shortest_path_names:
             return Route.Shortest_path_route(source_node,destination_node, self.road_network)
         else:

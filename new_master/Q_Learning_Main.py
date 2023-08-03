@@ -7,7 +7,6 @@ import networkx as nx
 from matplotlib import pyplot as plt
 import pandas as pd
 
-from new_master.Car import Car
 from new_master.Q_Learning_Functions import QLearning
 from new_master.Road_Network import Road_Network
 
@@ -68,22 +67,22 @@ def test(road_network, number_of_tests = 1):
     agent = QLearning(road_network, learning_rate=0.1, discount_factor=0.9, epsilon=0.1)
     for i in range(number_of_tests):
         print("test number: ", i)
-        src, dst = choose_random_src_dst(road_network)
-        # src= 945
-        # dst = 712
+        # src, dst = choose_random_src_dst(road_network)
+        src= 400
+        dst = 700
         path = nx.shortest_path(road_network.get_graph(), road_network.reverse_node_dict[src], road_network.reverse_node_dict[dst], weight='length')
         shortest_path_time = calculate_route_eta(path, road_network)
         shortest_path = osm_route_to_node_route(path,road_network)
         print("shortest path: ", shortest_path)
-        c1 = Car(1, src, dst, datetime.datetime.now(), road_network)
+        # c1 = Car(1, src, dst, datetime.datetime.now(), road_network)
 
         # Train the agent
         num_episodes = 3000
         max_steps_per_episode = 100
-        agent.train(c1, num_episodes,  max_steps_per_episode=max_steps_per_episode)
+        agent.train_src_dst(src,dst, num_episodes,  max_steps_per_episode=max_steps_per_episode)
 
         # Test the agent
-        test_reward, agent_path = agent.test(c1)  # this will be the test function
+        test_reward, agent_path = agent.test_src_dst(src,dst)  # this will be the test function
 
 
 

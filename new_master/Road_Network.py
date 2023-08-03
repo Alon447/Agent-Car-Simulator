@@ -1,3 +1,4 @@
+import datetime
 import os
 import osmnx as ox
 import Road
@@ -22,13 +23,12 @@ class Road_Network:
     - roads_speeds
     - distance_matrix
     """
-    def __init__(self, graph_path):
+    def __init__(self, graph_path, start_time = datetime.datetime(year=2023,month=6,day=29,hour=8, minute=0, second=0)):
         # graph
         self.graph = self.set_graph(graph_path)
         self.roads_array = []
-        self.graph_nodes = {} # dict that includes: 0. node_id 1. osm_id 2.x 3.y 4. street_count 5. traffic_light
+        self.graph_nodes = {} # dict that includes: 0. node_id 1. osm_id 2.x (longtitude) 3.y (latitude) 4. street_count 5. traffic_light
 
-        self.roads_speeds = {}
         self.node_dict={} # maps osm ids to our new ids
         self.reverse_node_dict={} # maps our new ids to osm ids
         self.road_dict = {}
@@ -40,7 +40,9 @@ class Road_Network:
         self.set_graph_nodes()
         self.set_roads_array()
         self.set_adjacency_roads()
-        self.make_graph_edges_csv()
+        # self.make_graph_edges_csv()
+
+        # for shortest path
         self.next_node_matrix = [[-1] * len(self.node_dict) for _ in range(len(self.node_dict))] # cache for the distance matrix
         self.distances_matrix = [[-1] * len(self.node_dict) for _ in range(len(self.node_dict))] # cache for the distance matrix
 
@@ -146,32 +148,52 @@ class Road_Network:
         for road in self.blocked_roads_array:
             self.unblock_road(road)
         return
-    def set_roads_speeds(self):
+    # def set_roads_speeds(self):
+    #     """
+    #     updates the speeds of all the roads in the graph based on self.roads_speeds
+    #     adds the eta and current_speed to the graphml file but not saves it
+    #     :return:
+    #     """
+    #     for road in self.roads_array:
+    #         road_id = road.get_id()
+    #         src = road.get_source_node_osm_id()
+    #         dst = road.get_destination_node_osm_id()
+    #         eta = road.update_speed(self.roads_speeds[road_id])
+    #         graph_road = self.graph[src][dst][0]
+    #         graph_road.update({'eta': float(eta), 'current_speed': int(self.roads_speeds[road_id])})
+    #         # print(graph_road)
+    #     # ox.save_graphml(self.graph, '../data/TLV_with_eta.graphml')
+    #     return
+
+    def set_roads_speeds_from_dict(self, roads_speeds:dict, current_time:str):
         """
-        updates the speeds of all the roads in the graph based on self.roads_speeds
-        adds the eta and current_speed to the graphml file but not saves it
+        iterates over all the roads in the graph and updates their speed based on the roads_speeds dict
+        :param roads_speeds: dict of road_id: speed for every 10 minutes in the day
+        :param current_time: str that represents the current time in the simulation for example: '08:00'
         :return:
         """
         for road in self.roads_array:
             road_id = road.get_id()
             src = road.get_source_node_osm_id()
             dst = road.get_destination_node_osm_id()
-            eta = road.update_speed(self.roads_speeds[road_id])
+            road.update_road_speed_dict(roads_speeds[str(road_id)])
+            eta = road.update_speed(current_time)
             graph_road = self.graph[src][dst][0]
-            graph_road.update({'eta': float(eta), 'current_speed': int(self.roads_speeds[road_id])})
-            # print(graph_road)
-        # ox.save_graphml(self.graph, '../data/TLV_with_eta.graphml')
         return
-
-    def add_road_speed(self,road_id,speed):
-        self.roads_speeds[road_id] = speed
-        return
-    def generate_random_speeds(self):
-        start_time=0
+    def update_roads_speeds(self, current_time:str):
         for road in self.roads_array:
-            self.roads_speeds[road.get_id()] = (random.randint(25,int(road.get_max_speed())))
-        # print(self.roads_speeds)
-        return
+            eta = road.update_speed(current_time)
+
+
+    # def add_road_speed(self,road_id,speed):
+    #     self.roads_speeds[road_id] = speed
+    #     return
+    # def generate_random_speeds(self):
+    #     start_time=0
+    #     for road in self.roads_array:
+    #         self.roads_speeds[road.get_id()] = (random.randint(25,int(road.get_max_speed())))
+    #     # print(self.roads_speeds)
+    #     return
 
     def calc_dist_mat(self):
         # makes a matrix of the shortest distances between all the roads
@@ -239,10 +261,6 @@ class Road_Network:
         return self.node_connectivity_dict
     def get_roads_array(self):
         return self.roads_array
-
-    def get_roads_speeds(self):
-        return self.roads_speeds
-
 
     def get_road_by_road_id(self, road_id):
         return self.roads_array[road_id]
