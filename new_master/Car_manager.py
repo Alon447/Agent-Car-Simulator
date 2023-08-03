@@ -4,8 +4,7 @@ import Car
 from new_master import Road_Network
 
 
-class CarManager :
-
+class CarManager:
     """
     Purpose: this class will manage all the cars in the simulation.
     It will be used to add cars to the simulation, remove cars from the simulation, and update the cars.
@@ -20,20 +19,25 @@ class CarManager :
                           when car updates we will remove it from the list, update its time and will be inserted by binary search.
 
     """
+
     def __init__(self):
-        self.cars_waiting_to_enter = []     # a list of the cars that are waiting to enter the simulation, i.e their starting time has not arrived yet.
-        self.cars_in_simulation = {}        # a dictionary of all the cars currently in the simulation.
-        self.cars_nearest_update = []       # a list of the cars that will determine time of the next update.
-        self.cars_nearest_update_time = 0   # the time of the next update
-        self.cars_finished = []             # a list of the cars that have finished their journey and are waiting to be removed from the simulation
-        self.cars_stuck = []                # a list of the cars that are stuck in the simulation
-        self.cars_blocked = []              # a list of the cars that are blocked in the simulation
+        self.cars_waiting_to_enter = []  # a list of the cars that are waiting to enter the simulation, i.e their starting time has not arrived yet.
+        self.cars_in_simulation = {}  # a dictionary of all the cars currently in the simulation.
+        self.cars_nearest_update = []  # a list of the cars that will determine time of the next update.
+        self.cars_nearest_update_time = 0  # the time of the next update
+        self.cars_finished = []  # a list of the cars that have finished their journey and are waiting to be removed from the simulation
+        self.cars_stuck = []  # a list of the cars that are stuck in the simulation
+        self.cars_blocked = []  # a list of the cars that are blocked in the simulation
+        self.updated_dictionary = {}  # a dictionary of the cars that have been updated in the current time
+        # step. key is time, value is a list of the cars that have been updated in that time step
+        # along with current node
 
     """
     cars_in_simulation=[1:[1, 0,100, 20],3:[3, 3,20, 30]]
     
     getters
     """
+
     def get_cars_in_simulation(self):
         return self.cars_in_simulation
 
@@ -44,22 +48,28 @@ class CarManager :
     setters and updaters
     """
 
+    def add_update_to_dictionary(self, time, car_id, x,y, node_id):
+        if time not in self.updated_dictionary:
+            self.updated_dictionary[time] = []
+        self.updated_dictionary[time].append((car_id, (x,y), node_id))
+
     def add_car(self, car, time):
         car_starting_time = car.get_starting_time()
-        if car_starting_time > time: # car is not ready to enter the simulation
+        if car_starting_time > time:  # car is not ready to enter the simulation
             self.cars_waiting_to_enter.append(car)
             self.cars_waiting_to_enter.sort(key=lambda x: x.get_starting_time())
 
-        else: # car is ready to enter the simulation
+        else:  # car is ready to enter the simulation
             car.start_car()
             self.cars_in_simulation[car.get_id()] = car
         self.sort_cars_in_simulation()
         self.calc_nearest_update_time(time)
+        x, y = car.get_xy_source()
+        self.add_update_to_dictionary(car_starting_time, car.get_id(), x, y, car.get_source_node())
 
     """
     calculation functions
     """
-
 
     def sort_cars_in_simulation(self):
         # sort the dict by the time until the next road
@@ -67,30 +77,29 @@ class CarManager :
         if len(self.cars_in_simulation) == 0:
             # self.cars_nearest_update_time=0
             return False
-        self.cars_in_simulation = dict(sorted(self.get_cars_in_simulation().items(), key=lambda item: item[1].get_time_until_next_road()))
+        self.cars_in_simulation = dict(
+            sorted(self.get_cars_in_simulation().items(), key=lambda item: item[1].get_time_until_next_road()))
         first_index, first_car = next(iter(self.cars_in_simulation.items()))
         self.cars_nearest_update_time = first_car.get_time_until_next_road()
 
-    def calc_nearest_update_time(self, time:datetime.datetime):
+    def calc_nearest_update_time(self, time: datetime.datetime):
         """
         this function will calculate the time of the nearest update.
         :return:
         """
         if self.cars_waiting_to_enter:
             date_time = self.cars_waiting_to_enter[0].get_starting_time()  # datetime object
-            time1 = int((date_time-time).total_seconds()) # timedelta object
+            time1 = int((date_time - time).total_seconds())  # timedelta object
         else:
-            time1 =float('inf')
+            time1 = float('inf')
 
         if self.cars_in_simulation:
             first_index, first_car = next(iter(self.cars_in_simulation.items()))
-            time2 = first_car.get_time_until_next_road() # int object
+            time2 = first_car.get_time_until_next_road()  # int object
         else:
-            time2 =float('inf')
+            time2 = float('inf')
         self.cars_nearest_update_time = min(time1, time2)
         return self.cars_nearest_update_time
-
-
 
     def find_earliest_waiting_car(self):
         """
@@ -105,12 +114,11 @@ class CarManager :
                 starting_time = car.get_starting_time()
         return starting_time
 
-
     def show_cars_in_simulation(self):
         print("cars_in_simulation:")
         print(self.cars_in_simulation)
 
-    def update_cars(self, timeStamp:int, current_datetime:datetime.datetime):
+    def update_cars(self, timeStamp: int, current_datetime: datetime.datetime):
         # TODO: NEED TO HANDLE WAITING CARS
         """
         this function will update all the cars in the simulation.
@@ -130,19 +138,24 @@ class CarManager :
             car.update_travel_time(timeStamp)
 
             if car.get_time_until_next_road() == 0:
-                result = car.move_next_road(timeStamp) # result is the next road the car is on
-                if result is None: # car is finished or stuck
+                result = car.move_next_road(timeStamp)  # result is the next road the car is on
+                x, y = car.get_xy_current()
+                self.add_update_to_dictionary(current_datetime, car.get_id(), x, y, car.get_current_node())
+                # add update to list
+                if result is None:  # car is finished or stuck
                     cars.pop(car.get_id())
                     moved = False
 
                     if car.get_car_in_destination():
                         print("car", car.get_id(), "finished his journey")
                         self.cars_finished.append(car)
+                        x, y = car.get_xy_destination()
+                        self.add_update_to_dictionary(current_datetime, car.get_id(), x, y, car.get_destination_node())
                     else:
                         print("car", car.get_id(), "is stuck")
                         self.add_stuck_car(car)
 
-                elif result == "blocked": # car is blocked
+                elif result == "blocked":  # car is blocked
                     print("car", car.get_id(), "is blocked in road ", car.get_current_road().get_id())
                     self.cars_blocked.append(car)
                     car.set_blocked()
@@ -150,7 +163,7 @@ class CarManager :
                     moved = False
             if moved == True and car.get_is_blocked():
                 car.set_unblocked()
-                blocked_cars.remove(car)#TODO: check if needed
+                blocked_cars.remove(car)  # TODO: check if needed
                 cars[key] = car
                 moved = False
 
@@ -180,6 +193,7 @@ class CarManager :
 
     def is_car_stuck(self, car):
         return car in self.cars_stuck
+
     def is_car_finished(self, car):
         return car in self.cars_finished
 
@@ -195,7 +209,14 @@ class CarManager :
     def force_cars_to_finish(self):
         for car in self.cars_stuck:
             car.force_finish()
-            #self.cars_finished.append(car)
+            # self.cars_finished.append(car)
 
     def get_cars_waiting_to_enter(self):
         return self.cars_waiting_to_enter
+
+    def get_starting_time(self, car_id):
+        return self.cars_in_simulation[car_id].get_starting_time()
+
+    def get_osmid_from_time_car_id(self, car_id, current_time):
+        return self.cars_in_simulation[car_id].get_osmid_from_time(current_time)
+        pass

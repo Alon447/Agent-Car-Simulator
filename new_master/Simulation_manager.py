@@ -39,26 +39,26 @@ class Simulation_manager:
         # TIME
         self.simulation_datetime_start = start_time
         self.simulation_datetime = start_time
-        self.simulation_time = datetime.timedelta(seconds=0) # in seconds
-        self.simulation_update_times=[] # list of times the simulation was updated for the animation
+        self.simulation_time = datetime.timedelta(seconds=0)  # in seconds
+        self.simulation_update_times = []  # list of times the simulation was updated for the animation
         self.last_speed_update_time = start_time
         self.time_limit = time_limit # the maximum time the simulation will run in seconds
         self.day_int=0 # 0-6, 0-sunday, 1-monday, 2-tuesday, 3-wednesday, 4-thursday, 5-friday, 6-saturday
 
         # RESULTS
-        self.simulation_results = [] # list of dictionaries, each dictionary is a simulation result
+        self.simulation_results = []  # list of dictionaries, each dictionary is a simulation result
         # FUNCTIONS - read speeds
         self.read_road_speeds(self.simulation_datetime_start)
 
     # FUNCTIONS - block/unblock roads
     def block_road(self, road_id):
         self.road_network.block_road(road_id)
-        print("Road",road_id ,"blocked")
+        print("Road", road_id, "blocked")
         return
 
     def unblock_road(self, road_id):
         self.road_network.unblock_road(road_id)
-        print("Road",road_id ,"unblocked")
+        print("Road", road_id, "unblocked")
         return
 
     def unblock_all_roads(self):
@@ -81,10 +81,10 @@ class Simulation_manager:
         self.road_network.update_roads_speeds(current_time)
         return
 
-    def update_simulation_clock(self, time:int):
+    def update_simulation_clock(self, time: int):
         # update both the spesific simulation time and the datetime
-        self.simulation_time += pd.Timedelta(seconds=time) #time
-        self.simulation_datetime += pd.Timedelta(seconds=time) #  time
+        self.simulation_time += pd.Timedelta(seconds=time)  # time
+        self.simulation_datetime += pd.Timedelta(seconds=time)  # time
         self.simulation_update_times.append(self.simulation_datetime)
         time_difference = self.simulation_datetime - self.last_speed_update_time
 
@@ -115,11 +115,11 @@ class Simulation_manager:
         """
         self.last_speed_update_time = datetime_obj.replace(second=0, microsecond=0)
         number_of_roads = len(self.road_network.roads_array)
-        self.day_int = (datetime_obj.weekday()+1)%7
+        self.day_int = (datetime_obj.weekday() + 1) % 7
         with open('simulation_speeds.json', 'r') as infile:
             data = json.load(infile)
 
-        #time_key = datetime_obj.strftime("%H:%M")  # Format the datetime object as HH:MM
+        # time_key = datetime_obj.strftime("%H:%M")  # Format the datetime object as HH:MM
 
         # round the minutes to the nearest 10
         minutes = int(datetime_obj.minute / 10) * 10
@@ -140,7 +140,7 @@ class Simulation_manager:
         # set up simulation
         # resets the clocks
         # adds the cars to the car manager
-        self.simulation_time = datetime.timedelta(seconds=0) # in seconds
+        self.simulation_time = datetime.timedelta(seconds=0)  # in seconds
         self.simulation_datetime = self.simulation_datetime_start
 
         self.car_manager.clear()
@@ -154,8 +154,8 @@ class Simulation_manager:
         runs the simulation until there are no more cars in the simulation ot it gets to a time limit
         :return:
         """
-        while self.get_simulation_time() < self.time_limit and (self.car_manager.get_cars_in_simulation() or self.car_manager.get_cars_waiting_to_enter()):
-
+        while self.get_simulation_time() < self.time_limit and (
+                self.car_manager.get_cars_in_simulation() or self.car_manager.get_cars_waiting_to_enter()):
             # rnd = random.randint(0, 100)
             # blocked_roads = self.road_network.get_blocked_roads_array()
             # if rnd == 0 and len(blocked_roads) !=0:
@@ -164,12 +164,12 @@ class Simulation_manager:
 
             time = self.car_manager.calc_nearest_update_time(self.simulation_datetime)
             SM.update_simulation_clock(time)
-            self.car_manager.update_cars(time,self.simulation_datetime)
-            #print("simulation_time:", SM.simulation_time)
-            #self.car_manager.show_cars_in_simulation()
+            self.car_manager.update_cars(time, self.simulation_datetime)
+            # print("simulation_time:", SM.simulation_time)
+            # self.car_manager.show_cars_in_simulation()
 
         for carInd in self.car_manager.get_cars_in_simulation():
-            car = self.car_manager.get_cars_in_simulation()[carInd] # dict so we need to get the car object
+            car = self.car_manager.get_cars_in_simulation()[carInd]  # dict so we need to get the car object
             self.car_manager.cars_stuck.append(car)
         self.car_manager.force_cars_to_finish()
 
@@ -177,22 +177,23 @@ class Simulation_manager:
 
     def end_simulation(self, simulation_number):
         # prints end message
-        simulation_number+=1
+        simulation_number += 1
         simulation_time_seconds = time_delta_to_seconds(self.simulation_time)
-        if simulation_time_seconds>= 3600:
-            if simulation_time_seconds%3600 == 0:
-                print("simulation",simulation_number,"finished after", int(simulation_time_seconds/3600),"hours")
+        if simulation_time_seconds >= 3600:
+            if simulation_time_seconds % 3600 == 0:
+                print("simulation", simulation_number, "finished after", int(simulation_time_seconds / 3600), "hours")
             else:
-                print("simulation",simulation_number,"finished after", int(simulation_time_seconds/3600),"hours and ",int(simulation_time_seconds%60),"minutes")
+                print("simulation", simulation_number, "finished after", int(simulation_time_seconds / 3600),
+                      "hours and ", int(simulation_time_seconds % 60), "minutes")
         else:
-            print("simulation",simulation_number,"finished after", int(simulation_time_seconds/60),"minutes")
+            print("simulation", simulation_number, "finished after", int(simulation_time_seconds / 60), "minutes")
         print("***************************")
 
-        #print("Cars finished:")
+        # print("Cars finished:")
         # for car in self.car_manager.get_cars_finished():
-            #print(car.get_id(), car.get_total_travel_time())
-        #print("***************************")
-        #print("Cars stuck:")
+        # print(car.get_id(), car.get_total_travel_time())
+        # print("***************************")
+        # print("Cars stuck:")
         # for car in self.car_manager.get_cars_stuck():
         #     print(car.get_id(), car.get_total_travel_time())
 
@@ -304,13 +305,13 @@ class Simulation_manager:
                     print(array_index, ": ")
                     for key, value in result_dict.items():
                         if key != "route" and key != "time_taken" and key != "distance_travelled":
-                            print(key,": ", value)
+                            print(key, ": ", value)
                         elif key == "time_taken":
-                            print(key, ": ", int(value/60), "minutes")
+                            print(key, ": ", int(value / 60), "minutes")
                         elif key == "distance_travelled":
-                            print(key, ": ", round(value/1000,1), "km")
+                            print(key, ": ", round(value / 1000, 1), "km")
                         else:
-                            print("Route length: ", len(value),"roads")
+                            print("Route length: ", len(value), "roads")
 
         return
 
@@ -320,15 +321,15 @@ class Simulation_manager:
         :return:
         """
         if self.simulation_results[simulation_number][carInd]['route'] == None:
-         return None
+            return None
         else:
             return self.simulation_results[simulation_number][carInd]['route']
-
 
     def get_key_from_value(self, dictionary, value):
         for key, val in dictionary.items():
             if int(val) == value:
                 return key
+
     def transform_node_id_route_to_osm_id_route(self, route):
         osm_route = []
         for node in route:
@@ -353,7 +354,7 @@ class Simulation_manager:
             else:
                 colors.append('red')
         # time_seconds = [td.total_seconds() for td in times]
-        plt.bar((range(1, len(times)+1)), times, color=colors)
+        plt.bar((range(1, len(times) + 1)), times, color=colors)
 
         # Add labels and title
         plt.xlabel('Simulation Number')
@@ -392,9 +393,10 @@ class Simulation_manager:
             for road in self.road_network.roads_array
         ]
         # Plot the graph
-        fig, ax = ox.plot_graph(graph,figsize=(15, 15), show=False, close=False, edge_color=edge_colors, node_color='lightgrey', bgcolor='white')
+        fig, ax = ox.plot_graph(graph, figsize=(15, 15), show=False, close=False, edge_color=edge_colors,
+                                node_color='lightgrey', bgcolor='white')
 
-        for j,route in enumerate(routes):
+        for j, route in enumerate(custom_routes):
             new_routes.append(self.transform_node_id_route_to_osm_id_route(route))
 
             x, y = RN.get_xy_from_node_id(route[0])
@@ -412,12 +414,10 @@ class Simulation_manager:
             gdf = gpd.GeoDataFrame(geometry=[Point(lon, lat) for lat, lon in geometry_data], crs='epsg:4326')
             dest.append(gdf)
 
-
-
         # Plot the graph
         for i in range(len(new_routes)):
-            orig[i].plot(ax=ax, color='pink',label=f'Origin {i + 1}')
-            dest[i].plot(ax=ax, color='yellow',label=f'Destination {i + 1}')
+            orig[i].plot(ax=ax, color='pink', label=f'Origin {i + 1}')
+            dest[i].plot(ax=ax, color='yellow', label=f'Destination {i + 1}')
         plt.legend(frameon=False)
 
         # pick route colors
@@ -430,33 +430,66 @@ class Simulation_manager:
         # Show the plot
         # plt.show()
         # return
-        self.animate_route(ax,fig,scatter_list, new_routes)
+        self.animate_route(ax, fig, scatter_list, new_routes)
 
-    def animate_route(self, ax,fig,scatter_list, custom_routes):
+    # def animate_route(self, ax, fig, scatter_list, custom_routes):
+    #     max_route_len = max(len(route) for route in custom_routes)
+    #     num_updates = len(self.simulation_update_times)  # Get the number of simulation update times
+    #
+    #     def animate(i):
+    #         # Calculate the index corresponding to the current frame of the animation
+    #         update_idx = int(i / num_updates)
+    #         # Get the simulation datetime corresponding to the current frame
+    #         current_time = self.simulation_update_times[update_idx]
+    #         for j in range(len(custom_routes)):
+    #             print(j)
+    #             try:
+    #                 x_j, y_j = self.road_network.get_xy_from_osm_id(custom_routes[j][i])
+    #                 scatter_list[j].set_offsets(np.c_[x_j, y_j])
+    #             except:
+    #                 continue
+    #         # Clear previous text annotation
+    #         if ax.texts:
+    #             for text in ax.texts:
+    #                 text.remove()
+    #
+    #         # Add text annotation for simulation time
+    #         time_text = ax.text(0.95, 0.95, f'Simulation Time: {current_time.strftime("%H:%M:%S")}',
+    #                             transform=ax.transAxes, color='black', fontsize=12, fontweight='bold',
+    #                             horizontalalignment='right')
+    #
+    #     animation = FuncAnimation(fig, animate, frames=max_route_len, interval=500, repeat=False)
+    #     plt.show()
+
+    def animate_route(self, ax, fig, scatter_list, custom_routes):
         max_route_len = max(len(route) for route in custom_routes)
         num_updates = len(self.simulation_update_times)  # Get the number of simulation update times
+        temp_dict = {1: 0, 3: 1, 4: 2}
 
         def animate(i):
             # Calculate the index corresponding to the current frame of the animation
-            update_idx = int(i * num_updates / max_route_len)
+            update_idx = i
             # Get the simulation datetime corresponding to the current frame
             current_time = self.simulation_update_times[update_idx]
-            for j in range(len(custom_routes)):
-                # print(j)
+            for j, updates in enumerate(self.car_manager.updated_dictionary[current_time]):
+                print(j)
                 try:
-                    x_j, y_j = self.road_network.get_xy_from_osm_id(custom_routes[j][i])
-                    scatter_list[j].set_offsets(np.c_[x_j, y_j])
+                    x_j, y_j = updates[1][0], updates[1][1]
+                    # self.get_xy_by_osmid_time(custom_routes[j][i],current_time,j)
+                    scatter_list[temp_dict[updates[0]]].set_offsets(np.c_[x_j, y_j])
                 except:
                     continue
             # Clear previous text annotation
-            ax.texts.clear()
+            if ax.texts:
+                for text in ax.texts:
+                    text.remove()
 
             # Add text annotation for simulation time
             time_text = ax.text(0.95, 0.95, f'Simulation Time: {current_time.strftime("%H:%M:%S")}',
                                 transform=ax.transAxes, color='black', fontsize=12, fontweight='bold',
                                 horizontalalignment='right')
 
-        animation = FuncAnimation(fig, animate, frames=max_route_len, interval=100, repeat=True)
+        animation = FuncAnimation(fig, animate, frames=num_updates, interval=200, repeat=False)
         plt.show()
 
 
@@ -466,11 +499,11 @@ HOUR = 3600
 MINUTE = 60
 
 # initilazires
-START_TIME1 =datetime.datetime(year=2023,month=6,day=29,hour=8, minute=0, second=0)
-START_TIME2 =datetime.datetime(year=2023,month=6,day=29,hour=8, minute=0, second=0)
-START_TIME3 =datetime.datetime(year=2023,month=6,day=29,hour=21, minute=0, second=0)
-START_TIME4 =datetime.datetime(year=2023,month=6,day=30,hour=12, minute=0, second=0)
-START_TIME5 =datetime.datetime(year=2023,month=7,day=1,hour=15, minute=0, second=0)
+START_TIME1 = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0, second=0)
+START_TIME2 = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0, second=0)
+START_TIME3 = datetime.datetime(year=2023, month=6, day=29, hour=21, minute=0, second=0)
+START_TIME4 = datetime.datetime(year=2023, month=6, day=30, hour=12, minute=0, second=0)
+START_TIME5 = datetime.datetime(year=2023, month=7, day=1, hour=15, minute=0, second=0)
 
 SM = Simulation_manager('/TLV_with_eta.graphml', 20*HOUR, START_TIME1) # graph path, time limit, starting time
 CM = SM.get_car_manager()
@@ -514,7 +547,6 @@ SM.plotting_custom_route(routes)
 # SM.car_times_bar_chart(3)
 
 SRM = Simulation_Results_Manager()
-SRM.save_results_to_JSON(SM.simulation_results,1)
+SRM.save_results_to_JSON(SM.simulation_results, 1)
 SM.simulation_results = SRM.read_results_from_JSON()
 SM.print_simulation_results()
-
