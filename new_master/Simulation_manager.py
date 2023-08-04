@@ -525,7 +525,7 @@ def choose_random_src_dst(road_network):
 
 def test():
     res = []
-    for i in range(10000):
+    for i in range(1000):
         src, dst = choose_random_src_dst(RN)
         print("simulation number: ", i)
         print("src: ", src, "dst: ", dst)
@@ -535,10 +535,10 @@ def test():
 
         SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS, TRAFFIC_LIGHTS)
 
-        route1 = SM.get_simulation_route(1, 0)
-        route2 = SM.get_simulation_route(2, 0)
-        print(c1.total_travel_time, route1)
-        print( c2.total_travel_time,route2)
+        # route1 = SM.get_simulation_route(1, 0)
+        # route2 = SM.get_simulation_route(2, 0)
+        print(c1.total_travel_time)
+        print( c2.total_travel_time)
         if c1.total_travel_time <= c2.total_travel_time:
             print("Q learning is better")
             res.append(1)
