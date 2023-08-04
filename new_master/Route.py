@@ -82,12 +82,12 @@ class Q_Learning_Route(Route):
         self.agent = QLearning(road_network, learning_rate=0.1, discount_factor=0.9, epsilon=0.2)
 
         num_episodes = 2000
-        max_steps_per_episode = 250
-        if self.agent.load_q_table(self.src_node, self.dst_node):
+        max_steps_per_episode = 100
+        if self.agent.load_q_table(self.src_node, self.dst_node, r"C:\Users\alon4\PycharmProjects\OSMtest\q_learning_data"):
             self.q_table = self.agent.get_q_table()
         else:
             self.q_table = self.agent.train_src_dst(src_node, dst_node, self.start_time, num_episodes, max_steps_per_episode=max_steps_per_episode)
-            self.agent.save_q_table(self.src_node, self.dst_node)
+            self.agent.save_q_table(self.src_node, self.dst_node, r"C:\Users\alon4\PycharmProjects\OSMtest\q_learning_data")
         # Test the agent
         test_reward, agent_path = self.agent.test_src_dst(src_node, dst_node, self.start_time)  # this will be the test function
         self.path = agent_path

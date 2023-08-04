@@ -187,7 +187,7 @@ class Simulation_manager:
                       "hours and ", int(simulation_time_seconds % 60), "minutes")
         else:
             print("simulation", simulation_number, "finished after", int(simulation_time_seconds / 60), "minutes")
-        print("***************************")
+        print("************************************")
 
         # print("Cars finished:")
         # for car in self.car_manager.get_cars_finished():
@@ -515,7 +515,7 @@ def choose_random_src_dst(road_network):
     dst = random.Random().randint(0, len(road_network.get_node_connectivity_dict()) - 1)
     src_osm = road_network.reverse_node_dict[src]
     dest_osm = road_network.reverse_node_dict[dst]
-    while not nx.has_path(road_network.get_graph(), src_osm, dest_osm):
+    while (not nx.has_path(road_network.get_graph(), src_osm, dest_osm)) or src == dst:
         # print(f"There is no path between {src} and {dst}.")
         src = random.Random().randint(0, len(road_network.get_node_connectivity_dict()) - 1)
         dst = random.Random().randint(0, len(road_network.get_node_connectivity_dict()) - 1)
@@ -523,11 +523,42 @@ def choose_random_src_dst(road_network):
         dest_osm = road_network.reverse_node_dict[dst]
     return src, dst
 
+def test():
+    res = []
+    for i in range(10000):
+        src, dst = choose_random_src_dst(RN)
+        print("simulation number: ", i)
+        print("src: ", src, "dst: ", dst)
+        c1 = Car.Car(1, src, dst, START_TIME1, RN, route_algorithm="q")
+        c2 = Car.Car(2, src, dst, START_TIME1, RN, route_algorithm="shortest_path")
+        cars = [c1, c2]
+
+        SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS, TRAFFIC_LIGHTS)
+
+        route1 = SM.get_simulation_route(1, 0)
+        route2 = SM.get_simulation_route(2, 0)
+        print(c1.total_travel_time, route1)
+        print( c2.total_travel_time,route2)
+        if c1.total_travel_time <= c2.total_travel_time:
+            print("Q learning is better")
+            res.append(1)
+        else:
+            print("Shortest path is better")
+            res.append(0)
+        percent = 100* sum(res) / len(res)
+        print("percent: ", percent,"%")
+        print("************************************")
+
+
+
+
 NUMBER_OF_SIMULATIONS = 1
 TRAFFIC_LIGHTS = False
+test()
+"""
 src, dst = choose_random_src_dst(RN)
 c1 = Car.Car(1,src,dst,START_TIME1,RN,route_algorithm = "q")
-c2 = Car.Car(2,src,dst,START_TIME1,RN,route_algorithm = "shortest_path")
+c2 = Car.Car(2,200,839,START_TIME1,RN,route_algorithm = "shortest_path")
 c3 = Car.Car(3,200,839,START_TIME3,RN,route_algorithm = "shortest_path")
 c4 = Car.Car(4,113,703,START_TIME4,RN,route_algorithm = "shortest_path")
 c5 = Car.Car(5,110,700,START_TIME5,RN,route_algorithm = "shortest_path")
@@ -547,6 +578,7 @@ SM.plotting_custom_route(routes)
 # SM.car_times_bar_chart(3)
 
 SRM = Simulation_Results_Manager()
-SRM.save_results_to_JSON(SM.simulation_results, 1)
+SRM.save_results_to_JSON(SM.simulation_results)
 SM.simulation_results = SRM.read_results_from_JSON()
 SM.print_simulation_results()
+"""

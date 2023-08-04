@@ -1,4 +1,5 @@
 import datetime
+import os
 import pickle
 
 import networkx as nx
@@ -124,7 +125,10 @@ class QLearning:
         if reward == -100:
             max_next_q_value = -100
         else:
-            max_next_q_value = np.max(self.q_table[next_state])  #
+            if len(self.q_table[next_state]) == 0:
+                max_next_q_value = 0
+            else:
+                max_next_q_value = np.max(self.q_table[next_state])  #
         new_q_value = (1 - self.learning_rate) * current_q_value + self.learning_rate * (reward + self.discount_factor * max_next_q_value)
         self.q_table[state][action] = new_q_value
 
@@ -281,19 +285,19 @@ class QLearning:
         # print("*********************************************")
         return test_rewards, path_nodes
 
-    def save_q_table(self, src, dst):
-        filename = f'q_table_{src}_{dst}.pkl'
+    def save_q_table(self, src, dst, save_path):
+        filename = os.path.join(save_path, f'q_table_{src}_{dst}.pkl')
         with open(filename, 'wb') as f:
             pickle.dump(self.q_table, f)
 
-    def load_q_table(self, src, dst):
-        filename = f'q_table_{src}_{dst}.pkl'
+    def load_q_table(self, src, dst, save_path):
+        filename = os.path.join(save_path, f'q_table_{src}_{dst}.pkl')
         try:
             with open(filename, 'rb') as f:
                 self.q_table = pickle.load(f)
             return True
         except FileNotFoundError:
-            print(f"Q-table file '{filename}' not found.")
+            # print(f"Q-table file '{filename}' not found.")
             return False
 
 
@@ -370,10 +374,10 @@ class QLearning:
             mean_reward_sum += total_episode_reward
 
             if episode % mean_rewards_interval == 0:
-                print("episode: ", episode)
+                # print("episode: ", episode)
                 # print("path nodes: ", path_nodes)
                 # # print("path roads: ", path_roads)
-                print("total episode reward: ", total_episode_reward)
+                # print("total episode reward: ", total_episode_reward)
                 mean_reward = mean_reward_sum / mean_rewards_interval
                 mean_rewards.append(mean_reward)
                 # if mean_reward > 960:
@@ -394,7 +398,7 @@ class QLearning:
 
         # Plot mean rewards
 
-        self.plot_rewards(mean_rewards)
+        # self.plot_rewards(mean_rewards)
         return self.q_table
 
     def test_src_dst(self, src: int, dst: int, start_time:datetime, max_steps_per_episode=100):

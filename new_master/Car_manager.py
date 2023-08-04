@@ -32,17 +32,6 @@ class CarManager:
         # step. key is time, value is a list of the cars that have been updated in that time step
         # along with current node
 
-    """
-    cars_in_simulation=[1:[1, 0,100, 20],3:[3, 3,20, 30]]
-    
-    getters
-    """
-
-    def get_cars_in_simulation(self):
-        return self.cars_in_simulation
-
-    def get_cars_finished(self):
-        return self.cars_finished
 
     """
     setters and updaters
@@ -182,11 +171,7 @@ class CarManager:
         self.sort_cars_in_simulation()
         return
 
-    def get_nearest_update_time(self):
-        return self.cars_nearest_update_time
 
-    def get_cars_stuck(self):
-        return self.cars_stuck
 
     def add_stuck_car(self, car):
         self.cars_stuck.append(car)
@@ -211,6 +196,23 @@ class CarManager:
             car.force_finish()
             # self.cars_finished.append(car)
 
+    """
+       cars_in_simulation=[1:[1, 0,100, 20],3:[3, 3,20, 30]]
+
+       GET
+    """
+
+    def get_cars_in_simulation(self):
+        return self.cars_in_simulation
+
+    def get_cars_finished(self):
+        return self.cars_finished
+
+    def get_nearest_update_time(self):
+        return self.cars_nearest_update_time
+
+    def get_cars_stuck(self):
+        return self.cars_stuck
     def get_cars_waiting_to_enter(self):
         return self.cars_waiting_to_enter
 

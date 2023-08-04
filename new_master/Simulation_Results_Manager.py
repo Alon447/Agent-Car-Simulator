@@ -9,7 +9,7 @@ class Simulation_Results_Manager:
         self.simulation_results = []
 
 
-    def save_results_to_JSON(self, results, simulation_id):
+    def save_results_to_JSON(self, results):
         self.simulation_results.append(results)
         with open('simulation_results.json', 'w') as outfile:
             json.dump(results, outfile, indent=4)
