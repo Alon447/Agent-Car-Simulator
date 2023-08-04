@@ -336,7 +336,6 @@ def test():
     res = []
     for i in range(1):
         src, dst = choose_random_src_dst(RN)
-        # src,dst = 571,406
         print("simulation number: ", i)
         print("src: ", src, "dst: ", dst)
         c1 = Car.Car(1, src, dst, START_TIME1, RN, route_algorithm="q")
@@ -345,10 +344,10 @@ def test():
 
         SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS, TRAFFIC_LIGHTS)
 
-        route1 = SM.get_simulation_route(1, 0)
-        route2 = SM.get_simulation_route(2, 0)
-        print(c1.total_travel_time, route1)
-        print(c2.total_travel_time, route2)
+        # route1 = SM.get_simulation_route(1, 0)
+        # route2 = SM.get_simulation_route(2, 0)
+        print(c1.total_travel_time)
+        print( c2.total_travel_time)
         if c1.total_travel_time <= c2.total_travel_time:
             print("Q learning is better")
             res.append(1)
@@ -362,7 +361,7 @@ def test():
 
 NUMBER_OF_SIMULATIONS = 1
 TRAFFIC_LIGHTS = False
-# test()
+test()
 """
 src, dst = choose_random_src_dst(RN)
 c1 = Car.Car(1,src,dst,START_TIME1,RN,route_algorithm = "q")
