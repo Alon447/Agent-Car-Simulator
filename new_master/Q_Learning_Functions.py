@@ -139,7 +139,7 @@ class QLearning:
         plt.title('Mean Rewards over Training')
         plt.show()
 
-    def train(self,car: Car, num_episodes: int,  max_steps_per_episode=100, epsilon_decay_rate=0.99, mean_rewards_interval=100):
+    def train(self,car, num_episodes: int,  max_steps_per_episode=100, epsilon_decay_rate=0.99, mean_rewards_interval=100):
         ###############################
         # NOT FOR THE SIMULATION
         ###############################
@@ -230,7 +230,7 @@ class QLearning:
         self.plot_rewards(mean_rewards)
         return
 
-    def test(self,car:Car, max_steps_per_episode=100):
+    def test(self,car, max_steps_per_episode=100):
         ###############################
         # NOT FOR THE SIMULATION
         ###############################

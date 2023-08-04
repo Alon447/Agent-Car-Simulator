@@ -2,3 +2,4 @@
 *.json
 tomtom.py
 tomtom.py
+*.pyc

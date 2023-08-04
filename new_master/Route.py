@@ -1,4 +1,5 @@
 import datetime
+import os
 from abc import abstractmethod, ABC
 import random
 
@@ -83,14 +84,21 @@ class Q_Learning_Route(Route):
 
         num_episodes = 2000
         max_steps_per_episode = 100
-        if self.agent.load_q_table(self.src_node, self.dst_node, r"C:\Users\alon4\PycharmProjects\OSMtest\q_learning_data"):
+        full_tables_path = self.get_tables_directory(r"q_learning_data")
+        if self.agent.load_q_table(self.src_node, self.dst_node, full_tables_path):
             self.q_table = self.agent.get_q_table()
         else:
             self.q_table = self.agent.train_src_dst(src_node, dst_node, self.start_time, num_episodes, max_steps_per_episode=max_steps_per_episode)
-            self.agent.save_q_table(self.src_node, self.dst_node, r"C:\Users\alon4\PycharmProjects\OSMtest\q_learning_data")
+            self.agent.save_q_table(self.src_node, self.dst_node, full_tables_path)
         # Test the agent
         test_reward, agent_path = self.agent.test_src_dst(src_node, dst_node, self.start_time)  # this will be the test function
         self.path = agent_path
+
+    def get_tables_directory(self, tables_directory):
+        cur = os.getcwd()
+        parent = os.path.dirname(cur)
+        data = os.path.join(parent, tables_directory)
+        return data
 
 
     def decide_first_road(self, source_node, road_network):
