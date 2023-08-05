@@ -23,7 +23,7 @@ START_TIME5 = datetime.datetime(year=2023, month=7, day=1, hour=15, minute=0, se
 # src, dst = Simulation_manager.choose_random_src_dst(RN)
 
 TRAFFIC_LIGHTS = True
-SM = Simulation_manager.Simulation_manager('/TLV_with_eta.graphml', 3 * DAY, TRAFFIC_LIGHTS, START_TIME1)  # graph path, time limit, activate_traffic_lights ,starting time
+SM = Simulation_manager.Simulation_manager('TLV_with_eta', 3 * DAY, TRAFFIC_LIGHTS, START_TIME1)  # graph path, time limit, activate_traffic_lights ,starting time
 CM = SM.car_manager
 RN = SM.road_network
 NUMBER_OF_SIMULATIONS = 1

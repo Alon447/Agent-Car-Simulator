@@ -6,6 +6,7 @@ import pandas as pd
 import networkx as nx
 import random
 import numpy as np
+import Utilities.Getters as Getters
 
 
 class Road_Network:
@@ -25,7 +26,7 @@ class Road_Network:
     """
     def __init__(self, graph_path, start_time = datetime.datetime(year=2023,month=6,day=29,hour=8, minute=0, second=0)):
         # graph
-        self.graph = self.set_graph(graph_path)
+        self.graph = Getters.get_graph(graph_path)
         self.roads_array = []
         self.graph_nodes = {} # dict that includes: 0. node_id 1. osm_id 2.x (longtitude) 3.y (latitude) 4. street_count 5. traffic_light
 
@@ -253,17 +254,13 @@ class Road_Network:
     #     return self.graph_nodes
     # def get_blocked_roads_array(self):
     #     return self.blocked_roads_array
-    def set_graph(self, graph_path):
-        cur = os.getcwd()
-        parent = os.path.dirname(cur)
-        data = os.path.join(parent, "data")
-        return ox.load_graphml(data + graph_path)
-
     def __str__(self):
         return "Road_Network"
 
     def __repr__(self):
         return "Road_Network"
+
+
 
 
 
