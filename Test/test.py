@@ -1,59 +1,60 @@
-import csv
-from datetime import datetime
-
-from matplotlib import pyplot as plt
-
-
-def get_speeds_for_id(csv_filename, target_id):
-    speeds_list = []
-    dates=[]
-
-    with open(csv_filename, newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter='\t')
-
-        # Skip the header row
-        next(reader)
-
-        # Iterate through the rows and find the speeds for the specific ID
-        for row in reader:
-            r = row[0].split(",")
-            current_id = r[0]
-
-            if current_id == target_id:
-                speeds=[]
-                for i in range(2, 32, 5):
-                    date_time_str = r[i+3]
-                    date_time_obj = datetime.strptime(date_time_str, '%Y-%m-%d %H:%M')
-
-                    dates.append(date_time_obj)
-                    if r[i] == 'ND':
-                        if i == 2:
-                            speeds.append(speeds_list[-1])
-                        else:
-                            speeds.append(speeds[-1])
-                    else:
-                        speeds.append(float(r[i]))
-
-                # speeds = [r[2], r[7], r[12], r[17], r[22], r[27]]
-                speeds_list.extend(speeds)
-
-    return dates, speeds_list
-
-# Replace 'data.csv' with the actual filename of your CSV file
-csv_filename = 'trafficinfo.csv'
-target_id = '1210030100'  # Replace with the specific ID you want to extract speeds for
-
-dates, speeds_for_id = get_speeds_for_id(csv_filename, target_id)
-print("Speeds for ID {}: {}".format(target_id, speeds_for_id))
-# Plot the graph
-plt.figure(figsize=(10, 6))
-plt.plot(dates, speeds_for_id, marker='o', linestyle='-')
-plt.xlabel("Time")
-plt.ylabel("Speed (km/h)")
-plt.title("Speeds over Time")
-plt.xticks(rotation=45)
-plt.tight_layout()
-plt.show()
+# import csv
+# from datetime import datetime
+#
+# from matplotlib import pyplot as plt
+#
+#
+# def get_speeds_for_id(csv_filename, target_id):
+#     speeds_list = []
+#     dates=[]
+#
+#     with open(csv_filename, newline='') as csvfile:
+#         reader = csv.reader(csvfile, delimiter='\t')
+#
+#         # Skip the header row
+#         next(reader)
+#
+#         # Iterate through the rows and find the speeds for the specific ID
+#         for row in reader:
+#             r = row[0].split(",")
+#             current_id = r[0]
+#
+#             if current_id == target_id:
+#                 speeds=[]
+#                 for i in range(2, 32, 5):
+#                     date_time_str = r[i+3]
+#                     date_time_obj = datetime.strptime(date_time_str, '%Y-%m-%d %H:%M')
+#
+#                     dates.append(date_time_obj)
+#                     if r[i] == 'ND':
+#                         if i == 2:
+#                             speeds.append(speeds_list[-1])
+#                         else:
+#                             speeds.append(speeds[-1])
+#                     else:
+#                         speeds.append(float(r[i]))
+#
+#                 # speeds = [r[2], r[7], r[12], r[17], r[22], r[27]]
+#                 speeds_list.extend(speeds)
+#
+#     return dates, speeds_list
+#
+# # Replace 'data.csv' with the actual filename of your CSV file
+# csv_filename = 'trafficinfo.csv'
+# target_id = '1210030100'  # Replace with the specific ID you want to extract speeds for
+#
+# dates, speeds_for_id = get_speeds_for_id(csv_filename, target_id)
+# print("Speeds for ID {}: {}".format(target_id, speeds_for_id))
+# # Plot the graph
+# plt.figure(figsize=(10, 6))
+# plt.plot(dates, speeds_for_id, marker='o', linestyle='-')
+# plt.xlabel("Time")
+# plt.ylabel("Speed (km/h)")
+# plt.title("Speeds over Time")
+# plt.xticks(rotation=45)
+# plt.tight_layout()
+# plt.show()
+import datetime
 
 # import numpy as np
 # import matplotlib.pyplot as plt
@@ -73,3 +74,4 @@ plt.show()
 # plt.title('Random Numbers Following Normal Distribution')
 # plt.grid(True)
 # plt.show()
+

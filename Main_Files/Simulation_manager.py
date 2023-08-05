@@ -24,7 +24,7 @@ class Simulation_manager:
                  start_time=datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0,
                                               second=0)):  # TODO: data path
         # MANAGERS
-        self.road_network = Road_Network.Road_Network(graph, start_time)
+        self.road_network = Road_Network.Road_Network(graph, activate_traffic_lights)
         self.car_manager = Car_manager.CarManager()
 
         # TIME
@@ -74,7 +74,7 @@ class Simulation_manager:
             self.last_speed_update_time = self.simulation_datetime.replace(minute=minutes).replace(second=0).replace(microsecond=0)
 
             time_key = self.simulation_datetime.replace(minute=minutes).strftime("%H:%M")
-            self.road_network.update_roads_speeds(time_key, self.activate_traffic_lights) #updates the road speeds according to the current time
+            self.road_network.update_roads_speeds(time_key) #updates the road speeds according to the current time
 
             print(self.simulation_datetime.strftime("%H:%M:%S"))
         return
@@ -160,7 +160,7 @@ class Simulation_manager:
         print("************************************")
         return
 
-    def run_full_simulation(self, cars, number_of_simulations=1, ):
+    def run_full_simulation(self, cars, number_of_simulations=1):
         """ TODO: add traffic lights
         runs the full simulation, including setting up the simulation, starting it and ending it
         :param cars:
@@ -261,40 +261,40 @@ class Simulation_manager:
     def transform_node_id_route_to_osm_id_route(self, route):
         osm_route = []
         for node in route:
-            osm_route.append(self.get_key_from_value(self.road_network.node_dict, node))
+            osm_route.append(self.road_network.nodes_array[node].osm_id)
         return osm_route
 
 
-WEEK = 604800
-DAY = 86400
-HOUR = 3600
-MINUTE = 60
+# WEEK = 604800
+# DAY = 86400
+# HOUR = 3600
+# MINUTE = 60
+#
+# # initilazires
+# START_TIME1 = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0, second=0)
+# START_TIME2 = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0, second=0)
+# START_TIME3 = datetime.datetime(year=2023, month=6, day=29, hour=21, minute=0, second=0)
+# START_TIME4 = datetime.datetime(year=2023, month=6, day=30, hour=12, minute=0, second=0)
+# START_TIME5 = datetime.datetime(year=2023, month=7, day=1, hour=15, minute=0, second=0)
+#
+# SM = Simulation_manager('/TLV_with_eta.graphml', 20 * HOUR, START_TIME1)  # graph path, time limit, starting time
+# CM = SM.car_manager
+# RN = SM.road_network
 
-# initilazires
-START_TIME1 = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0, second=0)
-START_TIME2 = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0, second=0)
-START_TIME3 = datetime.datetime(year=2023, month=6, day=29, hour=21, minute=0, second=0)
-START_TIME4 = datetime.datetime(year=2023, month=6, day=30, hour=12, minute=0, second=0)
-START_TIME5 = datetime.datetime(year=2023, month=7, day=1, hour=15, minute=0, second=0)
-
-SM = Simulation_manager('/TLV_with_eta.graphml', 20 * HOUR, START_TIME1)  # graph path, time limit, starting time
-CM = SM.car_manager
-RN = SM.road_network
-
-
-def choose_random_src_dst(road_network):
-    src = random.Random().randint(0, len(road_network.node_connectivity_dict) - 1)
-    dst = random.Random().randint(0, len(road_network.node_connectivity_dict) - 1)
-    src_osm = road_network.reverse_node_dict[src]
-    dest_osm = road_network.reverse_node_dict[dst]
-    while (not nx.has_path(road_network.graph, src_osm, dest_osm)) or src == dst:
-        # print(f"There is no path between {src} and {dst}.")
-        src = random.Random().randint(0, len(road_network.node_connectivity_dict) - 1)
-        dst = random.Random().randint(0, len(road_network.node_connectivity_dict) - 1)
-        src_osm = road_network.reverse_node_dict[src]
-        dest_osm = road_network.reverse_node_dict[dst]
-    return src, dst
-
+#
+# def choose_random_src_dst(road_network):
+#     src = random.Random().randint(0, len(road_network.node_connectivity_dict) - 1)
+#     dst = random.Random().randint(0, len(road_network.node_connectivity_dict) - 1)
+#     src_osm = road_network.reverse_node_dict[src]
+#     dest_osm = road_network.reverse_node_dict[dst]
+#     while (not nx.has_path(road_network.graph, src_osm, dest_osm)) or src == dst:
+#         # print(f"There is no path between {src} and {dst}.")
+#         src = random.Random().randint(0, len(road_network.node_connectivity_dict) - 1)
+#         dst = random.Random().randint(0, len(road_network.node_connectivity_dict) - 1)
+#         src_osm = road_network.reverse_node_dict[src]
+#         dest_osm = road_network.reverse_node_dict[dst]
+#     return src, dst
+#
 
 # def Test():
 #     res = []

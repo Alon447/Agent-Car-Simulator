@@ -26,12 +26,13 @@ TRAFFIC_LIGHTS = True
 SM = Simulation_manager.Simulation_manager('TLV_with_eta', 3 * DAY, TRAFFIC_LIGHTS, START_TIME1)  # graph path, time limit, activate_traffic_lights ,starting time
 CM = SM.car_manager
 RN = SM.road_network
+
 NUMBER_OF_SIMULATIONS = 1
 c1 = Car.Car(1, 200, 839, START_TIME1, RN, route_algorithm="q")
 c2 = Car.Car(2, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
-c3 = Car.Car(3, 200, 839, START_TIME3, RN, route_algorithm="shortest_path")
-c4 = Car.Car(4, 113, 703, START_TIME4, RN, route_algorithm="shortest_path")
-c5 = Car.Car(5, 110, 700, START_TIME5, RN, route_algorithm="shortest_path")
+c3 = Car.Car(3, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
+c4 = Car.Car(4, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
+c5 = Car.Car(5, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
 
 cars = []
 cars.append(c1)

@@ -19,8 +19,8 @@ def node_route_to_osm_route(node_route, road_network):
     :return: a list of roads in the route
     """
     osm_route = []
-    for i in range(len(node_route)):
-        osm_route.append(road_network.reverse_node_dict[node_route[i]])
+    for i, node in enumerate(node_route):
+        osm_route.append(road_network.nodes_array[node].osm_id)
     return osm_route
 
 class QLearning:
@@ -36,7 +36,7 @@ class QLearning:
 
     def initialize_q_table(self):
         q_values = []
-        for i in range(len(self.road_network.graph_nodes)):
+        for i in range(len(self.road_network.nodes_array)):
             row_values = []
             if self.node_list.get(i) is None:
                 q_values.append([])
@@ -95,8 +95,8 @@ class QLearning:
         :param dst: destination node
         :return: the distance between the two nodes
         """
-        point_src = (self.road_network.graph_nodes[src][3],self.road_network.graph_nodes[src][2])
-        point_dst = (self.road_network.graph_nodes[dst][3],self.road_network.graph_nodes[dst][2])
+        point_src = (self.road_network.nodes_array[src].y,self.road_network.nodes_array[src].x)
+        point_dst = (self.road_network.nodes_array[dst].y,self.road_network.nodes_array[dst].x)
         distance = great_circle(point_src, point_dst)
         return distance
 
@@ -262,8 +262,9 @@ class QLearning:
         self.simulation_time = start_time
 
         agent = Q_Agent.Q_Agent(src, dst, datetime.datetime.now(), self.road_network)
-        path = nx.shortest_path(self.road_network.graph, self.road_network.reverse_node_dict[src],
-                                self.road_network.reverse_node_dict[dst], weight='length')
+        src_osm = self.road_network.nodes_array[src].osm_id
+        dst_osm = self.road_network.nodes_array[dst].osm_id
+        path = nx.shortest_path(self.road_network.graph, src_osm, dst_osm, weight='length')
         shortest_path_time = self.calculate_route_eta(path, self.road_network)
         # print("*********************************************")
         # print("          Testing Started                    ")
@@ -279,7 +280,7 @@ class QLearning:
         for step in range(max_steps_per_episode):
             action = np.argmax(self.q_table[state])
             next_road = self.get_next_road(state, action)
-            next_state = next_road.destination_node[0]
+            next_state = next_road.destination_node.id
             # Calculate the rounded minutes
             rounded_minutes = self.simulation_time.minute - (self.simulation_time.minute % 10)
             time_obj = self.simulation_time.replace(minute=rounded_minutes, second=0, microsecond=0)
@@ -291,7 +292,7 @@ class QLearning:
             reward = self.calculate_reward(agent, next_state, src, dst, eta, path_nodes, delta_time)
 
             path_roads.append(next_road.id)
-            path_nodes.append(next_road.destination_node[0])
+            path_nodes.append(next_road.destination_node.id)
             path_time = self.calculate_route_eta(node_route_to_osm_route(path_nodes, self.road_network),
                                                  self.road_network)
             delta_time = path_time - shortest_path_time  # positive if the agent is slower than the shortest path

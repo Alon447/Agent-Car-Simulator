@@ -91,9 +91,15 @@ def plotting_custom_route(SM, custom_routes: list, cars: list):
         'green'
         for road in SM.road_network.roads_array
     ]
+
+    node_colors = [
+        plt.cm.RdYlGn(node.traffic_lights) if node.traffic_lights else
+        'lightgrey'
+        for node in SM.road_network.nodes_array
+    ]
     # Plot the graph
     fig, ax = ox.plot_graph(graph, figsize=(10, 10), show=False, close=False, edge_color=edge_colors,
-                            node_color='lightgrey', bgcolor='white')
+                            node_color=node_colors, bgcolor='white', node_size=5)
 
     for j, route in enumerate(custom_routes):
         new_routes.append(SM.transform_node_id_route_to_osm_id_route(route))
@@ -142,8 +148,15 @@ def animate_route(SM, ax, fig, scatter_list, chosen_cars_ids):
 
     def animate(i):
         update_idx = i
-        ox.plot_graph(graph, figsize=(10, 10), show=False, close=False, edge_color=edge_colors,
-                      node_color='lightgrey', bgcolor='white')
+        edge_colors = [
+            'white' if road.is_blocked else
+            'red' if road.current_speed < 25 else
+            'orange' if road.current_speed < 37 else
+            'green'
+            for road in SM.road_network.roads_array
+        ]
+        # ox.plot_graph(SM.road_network.graph, figsize=(10, 10), show=False, close=False, edge_color="blue",
+        #               node_color='lightgrey', bgcolor='white',ax=ax)
         current_time = SM.simulation_update_times[update_idx]
         for j, updates in enumerate(SM.car_manager.updated_dictionary[current_time]):
             try:
@@ -169,10 +182,6 @@ def animate_route(SM, ax, fig, scatter_list, chosen_cars_ids):
         time_text = ax.text(0.95, text_vertical_positions[0], f'Simulation Time: {current_time.strftime("%H:%M:%S")}',
                             transform=ax.transAxes, color='black', fontsize=12, fontweight='bold',
                             horizontalalignment='right')
-
-        # Adjust vertical position for the second text annotation
-        # if i % 2 == 0:  # Alternate the position to prevent overlapping
-        #     text_vertical_positions.reverse()
 
         # Make sure the text annotations do not overlap
         date_text.set_y(text_vertical_positions[0])

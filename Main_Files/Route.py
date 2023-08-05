@@ -156,7 +156,7 @@ class Shortest_path_route(Route):
         if self.src_node == self.dst_node:
             return None
         first_road = self.road_network.get_next_road_shortest_path(self.src_node, self.dst_node)
-        self.current_node = first_road.destination_node[0]
+        self.current_node = first_road.destination_node.id
         return first_road
         # for road in road_network.get_roads_array():
         #     if road.get_source_node() == source_node:
@@ -167,7 +167,7 @@ class Shortest_path_route(Route):
         if self.current_node == self.dst_node:
             return None
         next_road = self.road_network.get_next_road_shortest_path(self.current_node, self.dst_node)
-        self.current_node = next_road.destination_node[0]
+        self.current_node = next_road.destination_node.id
         return next_road
 
     def get_alt_road(self, source_road, destination_node, adjacency_list, road_network, time):
@@ -175,8 +175,8 @@ class Shortest_path_route(Route):
         next_road = None
         for road in adjacency_list:
             if not road.is_blocked:
-                next_next_road = road_network.get_next_road(road.destination_node[0], destination_node)
-                current_distance = road.length + road_network.distances_matrix[road.destination_node[0]][destination_node]
+                next_next_road = road_network.get_next_road(road.destination_node.id, destination_node)
+                current_distance = road.length + road_network.distances_matrix[road.destination_node.id][destination_node]
                 if current_distance < minimum_distance:
                     minimum_distance = current_distance
                     next_road = road

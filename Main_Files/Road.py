@@ -1,8 +1,10 @@
 import random
 
+from Main_Files import Node
+
 
 class Road:
-    def __init__(self, id:int , source_node, destination_node, length: int, max_speed: int):
+    def __init__(self, id:int , source_node:Node, destination_node:Node, length: int, max_speed: int, activate_traffic_lights: bool):
 
         self.id= id
         self.source_node = source_node # class Node (id, osm_id, lat, lon, street_count, traffic_lights)
@@ -14,7 +16,7 @@ class Road:
         self.current_speed = 10
         self.eta_dict={} # key: time (for example "08:00") , value: eta
         self.estimated_time = float('inf')
-
+        self.activate_traffic_lights = activate_traffic_lights
         self.is_blocked= False
         # self.cars_on_road = []
         self.adjacent_roads = [] # list of adjacent roads to this road, includes only the ids of the roads
@@ -23,7 +25,7 @@ class Road:
 
     # Functions
 
-    def calculate_time(self, activate_traffic_lights = False):
+    def calculate_time(self):
         """
         Calculates the time it takes to travel on this road
         length - meters
@@ -36,8 +38,8 @@ class Road:
             print("error")
 
         total_time = 3.6 * self.length / self.current_speed
-        if self.destination_node[5] and activate_traffic_lights: # has traffic lights
-            street_count = self.destination_node[4] # get the street count of the destination node
+        if self.destination_node.traffic_lights and self.activate_traffic_lights: # has traffic lights
+            street_count = self.destination_node.street_count# get the street count of the destination node
 
             # Activate the traffic lights
             if street_count > 1:
@@ -47,9 +49,9 @@ class Road:
         self.estimated_time = round(total_time, 2)
         return self.estimated_time
 
-    def update_speed(self, current_time: str, activate_traffic_lights: bool):
+    def update_speed(self, current_time: str):
         self.current_speed = self.road_speed_dict[current_time]
-        eta = self.calculate_time(activate_traffic_lights)
+        eta = self.calculate_time()
         return eta
 
     def update_road_speed_dict(self, new_speed: dict):

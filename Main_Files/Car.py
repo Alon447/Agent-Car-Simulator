@@ -80,7 +80,7 @@ class Car:
         :return: Road object that corresponds the next road place in the roads_array in road_network
         """
         #self.route.get_next_road parameters: (source_road_id, destination_node, time)
-        next_road = self.route.get_next_road(self.current_road.destination_node[0],
+        next_road = self.route.get_next_road(self.current_road.destination_node.id,
                                              self.destination_node, self.current_road.adjacent_roads,
                                              self.road_network,
                                              self.total_travel_time + self.starting_time)
@@ -121,7 +121,7 @@ class Car:
 
         # appends and adds distance only if moved to next road
         self.distance_traveled += self.current_road.length
-        self.past_nodes.append(self.current_road.destination_node[0])
+        self.past_nodes.append(self.current_road.destination_node.id)
         self.past_roads.append({self.current_road.id: round(time_delta_to_seconds(self.current_road_time), 2)})
 
         id = int(next_road.id)
@@ -139,10 +139,10 @@ class Car:
         check if the car has reached its destination
         :return: True if the car has reached its destination, False otherwise
         """
-        if self.current_road.destination_node[0] == self.destination_node:
+        if self.current_road.destination_node.id == self.destination_node:
             self.past_roads.append(
                 {self.current_road.id: round(time_delta_to_seconds(self.current_road_time), 2)})
-            self.past_nodes.append(self.current_road.destination_node[0])
+            self.past_nodes.append(self.current_road.destination_node.id)
             self.is_finished = True
             self.car_in_destination = True
             # print("Car " + str(self.id) + " has reached its destination")
@@ -232,7 +232,7 @@ class Car:
         """
         :return: the x,y coordinates of the current node
         """
-        return self.road_network.get_xy_from_node_id(self.current_road.source_node[0])
+        return self.road_network.get_xy_from_node_id(self.current_road.source_node.id)
 
     def __str__(self) -> str:
         return "Car_id: " + str(self.id) + ", " + "Travel_time: " + str(

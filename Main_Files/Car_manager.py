@@ -133,7 +133,7 @@ class CarManager:
             if car.get_time_until_next_road() == 0:
                 result = car.move_next_road(timeStamp)  # result is the next road the car is on
                 x, y = car.get_xy_current()
-                self.add_update_to_dictionary(current_datetime, car.id, x, y, car.current_road.source_node[0])
+                self.add_update_to_dictionary(current_datetime, car.id, x, y, car.current_road.source_node.id)
                 # add update to list
                 if result is None:  # car is finished or stuck
                     cars.pop(car.id)
