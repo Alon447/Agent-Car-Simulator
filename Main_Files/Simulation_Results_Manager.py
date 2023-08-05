@@ -1,55 +1,42 @@
 import json
 
-import pandas as pd
-from matplotlib import pyplot as plt
-
-
 class Simulation_Results_Manager:
+    """
+    Manages saving and reading simulation results to/from a JSON file.
+
+    Attributes:
+    simulation_results (list): List of simulation result dictionaries.
+
+    Methods:
+    save_results_to_JSON(results): Saves simulation results to a JSON file.
+    read_results_from_JSON(): Reads simulation results from a JSON file.
+
+    """
     def __init__(self):
         self.simulation_results = []
 
 
     def save_results_to_JSON(self, results):
+        """
+        Save simulation results to a JSON file.
+
+        Args:
+        results (dict): Dictionary containing simulation results.
+
+        Returns:
+        None
+        """
         self.simulation_results.append(results)
         with open('simulation_results.json', 'w') as outfile:
             json.dump(results, outfile, indent=4)
 
     def read_results_from_JSON(self):
+        """
+        Read simulation results from a JSON file.
+
+        Returns:
+        dict: Dictionary containing the loaded simulation results.
+        """
         with open('simulation_results.json', 'r') as infile:
             new_simulation_results = json.load(infile)
         return new_simulation_results
-
-# SRM = Simulation_Results_Manager()
-# SRM.read_results_from_JSON()
-# import matplotlib.pyplot as plt
-# from matplotlib.animation import FuncAnimation
-# import numpy as np
-#
-# # Create figure and axes
-# fig, ax = plt.subplots()
-#
-# # Data for the scatter plot
-# x_data = np.random.rand(50)
-# y_data = np.random.rand(50)
-#
-# # Create the initial scatter plot
-# scatter = ax.scatter(x_data, y_data)
-#
-# def update(frame):
-#     """Animation function to update the scatter plot"""
-#     # Update the data for the scatter plot (e.g., random points for demonstration)
-#     x_data = np.random.rand(50)
-#     y_data = np.random.rand(50)
-#
-#     # Update the scatter plot with new data
-#     scatter.set_offsets(np.c_[x_data, y_data])
-#
-#     # Return the artists to be redrawn in this frame (scatter plot in this case)
-#     return scatter,
-#
-# # Create the animation
-# animation = FuncAnimation(fig, update, frames=100, interval=50, blit=True)
-#
-# # Display the animation in PyCharm's interactive plot viewer
-# plt.show()
-

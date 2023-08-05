@@ -74,4 +74,23 @@ import datetime
 # plt.title('Random Numbers Following Normal Distribution')
 # plt.grid(True)
 # plt.show()
+import osmnx as ox
 
+def get_lat_lng(address):
+    # Perform geocoding
+    location = ox.geocode(address)
+    latitude = location[0]
+    longitude = location[1]
+    return latitude, longitude
+
+def main():
+    while(True):
+        address = input("Enter an address: ")
+
+        lat, lng = get_lat_lng(address)
+
+        if lat is not None and lng is not None:
+            print(f"Latitude: {lat}, Longitude: {lng}")
+
+if __name__ == "__main__":
+    main()

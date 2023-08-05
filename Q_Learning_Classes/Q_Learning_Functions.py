@@ -24,7 +24,40 @@ def node_route_to_osm_route(node_route, road_network):
     return osm_route
 
 class QLearning:
+    """
+    A Q-learning algorithm implementation for route optimization in a road network.
+
+    Attributes:
+
+        road_network (Road_Network): The road network for which the Q-learning algorithm is applied.
+
+        learning_rate (float): The learning rate for updating Q-values.
+
+        discount_factor (float): The discount factor for future rewards in Q-learning.
+
+        epsilon (float): The exploration-exploitation trade-off factor.
+
+        node_list (dict): Dictionary of node connectivity for available actions.
+
+        q_table (list): A list of Q-values for state-action pairs.
+
+        rewards (list): List to store the rewards during training.
+
+        simulation_time (int): The simulation time in seconds.
+    """
     def __init__(self, road_network, learning_rate=0.1, discount_factor=0.9, epsilon=0.2):
+        """
+        Initialize the QLearning class.
+
+        Args:
+            road_network (Road_Network): The road network for which the Q-learning algorithm is applied.
+            learning_rate (float): The learning rate for updating Q-values.
+            discount_factor (float): The discount factor for future rewards in Q-learning.
+            epsilon (float): The exploration-exploitation trade-off factor.
+
+        Returns:
+            None
+        """
         self.road_network = road_network
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
@@ -35,6 +68,12 @@ class QLearning:
         self.simulation_time = 0
 
     def initialize_q_table(self):
+        """
+        Initialize the Q-values table.
+
+        Returns:
+            list: A list of lists representing Q-values for state-action pairs.
+        """
         q_values = []
         for i in range(len(self.road_network.nodes_array)):
             row_values = []
@@ -48,9 +87,14 @@ class QLearning:
 
     def calculate_route_eta(self, route, road_network):
         """
-        :param route: a list of roads in the route
-        :param road_network: the road network
-        :return: the eta of the route
+        Calculate the estimated time of arrival for a given route.
+
+        Args:
+            route (list): A list of roads in the route.
+            road_network (Road_Network): The road network.
+
+        Returns:
+            float: Estimated time of arrival (ETA) for the given route.
         """
         eta = 0
         for i in range(len(route) - 1):
@@ -62,6 +106,15 @@ class QLearning:
 
 
     def choose_action(self, state):
+        """
+        Choose an action based on the current state using an epsilon-greedy policy.
+
+        Args:
+            state (int): The current state index.
+
+        Returns:
+            int: The chosen action index.
+        """
         # Epsilon-greedy policy to choose an action
         if np.random.rand() < self.epsilon:
             return np.random.choice(len(self.q_table[state]))
@@ -70,30 +123,45 @@ class QLearning:
 
     def get_next_road(self, src_node, action):
         """
-        :param src_node: the src node index
-        :param action: the index of the dst node in the node list
-        :return:
+        Get the next road to travel based on the chosen action.
+
+        Args:
+        src_node (int): The source node index.
+        action (int): The chosen action index.
+
+        Returns:
+        Road: The next road to travel.
         """
+
         dest_node = self.node_list[src_node][action]
-        road_index = self.road_network.road_dict[(src_node,dest_node)]
-        return self.road_network.roads_array[road_index]
+        return self.road_network.get_road_from_src_dst(src_node,dest_node)
 
 
 
     def update_state(self, q_agent: Q_Agent, next_road):
         """
-        update the state of the agent, i.e moves the agent to the next road
-        :param Q_Agent:
-        :return:
+        Update the state of the Q-Agent after taking an action.
+
+        Args:
+            q_agent (Q_Agent): The Q_Agent instance.
+            next_road (Road): The next road taken.
+
+        Returns:
+            None
         """
         q_agent.current_road = next_road
         return
 
     def calculate_distance(self, src:int, dst:int):
         """
-        :param src: source node
-        :param dst: destination node
-        :return: the distance between the two nodes
+        Calculate the distance between two nodes using their coordinates.
+
+        Args:
+            src (int): The source node index.
+            dst (int): The destination node index.
+
+        Returns:
+            float: The distance between the two nodes.
         """
         point_src = (self.road_network.nodes_array[src].y,self.road_network.nodes_array[src].x)
         point_dst = (self.road_network.nodes_array[dst].y,self.road_network.nodes_array[dst].x)
@@ -101,6 +169,21 @@ class QLearning:
         return distance
 
     def calculate_reward(self, agent: Q_Agent, next_state, src, dst, eta, path_nodes, delta_time):
+        """
+        Calculate the reward for a given action.
+
+        Args:
+            agent (Q_Agent): The Q_Agent instance.
+            next_state (int): The next state index.
+            src (int): The source node index.
+            dst (int): The destination node index.
+            eta (float): The estimated time of arrival for the next action.
+            path_nodes (list): The list of nodes in the path.
+            delta_time (float): The difference in travel time compared to the shortest path.
+
+        Returns:
+            float: The calculated reward.
+        """
         # Calculate the reward based on the agent's progress and other factors
         src_dst_distance = self.calculate_distance(src, dst)
         next_state_dst_distance = self.calculate_distance(next_state, dst)
@@ -122,6 +205,19 @@ class QLearning:
                 return -1
 
     def update_q_table(self, state, action, next_state, reward, eta):
+        """
+        Update the Q-value table based on the Q-learning update rule.
+
+        Args:
+            state (int): The current state index.
+            action (int): The chosen action index.
+            next_state (int): The next state index.
+            reward (float): The reward received from the action.
+            eta (float): The estimated time of arrival for the next action.
+
+        Returns:
+            None
+        """
         # Q-learning update rule
         current_q_value = self.q_table[state][action]
         if reward == -100:
@@ -135,6 +231,15 @@ class QLearning:
         self.q_table[state][action] = new_q_value
 
     def plot_rewards(self, var:list):
+        """
+        Plot the mean rewards over training episodes.
+
+        Args:
+            var (list): List of mean rewards.
+
+        Returns:
+            None
+        """
         plt.plot(range(1, len(var) + 1), var)
         plt.xlabel('Interval (Every 10 Episodes)')
         plt.ylabel('Mean Episode Reward')
@@ -144,11 +249,33 @@ class QLearning:
 
 
     def save_q_table(self, src, dst, save_path):
+        """
+        Save the Q-value table to a file.
+
+        Args:
+            src (int): The source node index.
+            dst (int): The destination node index.
+            save_path (str): The path to save the Q-value table.
+
+        Returns:
+            None
+        """
         filename = os.path.join(save_path, f'q_table_{src}_{dst}.pkl')
         with open(filename, 'wb') as f:
             pickle.dump(self.q_table, f)
 
     def load_q_table(self, src, dst, save_path):
+        """
+        Load the Q-value table from a file.
+
+        Args:
+            src (int): The source node index.
+            dst (int): The destination node index.
+            save_path (str): The path to load the Q-value table.
+
+        Returns:
+            bool: True if Q-value table was loaded successfully, False if the file was not found.
+        """
         filename = os.path.join(save_path, f'q_table_{src}_{dst}.pkl')
         try:
             with open(filename, 'rb') as f:
@@ -161,6 +288,21 @@ class QLearning:
 
     # functions for the Route class, gets src and dst instead of agent
     def train_src_dst(self, src: int, dst: int, start_time:datetime, num_episodes: int,  max_steps_per_episode=100, epsilon_decay_rate=0.99, mean_rewards_interval=100):
+        """
+        Train the Q-learning agent for a source-destination pair.
+
+        Args:
+            src (int): The source node index.
+            dst (int): The destination node index.
+            start_time (datetime): The start time of the simulation.
+            num_episodes (int): The number of training episodes.
+            max_steps_per_episode (int): The maximum number of steps per episode.
+            epsilon_decay_rate (float): The rate of epsilon decay.
+            mean_rewards_interval (int): The interval to calculate mean rewards.
+
+        Returns:
+            list: The Q-value table after training.
+        """
         # print("*********************************************")
         # print("          Training Started                   ")
         # print("*********************************************")
@@ -259,6 +401,18 @@ class QLearning:
         return self.q_table
 
     def test_src_dst(self, src: int, dst: int, start_time:datetime, max_steps_per_episode=100):
+        """
+        Test the trained Q-learning agent for a source-destination pair.
+
+        Args:
+            src (int): The source node index.
+            dst (int): The destination node index.
+            start_time (datetime): The start time of the simulation.
+            max_steps_per_episode (int): The maximum number of steps per episode.
+
+        Returns:
+            Tuple[float, list]: A tuple containing the total test reward and a list of visited nodes during testing.
+        """
         self.simulation_time = start_time
 
         agent = Q_Agent.Q_Agent(src, dst, datetime.datetime.now(), self.road_network)
@@ -319,5 +473,10 @@ class QLearning:
         return test_rewards, path_nodes
 
     def get_q_table(self):
-        return self.q_table
+        """
+        Get the current Q-value table.
 
+        Returns:
+            list: The current Q-value table.
+        """
+        return self.q_table

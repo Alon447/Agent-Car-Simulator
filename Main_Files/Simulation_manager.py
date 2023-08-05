@@ -13,16 +13,45 @@ from Main_Files.Car import time_delta_to_seconds
 
 class Simulation_manager:
     """
-    This class manages the simulation.
-    It will create the road network, the cars, the route algorithm and the q tables.
-    It will also update the simulation and print the results.
+    Manages the simulation by creating and updating the road network, managing cars, and printing results.
 
+    Attributes:
 
+    road_network (Road_Network): The road network for the simulation.
+
+    car_manager (Car_manager): The car manager responsible for managing cars in the simulation.
+
+    simulation_datetime_start (datetime.datetime): The starting datetime of the simulation.
+
+    simulation_datetime (datetime.datetime): The current simulation datetime.
+
+    simulation_time (datetime.timedelta): The current simulation time in seconds.
+
+    simulation_update_times (list): List of times the simulation was updated.
+
+    last_speed_update_time (datetime.datetime): The last time the road speeds were updated.
+
+    time_limit (int): The maximum time the simulation will run in seconds.
+
+    day_int (int): Day of the week (0-6, 0-Sunday, 1-Monday, ..., 6-Saturday).
+
+    activate_traffic_lights (bool): Indicates whether traffic lights are activated.
+
+    simulation_results (list): List of dictionaries containing simulation results.
     """
 
     def __init__(self, graph, time_limit: int, activate_traffic_lights = False,
                  start_time=datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0,
                                               second=0)):  # TODO: data path
+        """
+        Initialize the Simulation_manager.
+
+        Args:
+        graph: The networkx graph representing the road network.
+        time_limit (int): The maximum time the simulation will run in seconds.
+        activate_traffic_lights (bool, optional): Indicates whether traffic lights are activated. Default is False.
+        start_time (datetime.datetime, optional): The starting datetime of the simulation. Default is June 29, 2023, 08:00:00.
+        """
         # MANAGERS
         self.road_network = Road_Network.Road_Network(graph, activate_traffic_lights)
         self.car_manager = Car_manager.CarManager()
@@ -44,22 +73,55 @@ class Simulation_manager:
 
     # FUNCTIONS - block/unblock roads
     def block_road(self, road_id):
+        """
+        Block a road in the road network.
+
+        Args:
+        road_id (int): The ID of the road to be blocked.
+
+        Returns:
+        None
+        """
         self.road_network.block_road(road_id)
         print("Road", road_id, "blocked")
         return
 
     def unblock_road(self, road_id):
+        """
+        Unblock a previously blocked road.
+
+        Args:
+        road_id (int): The ID of the road to be unblocked.
+
+        Returns:
+        None
+        """
         self.road_network.unblock_road(road_id)
         print("Road", road_id, "unblocked")
         return
 
     def unblock_all_roads(self):
+        """
+        Unblock all roads in the road network.
+
+        Returns:
+        None
+        """
         self.road_network.unblock_all_roads()
         print("All roads unblocked")
         return
 
 
     def update_simulation_clock(self, time: int):
+        """
+        Update the simulation clock and road speeds.
+
+        Args:
+        time (int): The time interval to update the simulation clock in seconds.
+
+        Returns:
+        None
+        """
         # update both the spesific simulation time and the datetime
         self.simulation_time += pd.Timedelta(seconds=time)  # time
         self.simulation_datetime += pd.Timedelta(seconds=time)  # time
@@ -80,10 +142,13 @@ class Simulation_manager:
         return
     def read_road_speeds(self, datetime_obj: datetime.datetime):
         """
-        reads the road speeds from the json file and updates the road_network according to the time
-        currently the time slice is every 10 minutes.
-        :param datetime_obj:
-        :return:
+        Read road speeds from a JSON file and update the road network.
+
+        Args:
+        datetime_obj (datetime.datetime): The datetime for which road speeds are to be read.
+
+        Returns:
+        None
         """
         self.last_speed_update_time = datetime_obj.replace(second=0, microsecond=0)
         number_of_roads = len(self.road_network.roads_array)
@@ -102,9 +167,13 @@ class Simulation_manager:
 
     def set_up_simulation(self, cars: list):
         """
-        sets up the simulation, resets the clocks, adds the cars to the car manager
-        :param cars:
-        :return:
+        Set up the simulation by adding cars to the car manager.
+
+        Args:
+        cars (list): List of Car objects to be added to the simulation.
+
+        Returns:
+        None
         """
 
         self.simulation_time = datetime.timedelta(seconds=0)  # in seconds
@@ -117,8 +186,10 @@ class Simulation_manager:
 
     def start_simulation(self):
         """
-        runs the simulation until there are no more cars in the simulation ot it gets to a time limit
-        :return:
+        Start the simulation and run it until all cars finish or time limit is reached.
+
+        Returns:
+        None
         """
         while int(self.simulation_time.total_seconds()) < self.time_limit and (self.car_manager.cars_in_simulation or self.car_manager.cars_waiting_to_enter):
             # rnd = random.randint(0, 100)
@@ -143,9 +214,13 @@ class Simulation_manager:
 
     def end_simulation(self, simulation_number):
         """
-        prints the results of the simulation
-        :param simulation_number:
-        :return:
+        Print the results of the simulation.
+
+        Args:
+        simulation_number (int): The index of the current simulation.
+
+        Returns:
+        None
         """
         simulation_number += 1
         simulation_time_seconds = time_delta_to_seconds(self.simulation_time)
@@ -161,11 +236,15 @@ class Simulation_manager:
         return
 
     def run_full_simulation(self, cars, number_of_simulations=1):
-        """ TODO: add traffic lights
-        runs the full simulation, including setting up the simulation, starting it and ending it
-        :param cars:
-        :param number_of_simulations:
-        :return:
+        """
+        Run the full simulation process including setup, execution, and result printing.
+
+        Args:
+        cars (list): List of Car objects for the simulation.
+        number_of_simulations (int, optional): Number of simulations to run. Default is 1.
+
+        Returns:
+        None
         """
         # self.block_road(0)
         # self.block_road(900)
@@ -200,10 +279,14 @@ class Simulation_manager:
 
     def write_simulation_results(self, copy_cars: list, i: int):
         """
-        writes the simulation results to the simulation results list
-        :param copy_cars: list of all the cars in the spesific simulation
-        :param i:
-        :return:
+        Write simulation results to the simulation results list.
+
+        Args:
+        copy_cars (list): List of Car objects used in the simulation.
+        i (int): Index of the current simulation.
+
+        Returns:
+        None
         """
         simulation_results = {}
         for j, car in enumerate(copy_cars):
@@ -234,9 +317,14 @@ class Simulation_manager:
 
     def get_simulation_routes(self, cars: list, simulation_number: int):
         """
-        :param cars: list of cars to get the routes they passed in the simulation
-        :param simulation_number:
-        :return: list of routes
+        Retrieve routes passed by cars in a simulation.
+
+        Args:
+        cars (list): List of Car objects.
+        simulation_number (int): Index of the simulation.
+
+        Returns:
+        list: List of routes passed by cars in the simulation.
         """
         cars_ids = [car.id for car in cars]
         routes = []
@@ -249,16 +337,30 @@ class Simulation_manager:
 
     def get_key_from_value(self, dictionary, value):
         """
-         get a corresponding key from a dict and a value
-        :param dictionary:
-        :param value:
-        :return: key
+        Retrieve the corresponding key from a dictionary given a value.
+
+        Args:
+        dictionary (dict): The dictionary to search in.
+        value: The value to search for.
+
+        Returns:
+        key: The key corresponding to the given value.
         """
         for key, val in dictionary.items():
             if int(val) == value:
                 return key
+        return None
 
     def transform_node_id_route_to_osm_id_route(self, route):
+        """
+        Transform a route from node IDs to OSM IDs.
+
+        Args:
+        route (list): List of node IDs representing a route.
+
+        Returns:
+        list: List of OSM IDs representing the transformed route.
+        """
         osm_route = []
         for node in route:
             osm_route.append(self.road_network.nodes_array[node].osm_id)
