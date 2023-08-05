@@ -9,11 +9,12 @@ import numpy as np
 
 def print_simulation_results(SM):
     """
-    self.simulation_results =  all_simulations : [ simulation_1:{simulation_number, car_1_info:{..},car_2_info:{..} }, { {},{} }, { {},{} } ]
-    list - every simulation
-    outer dict - single simulation
-    inner dict - number of simulation and cars
-    :return:
+    simulation_results follow the format:
+        all_simulations : [ simulation_1:{simulation_number, car_1_info:{..},car_2_info:{..} }, { {},{} }, { {},{} } ]
+    the function prints the results of the simulation in a readable format
+    :param SM: Simulation_Manager object
+
+    :return: None
     """
     for result in SM.simulation_results:
         for array_index, result_dict in result.items():
@@ -39,8 +40,8 @@ def car_times_bar_chart(SM, car_number):
     """
     This function plots a bar chart of the times of a specific car in the simulation.
 
-    Parameters:
-    - car_number: The car number for which the chart will be plotted.
+    :param SM: Simulation_Manager object
+    :param car_number: The car number for which the chart will be plotted.
     """
     times = []
     colors = []
@@ -72,7 +73,12 @@ def car_times_bar_chart(SM, car_number):
 def plotting_custom_route(SM, custom_routes: list, cars: list):
     """
     this is the way for a car that finished its route to plot it on the map at the end
-    saves the function here for future use
+    saves the function here for future use.
+    the function plots the custom route on the map and animates the car moving on the route
+    :param SM: Simulation_Manager object
+    :param custom_routes: list of routes (lists of node IDs) of selected cars
+    :param cars: list of the selected cars objects
+    :return: None
     """
     # Define the custom route as a list of node IDs
     RN = SM.road_network
@@ -143,6 +149,15 @@ def plotting_custom_route(SM, custom_routes: list, cars: list):
 
 
 def animate_route(SM, ax, fig, scatter_list, chosen_cars_ids):
+    """
+    This function animates the route of a car on the map.
+    :param SM: Simulation_Manager object
+    :param ax: axis of the plot
+    :param fig: figure of the plot
+    :param scatter_list:
+    :param chosen_cars_ids:
+    :return:
+    """
     num_updates = len(SM.simulation_update_times)  # Get the number of simulation update times
     temp_dict = {id:j for j,id in enumerate(chosen_cars_ids)}
 

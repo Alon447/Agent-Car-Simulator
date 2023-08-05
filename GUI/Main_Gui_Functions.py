@@ -1,7 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
+# import Main_Window_Controller as MWC
 from tkinter.simpledialog import askstring  # Import askstring from tkinter.simpledialog
 from tkinter.simpledialog import Dialog
+# import Controller.Controller as Controller
 
 # class CustomInputDialog(Dialog):
 #     def __init__(self, parent, title, prompts):
@@ -17,8 +19,8 @@ from tkinter.simpledialog import Dialog
 #             self.entries.append(entry)
 #         return self.entries[0]  # Set initial focus
 
-class CarNavigationGUI:
-    def __init__(self, root):
+class Main_GUI_Functions:
+    def __init__(self, root,Controller):
         self.root = root
         self.root.title("Car Navigation")
 
@@ -34,10 +36,10 @@ class CarNavigationGUI:
         self.new_simulation_button = ttk.Button(self.main_frame, text="Start New Simulation", command=self.start_new_simulation, width=20)
         self.new_simulation_button.pack(pady=10)
 
-        self.load_simulation_button = ttk.Button(self.main_frame, text="Load Simulation", command=self.load_simulation, width=20)
+        self.load_simulation_button = ttk.Button(self.main_frame, text="Load Simulation", command=Controller.load_simulation, width=20)
         self.load_simulation_button.pack(pady=10)
 
-        self.settings_button = ttk.Button(self.main_frame, text="Settings", command=self.open_settings, width=20)
+        self.settings_button = ttk.Button(self.main_frame, text="Settings", command=Controller.open_settings, width=20)
         self.settings_button.pack(pady=10)
 
         self.exit_button = ttk.Button(self.main_frame, text="Exit", command=self.root.quit, width=20)
@@ -103,10 +105,11 @@ class CarNavigationGUI:
         # Code to open settings
         print("Opening settings")
 
-def main():
+def main(Controller):
     root = tk.Tk()
-    app = CarNavigationGUI(root)
+    app = Main_GUI_Functions(root,Controller)
     root.mainloop()
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     Controller = Controller.Controller()
+#     main(Controller)
