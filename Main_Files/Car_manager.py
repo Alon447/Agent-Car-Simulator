@@ -1,7 +1,7 @@
 import datetime
 
 import Car
-from new_master import Road_Network
+from Main_Files import Road_Network
 
 
 class CarManager:
@@ -21,13 +21,18 @@ class CarManager:
     """
 
     def __init__(self):
+        # Start of the simulation
         self.cars_waiting_to_enter = []  # a list of the cars that are waiting to enter the simulation, i.e their starting time has not arrived yet.
+
+        # During the simulation
         self.cars_in_simulation = {}  # a dictionary of all the cars currently in the simulation.
         self.cars_nearest_update = []  # a list of the cars that will determine time of the next update.
         self.cars_nearest_update_time = 0  # the time of the next update
-        self.cars_finished = []  # a list of the cars that have finished their journey and are waiting to be removed from the simulation
-        self.cars_stuck = []  # a list of the cars that are stuck in the simulation
         self.cars_blocked = []  # a list of the cars that are blocked in the simulation
+
+        # End of the simulation
+        self.cars_finished = []  # a list of the cars that have finished their journey and are waiting to be removed from the simulation
+        self.cars_stuck = []  # a list of the cars that are stuck at the end of the simulation
         self.updated_dictionary = {}  # a dictionary of the cars that have been updated in the current time
         # step. key is time, value is a list of the cars that have been updated in that time step
         # along with current node
@@ -185,6 +190,8 @@ class CarManager:
             car.is_blocked = False
         self.cars_blocked.clear()
 
+    def get_all_cars_ids(self):
+        return list(self.cars_in_simulation.keys()) + [car.id for car in self.cars_blocked]
     # def force_cars_to_finish(self):
     #     for car in self.cars_stuck:
     #         car.force_finish()

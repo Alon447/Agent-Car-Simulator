@@ -7,8 +7,8 @@ import pandas as pd
 
 import Car_manager
 import Road_Network
-from new_master import Car
-from new_master.Car import time_delta_to_seconds
+from Main_Files import Car
+from Main_Files.Car import time_delta_to_seconds
 
 
 class Simulation_manager:
@@ -20,7 +20,7 @@ class Simulation_manager:
 
     """
 
-    def __init__(self, graph, time_limit: int,
+    def __init__(self, graph, time_limit: int, activate_traffic_lights = False,
                  start_time=datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0,
                                               second=0)):  # TODO: data path
         # MANAGERS
@@ -35,6 +35,7 @@ class Simulation_manager:
         self.last_speed_update_time = start_time
         self.time_limit = time_limit  # the maximum time the simulation will run in seconds
         self.day_int = 0  # 0-6, 0-sunday, 1-monday, 2-tuesday, 3-wednesday, 4-thursday, 5-friday, 6-saturday
+        self.activate_traffic_lights = activate_traffic_lights
 
         # RESULTS
         self.simulation_results = []  # list of dictionaries, each dictionary is a simulation result
@@ -65,16 +66,15 @@ class Simulation_manager:
         self.simulation_update_times.append(self.simulation_datetime)
         time_difference = self.simulation_datetime - self.last_speed_update_time
 
-        if (
-                self.simulation_datetime.minute % 10 == 0 and self.simulation_datetime.minute - self.last_speed_update_time.minute > 0) or time_difference.seconds >= 600:
+        if (self.simulation_datetime.minute % 10 == 0 and self.simulation_datetime.minute - self.last_speed_update_time.minute > 0) or time_difference.seconds >= 600:
             # update the road speeds according to the time
             # every 10 minutes or at the next time a car will be updated (if more than 10 minutes passed)
+
             minutes = int(self.simulation_datetime.minute / 10) * 10
-            self.last_speed_update_time = self.simulation_datetime.replace(minute=minutes).replace(second=0).replace(
-                microsecond=0)
+            self.last_speed_update_time = self.simulation_datetime.replace(minute=minutes).replace(second=0).replace(microsecond=0)
 
             time_key = self.simulation_datetime.replace(minute=minutes).strftime("%H:%M")
-            self.road_network.update_roads_speeds(time_key) #updates the road speeds according to the current time
+            self.road_network.update_roads_speeds(time_key, self.activate_traffic_lights) #updates the road speeds according to the current time
 
             print(self.simulation_datetime.strftime("%H:%M:%S"))
         return
@@ -97,7 +97,7 @@ class Simulation_manager:
         minutes = int(datetime_obj.minute / 10) * 10
         time_key = datetime_obj.replace(minute=minutes).strftime("%H:%M")
         day_data = data.get(str(self.day_int), {})
-        self.road_network.set_roads_speeds_from_dict(day_data, time_key)
+        self.road_network.set_roads_speeds_from_dict(day_data, time_key, self.activate_traffic_lights)
         return
 
     def set_up_simulation(self, cars: list):
@@ -120,8 +120,7 @@ class Simulation_manager:
         runs the simulation until there are no more cars in the simulation ot it gets to a time limit
         :return:
         """
-        while int(self.simulation_time.total_seconds()) < self.time_limit and (
-                self.car_manager.cars_in_simulation or self.car_manager.cars_waiting_to_enter):
+        while int(self.simulation_time.total_seconds()) < self.time_limit and (self.car_manager.cars_in_simulation or self.car_manager.cars_waiting_to_enter):
             # rnd = random.randint(0, 100)
             # blocked_roads = self.road_network.get_blocked_roads_array()
             # if rnd == 0 and len(blocked_roads) !=0:
@@ -161,12 +160,11 @@ class Simulation_manager:
         print("************************************")
         return
 
-    def run_full_simulation(self, cars, number_of_simulations=1, activate_traffic_lights=False):
+    def run_full_simulation(self, cars, number_of_simulations=1, ):
         """ TODO: add traffic lights
         runs the full simulation, including setting up the simulation, starting it and ending it
         :param cars:
         :param number_of_simulations:
-        :param activate_traffic_lights:
         :return:
         """
         # self.block_road(0)
@@ -210,7 +208,7 @@ class Simulation_manager:
         simulation_results = {}
         for j, car in enumerate(copy_cars):
             car_reached_destination = self.car_manager.is_car_finished(car)
-            car_time_taken = car.get_total_travel_time()
+            car_time_taken = int(car.total_travel_time.total_seconds()) # car.get_total_travel_time()
             car_starting_time = str(car.starting_time)
             car_ending_time = str(car.total_travel_time + car.starting_time)
             car_route = car.past_nodes
@@ -234,17 +232,28 @@ class Simulation_manager:
             **simulation_results
         })
 
-    def get_simulation_route(self, carInd, simulation_number):
+    def get_simulation_routes(self, cars: list, simulation_number: int):
         """
-        get the wanted route drom the wanted simulation
-        :return:
+        :param cars: list of cars to get the routes they passed in the simulation
+        :param simulation_number:
+        :return: list of routes
         """
-        if self.simulation_results[simulation_number][carInd]['route'] == None:
-            return None
-        else:
-            return self.simulation_results[simulation_number][carInd]['route']
+        cars_ids = [car.id for car in cars]
+        routes = []
+        for carInd in cars_ids:
+            if self.simulation_results[simulation_number][carInd]['route'] == None:
+                pass
+            else:
+                routes.append(self.simulation_results[simulation_number][carInd]['route'])
+        return routes
 
     def get_key_from_value(self, dictionary, value):
+        """
+         get a corresponding key from a dict and a value
+        :param dictionary:
+        :param value:
+        :return: key
+        """
         for key, val in dictionary.items():
             if int(val) == value:
                 return key

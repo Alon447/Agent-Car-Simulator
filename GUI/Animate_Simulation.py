@@ -69,7 +69,7 @@ def car_times_bar_chart(SM, car_number):
     plt.show()
 
 
-def plotting_custom_route(SM, custom_routes: list,chosen_cars_ids):
+def plotting_custom_route(SM, custom_routes: list, cars: list):
     """
     this is the way for a car that finished its route to plot it on the map at the end
     saves the function here for future use
@@ -82,6 +82,7 @@ def plotting_custom_route(SM, custom_routes: list,chosen_cars_ids):
     scatter_list = []
     orig = []
     dest = []
+    cars_ids = [car.id for car in cars]
 
     edge_colors = [
         'white' if road.is_blocked else
@@ -91,7 +92,7 @@ def plotting_custom_route(SM, custom_routes: list,chosen_cars_ids):
         for road in SM.road_network.roads_array
     ]
     # Plot the graph
-    fig, ax = ox.plot_graph(graph, figsize=(15, 15), show=False, close=False, edge_color=edge_colors,
+    fig, ax = ox.plot_graph(graph, figsize=(10, 10), show=False, close=False, edge_color=edge_colors,
                             node_color='lightgrey', bgcolor='white')
 
     for j, route in enumerate(custom_routes):
@@ -114,8 +115,11 @@ def plotting_custom_route(SM, custom_routes: list,chosen_cars_ids):
 
     # Plot the graph
     for i in range(len(new_routes)):
-        orig[i].plot(ax=ax, color='pink', label=f'Origin {i + 1}')
-        dest[i].plot(ax=ax, color='yellow', label=f'Destination {i + 1}')
+        if i==0:
+            orig[i].plot(ax=ax, color='black', label=f'Origin')
+            dest[i].plot(ax=ax, color='yellow', label=f'Destination')
+        orig[i].plot(ax=ax, color='black')
+        dest[i].plot(ax=ax, color='yellow')
     plt.legend(frameon=False)
 
     # pick route colors
@@ -128,7 +132,8 @@ def plotting_custom_route(SM, custom_routes: list,chosen_cars_ids):
     # Show the plot
     # plt.show()
     # return
-    animate_route(SM,ax, fig, scatter_list, chosen_cars_ids)
+    animate_route(SM,ax, fig, scatter_list, cars_ids)
+    return
 
 
 def animate_route(SM, ax, fig, scatter_list, chosen_cars_ids):
@@ -136,27 +141,42 @@ def animate_route(SM, ax, fig, scatter_list, chosen_cars_ids):
     temp_dict = {id:j for j,id in enumerate(chosen_cars_ids)}
 
     def animate(i):
-        # Calculate the index corresponding to the current frame of the animation
         update_idx = i
-        # Get the simulation datetime corresponding to the current frame
+        ox.plot_graph(graph, figsize=(10, 10), show=False, close=False, edge_color=edge_colors,
+                      node_color='lightgrey', bgcolor='white')
         current_time = SM.simulation_update_times[update_idx]
         for j, updates in enumerate(SM.car_manager.updated_dictionary[current_time]):
-            # print(j)
             try:
                 x_j, y_j = updates[1][0], updates[1][1]
-                # self.get_xy_by_osmid_time(custom_routes[j][i],current_time,j)
                 scatter_list[temp_dict[updates[0]]].set_offsets(np.c_[x_j, y_j])
             except:
                 continue
+
         # Clear previous text annotation
         if ax.texts:
             for text in ax.texts:
                 text.remove()
 
-        # Add text annotation for simulation time
-        time_text = ax.text(0.95, 0.95, f'Simulation Time: {current_time.strftime("%H:%M:%S")}',
+        # Define vertical positions for text annotations
+        text_vertical_positions = [0.95, 0.9]
+
+        # Add text annotation for simulation date
+        date_text = ax.text(0.95, text_vertical_positions[0], f'Simulation Date: {current_time.strftime("%d/%m/%Y")}',
                             transform=ax.transAxes, color='black', fontsize=12, fontweight='bold',
                             horizontalalignment='right')
+
+        # Add text annotation for simulation time
+        time_text = ax.text(0.95, text_vertical_positions[0], f'Simulation Time: {current_time.strftime("%H:%M:%S")}',
+                            transform=ax.transAxes, color='black', fontsize=12, fontweight='bold',
+                            horizontalalignment='right')
+
+        # Adjust vertical position for the second text annotation
+        # if i % 2 == 0:  # Alternate the position to prevent overlapping
+        #     text_vertical_positions.reverse()
+
+        # Make sure the text annotations do not overlap
+        date_text.set_y(text_vertical_positions[0])
+        time_text.set_y(text_vertical_positions[1])
 
     animation = FuncAnimation(fig, animate, frames=num_updates, interval=200, repeat=True)
     plt.show()

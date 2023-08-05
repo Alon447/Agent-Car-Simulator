@@ -166,13 +166,13 @@ class TrafficDictionary:
 
         # Print the dictionary
         print(data)
-        with open('../Main Files/simulation_speeds.json', 'w') as outfile:
+        with open('../Main_Files/simulation_speeds.json', 'w') as outfile:
             json.dump(data, outfile, indent=4)
         return
 
 
     def read_day_data(self,road_number,hour,minute):
-        with open('../Main Files/simulation_speeds.json', 'r') as infile:
+        with open('../Main_Files/simulation_speeds.json', 'r') as infile:
             data = json.load(infile)
         time_key = f"{hour:02d}:{minute:02d}"
 

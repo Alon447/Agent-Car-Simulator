@@ -149,7 +149,7 @@ class Road_Network:
             self.unblock_road(road)
         return
 
-    def set_roads_speeds_from_dict(self, roads_speeds:dict, current_time:str):
+    def set_roads_speeds_from_dict(self, roads_speeds:dict, current_time:str, activate_traffic_lights:bool):
         """
         iterates over all the roads in the graph and updates their speed based on the roads_speeds dict
         :param roads_speeds: dict of road_id: speed for every 10 minutes in the day
@@ -158,15 +158,16 @@ class Road_Network:
         """
         for road in self.roads_array:
             road_id = road.id
-            src = road.source_node[1]
-            dst = road.destination_node[1]
+            # src = road.source_node[1]
+            # dst = road.destination_node[1]
             road.update_road_speed_dict(roads_speeds[str(road_id)])
-            eta = road.update_speed(current_time)
-            graph_road = self.graph[src][dst][0]
+            eta = road.update_speed(current_time, activate_traffic_lights) # False repesents the activate traffic lights, the simulation hasnt started so it doesnt matter yet
+            # graph_road = self.graph[src][dst][0]
         return
-    def update_roads_speeds(self, current_time:str):
+    def update_roads_speeds(self, current_time:str, activate_traffic_lights:bool):
         for road in self.roads_array:
-            eta = road.update_speed(current_time)
+            eta = road.update_speed(current_time, activate_traffic_lights)
+        return
 
 
 

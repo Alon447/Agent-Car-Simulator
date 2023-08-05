@@ -1,5 +1,5 @@
 import Road_Network
-from new_master import Route
+from Main_Files import Route
 import datetime
 import pandas as pd
 
@@ -184,11 +184,11 @@ class Car:
         return
 
     # Gets
-    def get_travel_data(self):
-        # return the  total travel time, path taken, travel time in each road, starting time, ending time.
-        return self.total_travel_time, self.past_roads, self.starting_time, self.total_travel_time
-    def get_ending_time(self):
-        return time_delta_to_seconds(self.total_travel_time + self.starting_time)
+    # def get_travel_data(self):
+    #     # return the  total travel time, path taken, travel time in each road, starting time, ending time.
+    #     return self.total_travel_time, self.past_roads, self.starting_time, self.total_travel_time
+    # def get_ending_time(self):
+    #     return time_delta_to_seconds(self.total_travel_time + self.starting_time)
 
     # starting time and ending time for the simulation end
 
@@ -214,8 +214,8 @@ class Car:
             self.time_until_next_road = 600
         return int(self.time_until_next_road.total_seconds())
 
-    def get_total_travel_time(self):
-        return time_delta_to_seconds(self.total_travel_time)
+    # def get_total_travel_time(self):
+    #     return time_delta_to_seconds(self.total_travel_time)
     def get_xy_source(self):
         """
         :return: the x,y coordinates of the source node

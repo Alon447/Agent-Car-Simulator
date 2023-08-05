@@ -23,7 +23,7 @@ class Road:
 
     # Functions
 
-    def calculate_time(self):
+    def calculate_time(self, activate_traffic_lights = False):
         """
         Calculates the time it takes to travel on this road
         length - meters
@@ -36,20 +36,20 @@ class Road:
             print("error")
 
         total_time = 3.6 * self.length / self.current_speed
-        if self.destination_node[5]: # has traffic lights
+        if self.destination_node[5] and activate_traffic_lights: # has traffic lights
             street_count = self.destination_node[4] # get the street count of the destination node
 
             # Activate the traffic lights
-            # if street_count > 1:
-            #     total_time += random.randrange(0, 20 * (self.get_street_count() - 1), 1)
-            # else:
-            #     total_time += random.randrange(0, 5, 1)
+            if street_count > 1:
+                total_time += random.randrange(0, 20 * (street_count - 1), 1)
+            else:
+                total_time += random.randrange(0, 5, 1)
         self.estimated_time = round(total_time, 2)
         return self.estimated_time
 
-    def update_speed(self, current_time: str):
+    def update_speed(self, current_time: str, activate_traffic_lights: bool):
         self.current_speed = self.road_speed_dict[current_time]
-        eta = self.calculate_time()
+        eta = self.calculate_time(activate_traffic_lights)
         return eta
 
     def update_road_speed_dict(self, new_speed: dict):
