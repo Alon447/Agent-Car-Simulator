@@ -194,7 +194,7 @@ def animate_route(SM, ax, fig, scatter_list, chosen_cars_ids):
                             horizontalalignment='right')
 
         # Add text annotation for simulation time
-        time_text = ax.text(0.95, text_vertical_positions[0], f'Simulation Time: {current_time.strftime("%H:%M:%S")}',
+        time_text = ax.text(0.95, text_vertical_positions[0], f'Simulation Time: {current_time.strftime("%H:%M")}',
                             transform=ax.transAxes, color='black', fontsize=12, fontweight='bold',
                             horizontalalignment='right')
 

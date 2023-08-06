@@ -1,6 +1,8 @@
+import copy
 import datetime
 import os
 import pickle
+import matplotlib.patches as mpatches
 
 import networkx as nx
 import numpy as np
@@ -287,7 +289,7 @@ class QLearning:
 
 
     # functions for the Route class, gets src and dst instead of agent
-    def train_src_dst(self, src: int, dst: int, start_time:datetime, num_episodes: int,  max_steps_per_episode=100, epsilon_decay_rate=0.99, mean_rewards_interval=100):
+    def train_src_dst(self, src: int, dst: int, start_time:datetime, num_episodes: int,  max_steps_per_episode=100, epsilon_decay_rate=0.99, mean_rewards_interval=100, plot_results=True):
         """
         Train the Q-learning agent for a source-destination pair.
 
@@ -306,12 +308,16 @@ class QLearning:
         # print("*********************************************")
         # print("          Training Started                   ")
         # print("*********************************************")
+
+        # creating an agent and calculating the shortest path
         agent = Q_Agent.Q_Agent(src, dst, start_time, self.road_network)
-        path = nx.shortest_path(self.road_network.graph, self.road_network.reverse_node_dict[src],self.road_network.reverse_node_dict[dst], weight='length')
+        src_osm = self.road_network.nodes_array[src].osm_id
+        dst_osm = self.road_network.nodes_array[dst].osm_id
+        path = nx.shortest_path(self.road_network.graph, src_osm, dst_osm, weight='length')
         shortest_path_time = self.calculate_route_eta(path, self.road_network)
 
-
-
+        all_training_paths_nodes = []
+        all_training_times = []
         mean_rewards = []  # List to store mean rewards for every 10 episodes
         mean_reward_sum = 0  # Variable to keep track of the sum of rewards in the last 10 episodes
 
@@ -322,6 +328,7 @@ class QLearning:
             path_nodes = []
             path_roads = []
 
+
             # print("episode: ", episode)
             for step in range(max_steps_per_episode):
                 if step == 0:
@@ -330,14 +337,12 @@ class QLearning:
                     path_nodes.append(state)
                 else:
                     # agent is already on the road
-                    state = agent.current_road.destination_node[0]
+                    state = agent.current_road.destination_node.id
 
 
                 action = self.choose_action(state)
                 next_road = self.get_next_road(state, action)
-                next_state = next_road.destination_node[0]
-
-
+                next_state = next_road.destination_node.id
                 # Calculate the rounded minutes
                 rounded_minutes = self.simulation_time.minute - (self.simulation_time.minute % 10)
                 time_obj = self.simulation_time.replace(minute=rounded_minutes,second=0, microsecond=0)
@@ -345,12 +350,12 @@ class QLearning:
 
                 eta = float(next_road.get_eta(time_str)) # eta in seconds
                 self.simulation_time += datetime.timedelta(seconds=eta)
-                drive_time = (self.simulation_time - start_time).total_seconds()
+                drive_time = (self.simulation_time - start_time).total_seconds() # drive time in seconds of the agent
                 delta_time = drive_time - shortest_path_time  # positive if the agent is slower than the shortest path
                 reward = self.calculate_reward(agent, next_state, src, dst, eta, path_nodes, delta_time)
 
                 path_roads.append(next_road.id)
-                path_nodes.append(next_road.destination_node[0])
+                path_nodes.append(next_road.destination_node.id)
                 # path_time = self.calculate_route_eta(node_route_to_osm_route(path_nodes, self.road_network), self.road_network)
                 # delta_time = path_time - shortest_path_time # positive if the agent is slower than the shortest path
 
@@ -379,15 +384,15 @@ class QLearning:
                 # print("total episode reward: ", total_episode_reward)
                 mean_reward = mean_reward_sum / mean_rewards_interval
                 mean_rewards.append(mean_reward)
-                # if mean_reward > 960:
-                #     # print("mean reward: ", mean_reward)
-                #     # print("convrged after ", episode, " episodes")
+                if mean_reward > 960:
+                    # print("mean reward: ", mean_reward)
+                    print("convrged after ", episode, " episodes")
                 #     break
                 mean_reward_sum = 0  # Reset the sum for the next 10 episodes
-
+            all_training_paths_nodes.append(copy.deepcopy(path_nodes))
+            all_training_times.append(int((self.simulation_time-start_time).total_seconds()))
             path_roads.clear()
             path_nodes.clear()
-            total_episode_reward = 0
             self.epsilon *= epsilon_decay_rate
         #
         # print("*********************************************")
@@ -396,8 +401,9 @@ class QLearning:
         # print("*********************************************")
 
         # Plot mean rewards
-
-        # self.plot_rewards(mean_rewards)
+        if plot_results:
+            self.car_times_bar_chart(dst, all_training_paths_nodes, all_training_times)
+            self.plot_rewards(mean_rewards)
         return self.q_table
 
     def test_src_dst(self, src: int, dst: int, start_time:datetime, max_steps_per_episode=100):
@@ -480,3 +486,28 @@ class QLearning:
             list: The current Q-value table.
         """
         return self.q_table
+
+    def car_times_bar_chart(self, dst, all_training_paths_nodes, all_training_times):
+
+        colors = []
+
+        for path in all_training_paths_nodes:
+            if path[-1] == dst:
+                colors.append('green')
+            else:
+                colors.append('red')
+        # time_seconds = [td.total_seconds() for td in times]
+        plt.bar((range(1, len(all_training_times) + 1)), all_training_times, color=colors)
+
+        # Add labels and title
+        plt.xlabel('Simulation Number')
+        plt.ylabel('Time taken [seconds] by Q Agent')
+        plt.title('Bar Chart: Times of Q Agent {} in Simulation')
+        legend_labels = ['Reached Destination', 'Not Reached Destination']
+        legend_colors = ['green', 'red']
+        legend_patches = [mpatches.Patch(color=color, label=label) for color, label in
+                          zip(legend_colors, legend_labels)]
+
+        plt.legend(handles=legend_patches, title='Legend', loc='upper right')
+
+        plt.show()

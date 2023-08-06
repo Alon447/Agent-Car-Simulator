@@ -42,7 +42,7 @@ class Simulation_manager:
 
     def __init__(self, graph, time_limit: int, activate_traffic_lights = False,
                  start_time=datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0,
-                                              second=0)):  # TODO: data path
+                                              second=0)):
         """
         Initialize the Simulation_manager.
 
