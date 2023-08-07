@@ -39,8 +39,8 @@ class Road:
         self.length = length
 
         self.max_speed = max_speed
-        self.road_speed_dict = {} # key: time (for example "08:00") , value: speed
         self.current_speed = 10
+        self.road_speed_dict = {} # key: time (for example "08:00") , value: speed
         self.eta_dict={} # key: time (for example "08:00") , value: eta
         self.estimated_time = float('inf')
         self.activate_traffic_lights = activate_traffic_lights

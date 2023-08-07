@@ -29,7 +29,7 @@ class Simulation_manager:
 
     simulation_update_times (list): List of times the simulation was updated.
 
-    last_speed_update_time (datetime.datetime): The last time the road speeds were updated.
+    last_current_speed_update_time (datetime.datetime): The last time the road speeds were updated.
 
     time_limit (int): The maximum time the simulation will run in seconds.
 
@@ -60,14 +60,15 @@ class Simulation_manager:
         self.simulation_datetime_start = start_time
         self.simulation_datetime = start_time
         self.simulation_time = datetime.timedelta(seconds=0)  # in seconds
-        self.simulation_update_times = []  # list of times the simulation was updated for the animation
-        self.last_speed_update_time = start_time
+        self.last_current_speed_update_time = start_time # for updating the current speed of the roads
+        self.last_speed_dict_update_time = start_time # for updating the speed dict of the roads
         self.time_limit = time_limit  # the maximum time the simulation will run in seconds
-        self.day_int = 0  # 0-6, 0-sunday, 1-monday, 2-tuesday, 3-wednesday, 4-thursday, 5-friday, 6-saturday
-        self.activate_traffic_lights = activate_traffic_lights
+        self.day_int = (start_time.weekday() + 1) % 7  # 0-6, 0-sunday, 1-monday, 2-tuesday, 3-wednesday, 4-thursday, 5-friday, 6-saturday
 
         # RESULTS
         self.simulation_results = []  # list of dictionaries, each dictionary is a simulation result
+        self.simulation_update_times = []  # list of times the simulation was updated for the animation
+
         # FUNCTIONS - read speeds
         self.read_road_speeds(self.simulation_datetime_start)
 
@@ -112,9 +113,9 @@ class Simulation_manager:
         return
 
 
-    def update_simulation_clock(self, time: int):
+    def update_simulation_clocks(self, time: int):
         """
-        Update the simulation clock and road speeds.
+        Update the simulation clocks.
 
         Args:
         time (int): The time interval to update the simulation clock in seconds.
@@ -126,20 +127,54 @@ class Simulation_manager:
         self.simulation_time += pd.Timedelta(seconds=time)  # time
         self.simulation_datetime += pd.Timedelta(seconds=time)  # time
         self.simulation_update_times.append(self.simulation_datetime)
-        time_difference = self.simulation_datetime - self.last_speed_update_time
+        self.day_int = (self.simulation_datetime.weekday() + 1) % 7  # 0-6, 0-sunday, 1-monday, 2-tuesday, 3-wednesday, 4-thursday, 5-friday, 6-saturday
+        # time_difference = self.simulation_datetime - self.last_current_speed_update_time
+        return
 
-        if (self.simulation_datetime.minute % 10 == 0 and self.simulation_datetime.minute - self.last_speed_update_time.minute > 0) or time_difference.seconds >= 600:
+    def update_simulation_roads_speed_dict(self):
+        """
+        Check if a day is passed in the simulation and update the road speeds accordingly.
+
+        Args:
+        None
+
+        Returns:
+        None
+        """
+        last_update_day = (self.last_speed_dict_update_time.weekday()+1) % 7
+        if self.day_int != last_update_day:
+            # update the road speeds according to the day
+            # every day or at the next time a car will be updated (if more than a day passed)
+
+            self.last_speed_dict_update_time = self.simulation_datetime.replace(hour=0).replace(minute=0).replace(second=0).replace(microsecond=0)
+            self.read_road_speeds(self.simulation_datetime)
+        return
+
+    def update_simulation_roads_current_speeds(self):
+        """
+
+        Check if 10 minutes passed in the simulation and update the road speeds accordingly.
+
+        Args:
+        None
+
+        Returns:
+        None
+        """
+        time_difference = self.simulation_datetime - self.last_current_speed_update_time
+        if (self.simulation_datetime.minute % 10 == 0 and self.simulation_datetime.minute - self.last_current_speed_update_time.minute > 0) or time_difference.seconds >= 600:
             # update the road speeds according to the time
             # every 10 minutes or at the next time a car will be updated (if more than 10 minutes passed)
 
             minutes = int(self.simulation_datetime.minute / 10) * 10
-            self.last_speed_update_time = self.simulation_datetime.replace(minute=minutes).replace(second=0).replace(microsecond=0)
+            self.last_current_speed_update_time = self.simulation_datetime.replace(minute=minutes).replace(second=0).replace(microsecond=0)
 
             time_key = self.simulation_datetime.replace(minute=minutes).strftime("%H:%M")
-            self.road_network.update_roads_speeds(time_key) #updates the road speeds according to the current time
+            self.road_network.update_roads_speeds(time_key) # updates the road speeds according to the current time
 
             print(self.simulation_datetime.strftime("%H:%M:%S"))
         return
+
     def read_road_speeds(self, datetime_obj: datetime.datetime):
         """
         Read road speeds from a JSON file and update the road network.
@@ -150,19 +185,15 @@ class Simulation_manager:
         Returns:
         None
         """
-        self.last_speed_update_time = datetime_obj.replace(second=0, microsecond=0)
-        number_of_roads = len(self.road_network.roads_array)
+        self.last_current_speed_update_time = datetime_obj.replace(second=0, microsecond=0)
         self.day_int = (datetime_obj.weekday() + 1) % 7
         with open('simulation_speeds.json', 'r') as infile:
             data = json.load(infile)
-
-        # time_key = datetime_obj.strftime("%H:%M")  # Format the datetime object as HH:MM
-
         # round the minutes to the nearest 10
         minutes = int(datetime_obj.minute / 10) * 10
         time_key = datetime_obj.replace(minute=minutes).strftime("%H:%M")
         day_data = data.get(str(self.day_int), {})
-        self.road_network.set_roads_speeds_from_dict(day_data, time_key, self.activate_traffic_lights)
+        self.road_network.set_roads_speeds_from_dict(day_data, time_key)
         return
 
     def set_up_simulation(self, cars: list):
@@ -191,15 +222,13 @@ class Simulation_manager:
         Returns:
         None
         """
+        # while the time limit is not reached and there are cars in the simulation or cars waiting to enter the simulation
         while int(self.simulation_time.total_seconds()) < self.time_limit and (self.car_manager.cars_in_simulation or self.car_manager.cars_waiting_to_enter):
-            # rnd = random.randint(0, 100)
-            # blocked_roads = self.road_network.get_blocked_roads_array()
-            # if rnd == 0 and len(blocked_roads) !=0:
-            #     self.road_network.unblock_all_roads()
-            #     print("Roads unblocked")
 
             time = self.car_manager.calc_nearest_update_time(self.simulation_datetime)
-            self.update_simulation_clock(time)
+            self.update_simulation_clocks(time)
+            self.update_simulation_roads_speed_dict()
+            self.update_simulation_roads_current_speeds()
             self.car_manager.update_cars(time, self.simulation_datetime)
             # print("simulation_time:", SM.simulation_time)
             # self.car_manager.show_cars_in_simulation()
@@ -365,6 +394,8 @@ class Simulation_manager:
         for node in route:
             osm_route.append(self.road_network.nodes_array[node].osm_id)
         return osm_route
+
+
 
 
 # WEEK = 604800

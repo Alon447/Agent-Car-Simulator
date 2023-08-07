@@ -38,14 +38,14 @@ NUMBER_OF_SIMULATIONS = 1
 # SM.block_road(116)
 SM.block_road(86)
 c1 = Car.Car(1, 0, 551, START_TIME1, RN, route_algorithm = "q", use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE)
-# c2 = Car.Car(2, 200, 839, START_TIME3, RN, route_algorithm="shortest_path")
+c2 = Car.Car(2, 0, 551, START_TIME4, RN, route_algorithm="q")
 # c3 = Car.Car(3, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
 # c4 = Car.Car(4, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
 # c5 = Car.Car(5, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
 
 cars = []
 cars.append(c1)
-# cars.append(c2)
+cars.append(c2)
 # cars.append(c3)
 # cars.append(c4)
 # cars.append(c5)

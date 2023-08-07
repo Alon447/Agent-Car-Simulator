@@ -93,4 +93,9 @@ def main():
             print(f"Latitude: {lat}, Longitude: {lng}")
 
 if __name__ == "__main__":
-    main()
+    arr=[2,5,6,3,4,1]
+    # make a new sorted list of the indices of the original list
+    sorted_arr = sorted(arr)
+    print(sorted_arr[::-1])
+    for item in sorted_arr[::-1]:
+        print(arr.index(item))

@@ -138,14 +138,39 @@ class Q_Learning_Route(Route):
         # road_index = self.road_network.road_dict[(self.src_node, dest_node)]
         return self.road_network.get_road_from_src_dst(self.src_node,dest_node)
 
-
+    def find_best_available_road(self):
+        # function that need to be applied on the next node and not the current node
+        # return the best road to take from the current node if there is one, else return None
+        max_q = float('-inf')
+        best_road = None
+        if len(self.road_network.node_connectivity_dict[self.current_node]) == 0:
+            for i in range(len(self.q_table[self.current_node])):
+                dest_node = self.road_network.node_connectivity_dict[self.current_node][i]
+                next_road = self.road_network.get_road_from_src_dst(self.current_node, dest_node)
+                if self.q_table[self.current_node][i] > max_q and not next_road.is_blocked:
+                    max_q = self.q_table[self.current_node][i]
+                    best_road = next_road
+        return best_road
     def get_next_road(self):
+        # get the next road from the q table
+        actions = sorted(self.q_table[self.current_node])[::-1]
+        for action in actions:
+            ##
+            break
+
         action = np.argmax(self.q_table[self.current_node])  # action is the index of the destination node in the q table
         dest_node = self.road_network.node_connectivity_dict[self.current_node][action]
         next_road = self.road_network.get_road_from_src_dst(self.current_node, dest_node)
-        self.path.append(dest_node)
-        self.current_node = dest_node
-        return next_road
+        # get the next road after him from the q table and check if it is blocked
+
+        # Check if the chosen road is not blocked
+        next_next_road = self.find_best_available_road()
+        if next_next_road is not None:
+            self.path.append(dest_node)
+            self.current_node = dest_node
+            return next_road
+        return None
+
 
     def get_alt_road(self):
         # TODO: NEED TO UPDATE THE METHODS TO CHECK IF FUTURE ROADS ARE BLOCKED

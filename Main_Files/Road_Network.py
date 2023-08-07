@@ -1,5 +1,7 @@
 import datetime
 import os
+import time
+
 import osmnx as ox
 import Road
 import pandas as pd
@@ -26,17 +28,18 @@ class Road_Network:
 
     """
     def __init__(self, graph_path, activate_traffic_lights = False):
-        # graph
+
+        # Graph
         self.graph = Getters.get_graph(graph_path)
+
+        # Edges and Nodes
         self.roads_array = [] # list of all the roads in the graph
         self.nodes_array = [] # list of all the nodes in the graph
 
-        # self.road_dict = {}
         self.node_connectivity_dict = {} # node id to list of connected nodes ids
         self.blocked_roads_array = []
 
-        # initialize functions
-        # self.make_node_dict()
+        # Initialize functions
         self.set_nodes_array()
         self.set_roads_array(activate_traffic_lights)
         self.set_adjacency_roads()
@@ -45,7 +48,9 @@ class Road_Network:
         self.next_node_matrix = [[-1] * len(self.nodes_array) for _ in range(len(self.nodes_array))] # cache for the distance matrix, saves the next node in the shortest path
         self.distances_matrix = [[-1] * len(self.nodes_array) for _ in range(len(self.nodes_array))] # cache for the distance matrix, saves the shortest distance between two nodes
 
-
+        self.update_eta()
+        # for q learning
+        self.shortest_time_matrix = [[-1] * len(self.nodes_array) for _ in range(len(self.nodes_array))] # cache for the shortest time matrix, saves the shortest time between two nodes
     # Functions:
 
     def set_nodes_array(self):
@@ -93,6 +98,12 @@ class Road_Network:
                 self.node_connectivity_dict[start_node_id] = [new_road.destination_node.id]
 
             # print(new_road)
+        return
+
+    def update_eta(self):
+        for edge in self.graph.edges:
+            if edge[2]!=1:
+                self.graph.edges[edge]['eta'] = float(self.graph.edges[edge]['length']) / float(self.graph.edges[edge]['current_speed'])
         return
 
     def set_adjacency_roads(self):
@@ -169,7 +180,7 @@ class Road_Network:
             self.unblock_road(road)
         return
 
-    def set_roads_speeds_from_dict(self, roads_speeds:dict, current_time:str, activate_traffic_lights:bool):
+    def set_roads_speeds_from_dict(self, roads_speeds:dict, current_time:str):
         """
         Update road speeds based on the provided speeds dictionary and current time.
 
@@ -183,11 +194,8 @@ class Road_Network:
         """
         for road in self.roads_array:
             road_id = road.id
-            # src = road.source_node[1]
-            # dst = road.destination_node[1]
-            road.update_road_speed_dict(roads_speeds[str(road_id)])
-            eta = road.update_speed(current_time) # False repesents the activate traffic lights, the simulation hasnt started so it doesnt matter yet
-            # graph_road = self.graph[src][dst][0]
+            road.update_road_speed_dict(roads_speeds[str(road_id)]) # update the road's speed dict
+            road.update_speed(current_time) # update the road's current speed
         return
     def update_roads_speeds(self, current_time:str):
         """
@@ -203,7 +211,10 @@ class Road_Network:
             road.update_speed(current_time)
         return
 
-
+    def get_shortest_time_between_nodes(self, id1, id2):
+        if nx.has_path(self.graph, self.nodes_array[id1].osm_id, self.nodes_array[id2].osm_id):
+            return nx.shortest_path_length(self.graph, self.nodes_array[id1].osm_id, self.nodes_array[id2].osm_id, weight='eta')
+        return -1
 
     # def calc_dist_mat(self):
     #     # makes a matrix of the shortest distances between all the roads
@@ -402,3 +413,8 @@ class Road_Network:
         str: String representation.
         """
         return "Road_Network"
+
+
+
+
+

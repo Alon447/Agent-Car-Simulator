@@ -201,7 +201,7 @@ def animate_route(SM, ax, fig, scatter_list, chosen_cars_ids):
         text_vertical_positions = [0.95, 0.9]
 
         # Add text annotation for simulation date
-        date_text = ax.text(0.95, text_vertical_positions[0], f'Simulation Date: {current_time.strftime("%d/%m/%Y")}',
+        date_text = ax.text(0.95, text_vertical_positions[0], f'Simulation Date: {current_time.strftime("%A")}',
                             transform=ax.transAxes, color='black', fontsize=12, fontweight='bold',
                             horizontalalignment='right')
 

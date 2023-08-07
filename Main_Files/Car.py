@@ -118,7 +118,7 @@ class Car:
 
     def move_next_road(self, time):
         """
-        Move the car to the next road based on the route's next node.
+        Move the car to the next road, based on the route's next node.
         Update car's time until the next road.
 
         Args:
@@ -128,15 +128,13 @@ class Car:
         Road object or str: The next road the car will travel to, or "blocked" if the road is blocked.
         """
         self.current_road_time += pd.Timedelta(seconds=time)  # time
+        # check if car is finished
         if self.check_if_finished():
             return None
 
+        # else move to next road
         next_road = self.route.get_next_road()  # gets a road object
-        if next_road is None:
-            self.is_finished = True
-            self.car_in_destination = True
-            return None
-        elif next_road.is_blocked:
+        if next_road.is_blocked:
             next_road = self.route.get_alt_road()
             if next_road is None:  # all roads are blocked
                 self.is_blocked = True
@@ -149,10 +147,7 @@ class Car:
 
         id = int(next_road.id)
         self.current_road = self.road_network.roads_array[id]
-        # self.road_network.get_roads_array()[id].add_car_to_road(self)
-        # TODO: remove car from current road
         self.update_time_until_next_road(self.current_road)
-        # self.set_time_until_next_road(self.current_road.get_length()*3.6 / self.current_road.get_current_speed())
         self.current_road_time = datetime.timedelta(seconds=0)
         return self.current_road
 
