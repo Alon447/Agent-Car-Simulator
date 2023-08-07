@@ -46,11 +46,11 @@ class Simulation_manager:
         """
         Initialize the Simulation_manager.
 
-        Args:
-        graph: The networkx graph representing the road network.
-        time_limit (int): The maximum time the simulation will run in seconds.
-        activate_traffic_lights (bool, optional): Indicates whether traffic lights are activated. Default is False.
-        start_time (datetime.datetime, optional): The starting datetime of the simulation. Default is June 29, 2023, 08:00:00.
+        :Args:
+        :param graph: The networkx graph representing the road network.
+        :param time_limit :(int) The maximum time the simulation will run in seconds.
+        :param activate_traffic_lights: Indicates whether traffic lights are activated. Default is False.
+        :param start_time : (bool, optional) The starting datetime of the simulation. Default is June 29, 2023, 08:00:00.
         """
         # MANAGERS
         self.road_network = Road_Network.Road_Network(graph, activate_traffic_lights)
