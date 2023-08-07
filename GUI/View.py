@@ -19,12 +19,14 @@ from tkinter.simpledialog import Dialog
 #             self.entries.append(entry)
 #         return self.entries[0]  # Set initial focus
 
-class Main_GUI_Functions:
-    def __init__(self, root,Controller):
-        self.root = root
-        self.root.title("Car Navigation")
-
-        self.main_frame = ttk.Frame(self.root, padding=20)
+class View(tk.Tk):
+    def __init__(self,controller):
+        # self.root = self
+        super().__init__()
+        self.controller = controller
+        self.title("Car Navigation")
+        # self.make
+        self.main_frame = ttk.Frame(self, padding=20)
         self.main_frame.grid(row=0, column=0, padx=100, pady=100)
 
         self.title_label = ttk.Label(self.main_frame, text="Car Navigation System", font=("Helvetica", 20))
@@ -36,21 +38,21 @@ class Main_GUI_Functions:
         self.new_simulation_button = ttk.Button(self.main_frame, text="Start New Simulation", command=self.start_new_simulation, width=20)
         self.new_simulation_button.pack(pady=10)
 
-        self.load_simulation_button = ttk.Button(self.main_frame, text="Load Simulation", command=Controller.load_simulation, width=20)
+        self.load_simulation_button = ttk.Button(self.main_frame, text="Load Simulation", command=controller.load_simulation, width=20)
         self.load_simulation_button.pack(pady=10)
 
-        self.settings_button = ttk.Button(self.main_frame, text="Settings", command=Controller.open_settings, width=20)
+        self.settings_button = ttk.Button(self.main_frame, text="Settings", command=controller.open_settings, width=20)
         self.settings_button.pack(pady=10)
 
-        self.exit_button = ttk.Button(self.main_frame, text="Exit", command=self.root.quit, width=20)
+        self.exit_button = ttk.Button(self.main_frame, text="Exit", command=self.quit, width=20)
         self.exit_button.pack(pady=10)
 
     def start_new_simulation(self):
         # Code to start a new simulation
-        self.root.withdraw()  # Hide the main window
+        self.withdraw()  # Hide the main window
         print("Starting new simulation")
 
-        self.new_window = tk.Toplevel(self.root)
+        self.new_window = tk.Toplevel(self)
         self.new_window.title("New Simulation")
         self.new_window.geometry("550x550")  # Set the dimensions of the new window (width x height)
 
@@ -96,7 +98,7 @@ class Main_GUI_Functions:
         if hasattr(self, "new_window"):
             self.new_window.destroy()
         # Unhide the main window
-        self.root.deiconify()
+        self.deiconify()
     def load_simulation(self):
         # Code to load a simulation
         print("Loading simulation")
@@ -105,10 +107,8 @@ class Main_GUI_Functions:
         # Code to open settings
         print("Opening settings")
 
-def main(Controller):
-    root = tk.Tk()
-    app = Main_GUI_Functions(root,Controller)
-    root.mainloop()
+    def main(self):
+        self.mainloop()
 
 # if __name__ == "__main__":
 #     Controller = Controller.Controller()

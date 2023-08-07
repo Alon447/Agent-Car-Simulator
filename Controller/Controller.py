@@ -1,12 +1,11 @@
-import GUI
-from GUI.Main_Gui_Functions import Main_GUI_Functions
-import tkinter as tk
+from GUI.View import View
+
 
 class Controller:
     def __init__(self):
-        self.view = None
+        self.view = View(self)
         self.model = None
-        self.tkroot = tk.Tk()
+
 
     def start(self):
         # self.view.main(self)
@@ -17,6 +16,7 @@ class Controller:
 
     def set_model(self, model):
         self.model = model
+
     # class Window_Controller:
 
     def add_new_car(self):
@@ -39,7 +39,7 @@ class Controller:
         if hasattr(self.view, "new_window"):
             self.view.new_window.destroy()
         # Unhide the main window
-        self.view.root.deiconify()
+        self.view.deiconify()
 
     def load_simulation(self):
         # Code to load a simulation
@@ -49,10 +49,10 @@ class Controller:
         # Code to open settings
         print("Opening settings")
 
+    def main(self):
+        self.view.main()
 
-if __name__ == "main":
-    root = tk.Tk()
+
+if __name__ == "__main__":
     controller = Controller()
-    app = Main_GUI_Functions(root, controller)
-    controller.set_view(app)
-    controller.start()
+    controller.main()
