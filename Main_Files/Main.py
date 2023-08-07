@@ -29,26 +29,29 @@ RN = SM.road_network
 
 USE_ALREADY_GENERATED_Q_TABLE = True
 NUMBER_OF_SIMULATIONS = 1
+# SM.block_road(387)
+# SM.block_road(1222)
+# SM.block_road(786)
+# SM.block_road(785)
+# SM.block_road(783)
+# SM.block_road(784)
+# SM.block_road(116)
+SM.block_road(86)
 c1 = Car.Car(1, 0, 551, START_TIME1, RN, route_algorithm = "q", use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE)
-c2 = Car.Car(2, 200, 839, START_TIME3, RN, route_algorithm="shortest_path")
-c3 = Car.Car(3, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
-c4 = Car.Car(4, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
-c5 = Car.Car(5, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
+# c2 = Car.Car(2, 200, 839, START_TIME3, RN, route_algorithm="shortest_path")
+# c3 = Car.Car(3, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
+# c4 = Car.Car(4, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
+# c5 = Car.Car(5, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
 
 cars = []
 cars.append(c1)
-cars.append(c2)
-cars.append(c3)
-cars.append(c4)
-cars.append(c5)
+# cars.append(c2)
+# cars.append(c3)
+# cars.append(c4)
+# cars.append(c5)
 
 SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS)
 
-
-# route1 = SM.get_simulation_route(1, 0)
-# route2 = SM.get_simulation_route(2, 0)
-# route3 = SM.get_simulation_route(3,0)
-# routes = [route1, route2]
 routes = SM.get_simulation_routes(cars, 0)
 AS.plotting_custom_route(SM, routes, cars)
 # AS.car_times_bar_chart(SM, 4)
