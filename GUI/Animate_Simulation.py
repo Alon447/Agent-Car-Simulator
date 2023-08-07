@@ -93,7 +93,7 @@ def plotting_custom_route(SM, custom_routes: list, cars: list):
     cars_ids = [car.id for car in cars]
     start_time = SM.simulation_datetime_start.strftime("%H:%M") # get the start time of the simulation in the format of HH:MM
     edge_colors = [
-        'white' if road.is_blocked else
+        'black' if road.is_blocked else
         'red' if road.road_speed_dict[start_time] < 25 else
         'orange' if road.road_speed_dict[start_time] < 37 else
         'green'
@@ -214,5 +214,5 @@ def animate_route(SM, ax, fig, scatter_list, chosen_cars_ids):
         date_text.set_y(text_vertical_positions[0])
         time_text.set_y(text_vertical_positions[1])
 
-    animation = FuncAnimation(fig, animate, frames=num_updates, interval=100, repeat=True)
+    animation = FuncAnimation(fig, animate, frames=num_updates, interval=200, repeat=True)
     plt.show()

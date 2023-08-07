@@ -120,7 +120,7 @@ class Q_Learning_Route(Route):
             self.agent.save_q_table(self.src_node, self.dst_node, full_tables_path)
         # Test the agent
         test_reward, agent_path = self.agent.test_src_dst(src_node, dst_node, self.start_time)  # this will be the Test function
-        self.path = agent_path
+        self.path = [src_node]
 
     def get_tables_directory(self, tables_directory):
         cur = os.getcwd()
@@ -132,8 +132,9 @@ class Q_Learning_Route(Route):
     def decide_first_road(self):
 
         action = np.argmax(self.q_table[self.src_node]) # action is the index of the destination node in the q table
-        dest_node = self.road_network.node_connectivity_dict[self.src_node][action]
+        dest_node = self.road_network.node_connectivity_dict[self.src_node][action] # dest_node is the id of the next node
         self.current_node = dest_node
+        self.path.append(dest_node)
         # road_index = self.road_network.road_dict[(self.src_node, dest_node)]
         return self.road_network.get_road_from_src_dst(self.src_node,dest_node)
 
@@ -142,26 +143,41 @@ class Q_Learning_Route(Route):
         action = np.argmax(self.q_table[self.current_node])  # action is the index of the destination node in the q table
         dest_node = self.road_network.node_connectivity_dict[self.current_node][action]
         next_road = self.road_network.get_road_from_src_dst(self.current_node, dest_node)
+        self.path.append(dest_node)
         self.current_node = dest_node
         return next_road
 
-
-
-
     def get_alt_road(self):
+        # TODO: NEED TO UPDATE THE METHODS TO CHECK IF FUTURE ROADS ARE BLOCKED
+        # index = self.path.index(self.current_node)
+        self.path.pop()
+        self.current_node = self.path[-1]
+
         action = np.argmax(self.q_table[self.current_node])  # action is the index of the destination node in the q table
         dest_node = self.road_network.node_connectivity_dict[self.current_node][action]
         next_road = self.road_network.get_road_from_src_dst(self.current_node, dest_node)
-        while next_road.is_blocked:
-            valid_actions = [a for a in range(len(self.q_table[self.current_node])) if a != action]
-
-            if not valid_actions:
-                return None
-
-            second_best_action = np.argmax([self.q_table[self.current_node][a] for a in valid_actions])
-            action = valid_actions[second_best_action]
-            dest_node = self.road_network.node_connectivity_dict[self.current_node][action]
-            next_road = self.road_network.get_road_from_src_dst(self.current_node, dest_node)
+        max_q_val = float('-inf')
+        if next_road.is_blocked:
+            next_road = None
+            dest_node = None
+            for i in range(len(self.q_table[self.current_node])):
+                potential_action = i
+                potential_q_value = self.q_table[self.current_node][potential_action]
+                potential_dest_node = self.road_network.node_connectivity_dict[self.current_node][potential_action]
+                potential_road = self.road_network.get_road_from_src_dst(self.current_node, potential_dest_node)
+                if not potential_road.is_blocked and potential_q_value > max_q_val:
+                    next_road = potential_road
+                    dest_node = potential_dest_node
+        # while next_road.is_blocked:
+        #     valid_actions = [a for a in range(len(self.q_table[self.current_node])) if a != action]
+        #
+        #     if not valid_actions:
+        #         return None
+        #
+        #     second_best_action = np.argmax([self.q_table[self.current_node][a] for a in valid_actions])
+        #     action = valid_actions[second_best_action]
+        #     dest_node = self.road_network.node_connectivity_dict[self.current_node][action]
+        #     next_road = self.road_network.get_road_from_src_dst(self.current_node, dest_node)
 
         self.current_node = dest_node
         return next_road
@@ -192,6 +208,7 @@ class Shortest_path_route(Route):
         return next_road
 
     def get_alt_road(self):
+        print("get_alt_road")
         adjacency_list = self.road_network.node_connectivity_dict[self.current_node]  # list of all the adjacent nodes ids
         for next_node in adjacency_list:
             road = self.road_network.get_road_from_src_dst(self.current_node, next_node) # this is "road"
