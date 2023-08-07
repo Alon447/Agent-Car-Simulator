@@ -99,7 +99,7 @@ class Random_route(Route):
         return None
 
 class Q_Learning_Route(Route):
-    def __init__(self, src_node: int, dst_node: int, road_network: Road_Network, start_time: datetime.datetime):
+    def __init__(self, src_node: int, dst_node: int, road_network: Road_Network, start_time: datetime.datetime, use_q_table: bool = False):
 
         # src and dst dosent change during the run
         self.src_node = src_node
@@ -113,7 +113,7 @@ class Q_Learning_Route(Route):
         num_episodes = 2000
         max_steps_per_episode = 100
         full_tables_path = self.get_tables_directory(r"Q Tables Data")
-        if self.agent.load_q_table(self.src_node, self.dst_node, full_tables_path):
+        if use_q_table and self.agent.load_q_table(self.src_node, self.dst_node, full_tables_path):
             self.q_table = self.agent.get_q_table()
         else:
             self.q_table = self.agent.train_src_dst(src_node, dst_node, self.start_time, num_episodes, max_steps_per_episode=max_steps_per_episode)

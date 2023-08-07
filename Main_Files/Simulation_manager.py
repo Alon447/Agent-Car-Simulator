@@ -8,7 +8,7 @@ import pandas as pd
 import Car_manager
 import Road_Network
 from Main_Files import Car
-from Main_Files.Car import time_delta_to_seconds
+from Utilities.Getters import time_delta_to_seconds
 
 
 class Simulation_manager:

@@ -1,3 +1,5 @@
+import datetime
+
 from matplotlib import pyplot as plt
 import matplotlib.patches as mpatches
 import osmnx as ox
@@ -89,19 +91,19 @@ def plotting_custom_route(SM, custom_routes: list, cars: list):
     orig = []
     dest = []
     cars_ids = [car.id for car in cars]
-
+    start_time = SM.simulation_datetime_start.strftime("%H:%M") # get the start time of the simulation in the format of HH:MM
     edge_colors = [
         'white' if road.is_blocked else
-        'red' if road.current_speed < 25 else
-        'orange' if road.current_speed < 37 else
+        'red' if road.road_speed_dict[start_time] < 25 else
+        'orange' if road.road_speed_dict[start_time] < 37 else
         'green'
-        for road in SM.road_network.roads_array
+        for road in RN.roads_array
     ]
 
     node_colors = [
         plt.cm.RdYlGn(node.traffic_lights) if node.traffic_lights else
         'lightgrey'
-        for node in SM.road_network.nodes_array
+        for node in RN.nodes_array
     ]
     # Plot the graph
     fig, ax = ox.plot_graph(graph, figsize=(10, 10), show=False, close=False, edge_color=edge_colors,
@@ -160,21 +162,31 @@ def animate_route(SM, ax, fig, scatter_list, chosen_cars_ids):
     """
     num_updates = len(SM.simulation_update_times)  # Get the number of simulation update times
     temp_dict = {id:j for j,id in enumerate(chosen_cars_ids)}
-
+    last_update_time = SM.simulation_update_times[0]
     def animate(i):
         update_idx = i
-        edge_colors = [
-            'white' if road.is_blocked else
-            'red' if road.current_speed < 25 else
-            'orange' if road.current_speed < 37 else
-            'green'
-            for road in SM.road_network.roads_array
-        ]
-        # ox.plot_graph(SM.road_network.graph, figsize=(10, 10), show=False, close=False, edge_color="blue",
-        #               node_color='lightgrey', bgcolor='white',ax=ax)
+
         current_time = SM.simulation_update_times[update_idx]
+        # delta_time = current_time - last_update_time
         for j, updates in enumerate(SM.car_manager.updated_dictionary[current_time]):
             try:
+                # if delta_time > datetime.timedelta(minutes=10):
+                #     # last_update_time = current_time
+                #     current_hour = current_time.strftime("%H:%M")
+                #     edge_colors = [
+                #         'white' if road.is_blocked else
+                #         'red' if road.road_speed_dict[current_hour] < 25 else
+                #         'orange' if road.road_speed_dict[current_hour] < 37 else
+                #         'green'
+                #         for road in SM.road_network.roads_array
+                #     ]
+                #     node_colors = [
+                #         plt.cm.RdYlGn(node.traffic_lights) if node.traffic_lights else
+                #         'lightgrey'
+                #         for node in SM.road_network.nodes_array
+                #     ]
+                #     ox.plot_graph(SM.road_network.graph, figsize=(10, 10), show=False, close=False, edge_color=edge_colors,
+                #                   node_color=node_colors, bgcolor='white', node_size=5,ax=ax)
                 x_j, y_j = updates[1][0], updates[1][1]
                 scatter_list[temp_dict[updates[0]]].set_offsets(np.c_[x_j, y_j])
             except:
@@ -202,5 +214,5 @@ def animate_route(SM, ax, fig, scatter_list, chosen_cars_ids):
         date_text.set_y(text_vertical_positions[0])
         time_text.set_y(text_vertical_positions[1])
 
-    animation = FuncAnimation(fig, animate, frames=num_updates, interval=200, repeat=True)
+    animation = FuncAnimation(fig, animate, frames=num_updates, interval=100, repeat=True)
     plt.show()
