@@ -1,58 +1,32 @@
-from GUI.View import View
+from GUI.Main_Window import Main_Window
+from GUI.New_Simulation_Window import New_Simulation_Window
 
 
 class Controller:
+
     def __init__(self):
-        self.view = View(self)
+        self.view = None
         self.model = None
 
-
-    def start(self):
-        # self.view.main(self)
-        self.tkroot.mainloop()
-
-    def set_view(self, view):
-        self.view = view
-
-    def set_model(self, model):
-        self.model = model
-
-    # class Window_Controller:
-
-    def add_new_car(self):
-        print("Adding new car")
-
-    def block_road(self):
-        # Code for blocking a road
-        print("Blocking road")
-
-    def unblock_all_roads(self):
-        # Code for unblocking all roads
-        print("Unblocking all roads")
-
-    def start_simulation(self):
-        # Code for starting the simulation
-        print("Starting simulation")
-
-    def back_to_main_menu(self):
-        # Destroy the current simulation window if it exists
-        if hasattr(self.view, "new_window"):
-            self.view.new_window.destroy()
-        # Unhide the main window
-        self.view.deiconify()
-
-    def load_simulation(self):
-        # Code to load a simulation
-        print("Loading simulation")
-
-    def open_settings(self):
-        # Code to open settings
-        print("Opening settings")
-
-    def main(self):
+    #view control
+    def start_main(self):
+        self.view = Main_Window(self)
         self.view.main()
+
+    def start_new_simulation(self):
+        self.view = New_Simulation_Window(self)
+        self.view.main()
+
+
+    #model control
+
+
+
+    #gather settings
+    def add_car(self):
+        pass
 
 
 if __name__ == "__main__":
     controller = Controller()
-    controller.main()
+    controller.start_main()

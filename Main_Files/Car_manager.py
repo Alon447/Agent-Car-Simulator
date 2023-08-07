@@ -56,7 +56,7 @@ class CarManager:
         # step. key is time, value is a list of the cars that have been updated in that time step
         # along with current node
 
-    def add_update_to_dictionary(self, time, car_id, x,y, node_id):
+    def add_update_to_dictionary(self, time, car_id, x, y, node_id):
         """
         Add car update information to the dictionary.
 
@@ -67,22 +67,22 @@ class CarManager:
         y (float): Y-coordinate of the car's position.
         node_id (int): ID of the current node.
 
-        Returns:
+        :return:
         None
         """
         if time not in self.updated_dictionary:
             self.updated_dictionary[time] = []
-        self.updated_dictionary[time].append((car_id, (x,y), node_id))
+        self.updated_dictionary[time].append((car_id, (x, y), node_id))
 
-    def add_car(self, car, time):
+    def add_car(self, car: Car, time):
         """
         Add a car to the simulation.
 
-        Args:
+        :param:
         car (Car): Car object to be added.
         time (datetime.datetime): Current time in the simulation.
 
-        Returns:
+        :return:
         None
         """
         car_starting_time = car.starting_time
@@ -103,7 +103,7 @@ class CarManager:
         Sort cars in the simulation based on the time until the next road.
         Update the nearest update time.
 
-        Returns:
+        :return:
         bool: False if no cars are in simulation, True otherwise.
         """
         # sort the dict by the time until the next road
@@ -120,10 +120,9 @@ class CarManager:
         """
         Calculate the time of the nearest update.
 
-        Args:
-        time (datetime.datetime): Current time in the simulation.
+        :param time :(datetime.datetime) Current time in the simulation.
 
-        Returns:
+        :return:
         int: The time of the nearest update.
         """
         if self.cars_waiting_to_enter:
@@ -141,10 +140,11 @@ class CarManager:
         return self.cars_nearest_update_time
 
     def find_earliest_waiting_car(self):
+
         """
         Find the earliest time that a car is waiting to enter the simulation.
 
-        Returns:
+        :return:
         datetime.datetime or None: The earliest starting time of a waiting car, or None if no cars are waiting.
         """
         if not self.cars_waiting_to_enter:
@@ -159,11 +159,11 @@ class CarManager:
         """
         Update all the cars in the simulation.
 
-        Args:
+        :param:
         timeStamp (int): The simulation time step.
         current_datetime (datetime.datetime): Current time in the simulation.
 
-        Returns:
+        :return:
         None
         """
         cars = self.cars_in_simulation.copy()
@@ -222,10 +222,10 @@ class CarManager:
         """
         Check if a car is stuck.
 
-        Args:
+        :param:
         car (Car): The car to check.
 
-        Returns:
+        :return:
         bool: True if the car is stuck, False otherwise.
         """
         return car in self.cars_stuck
@@ -234,10 +234,10 @@ class CarManager:
         """
         Check if a car has finished its journey.
 
-        Args:
+        :param:
         car (Car): The car to check.
 
-        Returns:
+        :return:
         bool: True if the car has finished, False otherwise.
         """
         return car in self.cars_finished
@@ -246,7 +246,7 @@ class CarManager:
         """
         Clear all simulation data and reset the CarManager.
 
-        Returns:
+        :return:
         None
         """
         self.cars_in_simulation.clear()
@@ -261,12 +261,13 @@ class CarManager:
         """
         Get the IDs of all cars currently in the simulation and those blocked.
 
-        Returns:
+        :return:
         list[int]: List of car IDs.
         """
         return list(self.cars_in_simulation.keys()) + [car.id for car in self.cars_blocked]
 
     def __str__(self):
         return f'CarManager: Cars in simulation: {self.cars_in_simulation}, Cars blocked: {self.cars_blocked}, Cars finished: {self.cars_finished}, Cars stuck: {self.cars_stuck}'
+
     def __repr__(self):
         return self.__str__()

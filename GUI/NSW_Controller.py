@@ -1,5 +1,6 @@
-from tkinter import ttk
-class Main_Window_Controller:
+
+
+class NSW_Controller:
     def __init__(self, view, controller):
         self.view = view
         self.controller = controller
@@ -21,10 +22,11 @@ class Main_Window_Controller:
 
     def back_to_main_menu(self):
         # Destroy the current simulation window if it exists
-        if hasattr(self.view, "new_window"):
-            self.view.new_window.destroy()
+
+        self.view.destroy()
         # Unhide the main window
-        self.view.deiconify()
+        # self.view.deiconify()
+        self.controller.start_main()
 
     def load_simulation(self):
         # Code to load a simulation
@@ -33,11 +35,3 @@ class Main_Window_Controller:
     def open_settings(self):
         # Code to open settings
         print("Opening settings")
-
-    def start_new_simulation(self):
-        # self.quit()
-        self.view.destroy()
-        self.controller.start_new_simulation()
-
-    def quit(self):
-        self.view.quit()
