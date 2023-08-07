@@ -3,8 +3,10 @@ import osmnx as ox
 import networkx as nx
 
 from Q_Learning_Classes.Q_Learning_Functions import QLearning
-from new_master.Road_Network import Road_Network
 
+#####################################################
+# NOT USED ANYMORE
+#####################################################
 def osm_route_to_node_route(osm_route, road_network):
     """
     :param osm_route: a list of nodes in the route

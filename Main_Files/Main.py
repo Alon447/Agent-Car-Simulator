@@ -27,9 +27,10 @@ SM = Simulation_manager.Simulation_manager('TLV_with_eta', 3 * DAY, TRAFFIC_LIGH
 CM = SM.car_manager
 RN = SM.road_network
 
+USE_ALREADY_GENERATED_Q_TABLE = True
 NUMBER_OF_SIMULATIONS = 1
-c1 = Car.Car(1, 200, 839, START_TIME1, RN, route_algorithm="q")
-c2 = Car.Car(2, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
+c1 = Car.Car(1, 0, 551, START_TIME1, RN, route_algorithm = "q", use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE)
+c2 = Car.Car(2, 200, 839, START_TIME3, RN, route_algorithm="shortest_path")
 c3 = Car.Car(3, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
 c4 = Car.Car(4, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
 c5 = Car.Car(5, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
@@ -51,8 +52,8 @@ SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS)
 routes = SM.get_simulation_routes(cars, 0)
 AS.plotting_custom_route(SM, routes, cars)
 # AS.car_times_bar_chart(SM, 4)
-# SM.car_times_bar_chart(SM, 2)
-# SM.car_times_bar_chart(SM, 3)
+# AS.car_times_bar_chart(SM, 2)
+# AS.car_times_bar_chart(SM, 3)
 
 SRM = Simulation_Results_Manager()
 SRM.save_results_to_JSON(SM.simulation_results)
