@@ -3,6 +3,8 @@ import os
 import time
 
 import osmnx as ox
+from matplotlib import pyplot as plt
+
 import Road
 import pandas as pd
 import networkx as nx
@@ -30,8 +32,14 @@ class Road_Network:
     def __init__(self, graph_path, activate_traffic_lights = False):
 
         # Graph
-        self.graph = Getters.get_graph(graph_path)
-
+        self.graph = Getters.get_graph(graph_path) # use graphml file
+        self.nx_graph = None # create_graph() will initialize this attribute
+        """
+        self.nx_graph attributes:
+        nodes - 'osmid', 'x', 'y', 'highway', 'street_count'
+        edges - 'id', 'eta', 'current_speed', 'length', 'blocked', 'max_speed'
+                        
+        """
         # Edges and Nodes
         self.roads_array = [] # list of all the roads in the graph
         self.nodes_array = [] # list of all the nodes in the graph
@@ -43,12 +51,13 @@ class Road_Network:
         self.set_nodes_array()
         self.set_roads_array(activate_traffic_lights)
         self.set_adjacency_roads()
+        self.create_graph()
 
         # for shortest path
         self.next_node_matrix = [[-1] * len(self.nodes_array) for _ in range(len(self.nodes_array))] # cache for the distance matrix, saves the next node in the shortest path
         self.distances_matrix = [[-1] * len(self.nodes_array) for _ in range(len(self.nodes_array))] # cache for the distance matrix, saves the shortest distance between two nodes
 
-        self.update_eta()
+        # self.update_eta()
         # for q learning
         self.shortest_time_matrix = [[-1] * len(self.nodes_array) for _ in range(len(self.nodes_array))] # cache for the shortest time matrix, saves the shortest time between two nodes
     # Functions:
@@ -100,6 +109,27 @@ class Road_Network:
             # print(new_road)
         return
 
+    def create_graph(self):
+        """
+        Create a graph from the roads_array attribute.
+        :return:
+        """
+        # Create a MultiDiGraph
+        G = nx.MultiDiGraph()
+
+        # Add nodes with attributes to the graph
+        for node in self.nodes_array:
+            G.add_node(node.id, osm_id = node.osm_id, x = node.x, y = node.y, traffic_lights = node.traffic_lights,
+                       street_count = node.street_count)
+
+        # Add directed edges with attributes
+        for road in self.roads_array:
+            G.add_edge(road.source_node.id, road.destination_node.id, id = road.id,  eta=road.estimated_time, current_speed = road.current_speed,
+                       length = road.length, blocked = road.is_blocked, max_speed = road.max_speed)
+
+        self.nx_graph = G
+        return
+
     def update_eta(self):
         for edge in self.graph.edges:
             if edge[2]!=1:
@@ -147,9 +177,20 @@ class Road_Network:
         Returns:
         None
         """
-        #print("block road")
-        #print(road_id)
-        self.roads_array[road_id].is_blocked = True
+        print(road_id,"blocked")
+        self.roads_array[road_id].block_road()
+
+        # update self.nx_graph
+        src = self.roads_array[road_id].source_node.id
+        dest = self.roads_array[road_id].destination_node.id
+        self.nx_graph.edges[src,dest,0]['blocked'] = True
+        self.nx_graph.edges[src,dest,0]['eta'] = float('inf')
+        self.nx_graph.edges[src,dest,0]['current_speed'] = 0
+        self.nx_graph.edges[src,dest,0]['length'] = float('inf')
+
+
+
+        # add to self.blocked_roads_array
         self.blocked_roads_array.append(road_id)
         return
 
@@ -163,9 +204,18 @@ class Road_Network:
         Returns:
         None
         """
-        #print("unblock road")
-        #print(road_id)
-        self.roads_array[road_id].is_blocked = False
+        print(road_id,"unblocked")
+        new_eta, new_speed = self.roads_array[road_id].unblock_road()
+
+        # update self.nx_graph
+        src = self.roads_array[road_id].source_node.id
+        dest = self.roads_array[road_id].destination_node.id
+        self.nx_graph.edges[src, dest, 0]['blocked'] = False
+        self.nx_graph.edges[src, dest, 0]['eta'] = new_eta
+        self.nx_graph.edges[src, dest, 0]['current_speed'] = new_speed
+        self.nx_graph.edges[src,dest,0]['length'] = self.roads_array[road_id].length
+
+        # remove from self.blocked_roads_array
         self.blocked_roads_array.remove(road_id)
         return
 
@@ -195,7 +245,11 @@ class Road_Network:
         for road in self.roads_array:
             road_id = road.id
             road.update_road_speed_dict(roads_speeds[str(road_id)]) # update the road's speed dict
-            road.update_speed(current_time) # update the road's current speed
+            new_eta = road.update_speed(current_time) # update the road's current speed
+            src = road.source_node.id
+            dest = road.destination_node.id
+            self.nx_graph.edges[src, dest, 0]['current_speed'] = road.current_speed
+            self.nx_graph.edges[src, dest, 0]['eta'] = new_eta
         return
     def update_roads_speeds(self, current_time:str):
         """
@@ -208,36 +262,21 @@ class Road_Network:
         None
         """
         for road in self.roads_array:
-            road.update_speed(current_time)
+            new_eta = road.update_speed(current_time)
+            src = road.source_node.id
+            dest = road.destination_node.id
+            block = road.is_blocked
+            if block:
+                print("blocked road",road.id)
+            else:
+                self.nx_graph.edges[src, dest, 0]['current_speed'] = road.current_speed
+                self.nx_graph.edges[src, dest, 0]['eta'] = new_eta
         return
 
     def get_shortest_time_between_nodes(self, id1, id2):
-        if nx.has_path(self.graph, self.nodes_array[id1].osm_id, self.nodes_array[id2].osm_id):
-            return nx.shortest_path_length(self.graph, self.nodes_array[id1].osm_id, self.nodes_array[id2].osm_id, weight='eta')
+        if nx.has_path(self.nx_graph, self.nodes_array[id1].osm_id, self.nodes_array[id2].osm_id):
+            return nx.shortest_path_length(self.nx_graph, self.nodes_array[id1].osm_id, self.nodes_array[id2].osm_id, weight='eta')
         return -1
-
-    # def calc_dist_mat(self):
-    #     # makes a matrix of the shortest distances between all the roads
-    #     return pd.DataFrame.from_dict(dict(nx.all_pairs_dijkstra_path_length(self.graph)), orient='index')
-    # def make_src_node_to_dest_node_dict(self):
-    #     src_to_dest = {}
-    #     for edge in self.roads_array:
-    #         if edge.source_node.id not in src_to_dest:
-    #             src_to_dest[edge.source_node.id] = []
-    #         src_to_dest[edge.source_node.id].append(edge.destination_node.id)
-    #     #print(src_to_dest)
-    #     return src_to_dest
-    #
-    # def make_dest_node_to_src_node_dict(self):
-    #     # make_dest_node_to_src_node_
-    #     dest_to_src = {}
-    #     for edge in self.roads_array:
-    #         if edge.destination_node.id not in dest_to_src:
-    #             dest_to_src[edge.destination_node.id] = []
-    #         dest_to_src[edge.destination_node.id].append(edge.source_node.id)
-    #     #print(dest_to_src)
-    #     return dest_to_src
-
     """
     Shortest Path Functions
     """
@@ -253,23 +292,25 @@ class Road_Network:
         None
         """
 
-        osm_src = self.nodes_array[src].osm_id
-        osm_dest = self.nodes_array[dest].osm_id
+        # osm_src = self.nodes_array[src].osm_id
+        # osm_dest = self.nodes_array[dest].osm_id
         # nodes are the osm nodes
-        path = nx.shortest_path(self.graph, osm_src, osm_dest, weight='length')
-        path_length = nx.shortest_path_length(self.graph, osm_src, osm_dest, weight='length')
-        fixed_path=[]
-        for node in path:
-            new_node = self.get_node_from_osm_id(node)
-            fixed_path.append(new_node.id)
+        # path = nx.shortest_path(self.nx_graph, osm_src, osm_dest, weight='length')
+        # path_length = nx.shortest_path_length(self.nx_graph, osm_src, osm_dest, weight='length')
+        path = nx.shortest_path(self.nx_graph, src, dest, weight='length')
+        path_length = nx.shortest_path_length(self.nx_graph, src, dest, weight='length')
+        # fixed_path=[]
+        # for node in path:
+        #     new_node = self.get_node_from_osm_id(node)
+        #     fixed_path.append(new_node.id)
 
         #updating the distances matrix
         previous_edge_length = 0
-        for i,node in enumerate(fixed_path[:-1]):
-            self.next_node_matrix[node][fixed_path[-1]] = fixed_path[i + 1]#adds the relevant next node to the distances matrix
-            self.distances_matrix[node][fixed_path[-1]] = path_length - previous_edge_length
+        for i,node in enumerate(path[:-1]):
+            self.next_node_matrix[node][path[-1]] = path[i + 1]#adds the relevant next node to the distances matrix
+            self.distances_matrix[node][path[-1]] = path_length - previous_edge_length
             # previous_edge_length += self.roads_array[self.road_dict[(node,fixed_path[i + 1])]].length
-            previous_edge_length += self.get_road_from_src_dst(node,fixed_path[i + 1]).length
+            previous_edge_length += self.get_road_from_src_dst(node,path[i + 1]).length
         return
 
     def get_next_road_from_matrix(self,src_id,dst_id):
@@ -370,17 +411,17 @@ class Road_Network:
         Returns:
         list: List of node IDs representing the shortest path.
         """
-        osm_src = self.nodes_array[src_id].osm_id
-        osm_dest = self.nodes_array[dst_id].osm_id
-        path = nx.shortest_path(self.graph, osm_src, osm_dest, weight='length')
-        fixed_path = []
-        for node in path:
-            new_node = self.get_node_from_osm_id(node)
-            fixed_path.append(new_node.id)
-        if self.check_if_path_is_blocked(fixed_path): # if the path is blocked, return None
+        # osm_src = self.nodes_array[src_id].osm_id
+        # osm_dest = self.nodes_array[dst_id].osm_id
+        path = nx.shortest_path(self.nx_graph, src_id, dst_id, weight='length')
+        # fixed_path = []
+        # for node in path:
+        #     new_node = self.get_node_from_osm_id(node)
+        #     fixed_path.append(new_node.id)
+        if self.check_if_path_is_blocked(path): # if the path is blocked, return None
             return None
         # else, return the path
-        return fixed_path
+        return path
 
     def check_if_path_is_blocked(self, path):
         """
@@ -413,6 +454,8 @@ class Road_Network:
         str: String representation.
         """
         return "Road_Network"
+
+
 
 
 

@@ -19,34 +19,33 @@ START_TIME4 = datetime.datetime(year=2023, month=6, day=30, hour=12, minute=0, s
 START_TIME5 = datetime.datetime(year=2023, month=7, day=1, hour=15, minute=0, second=0)
 
 
-
+SIMULATION_SPEEDS_JSON_NAME = "simulation_speeds.json"
 # src, dst = Simulation_manager.choose_random_src_dst(RN)
 
 TRAFFIC_LIGHTS = True
-SM = Simulation_manager.Simulation_manager('TLV_with_eta', 3 * DAY, TRAFFIC_LIGHTS, START_TIME1)  # graph path, time limit, activate_traffic_lights ,starting time
+SM = Simulation_manager.Simulation_manager('TLV_with_eta', 3 * DAY, TRAFFIC_LIGHTS, START_TIME1, SIMULATION_SPEEDS_JSON_NAME)  # graph path, time limit, activate_traffic_lights ,starting time
 CM = SM.car_manager
 RN = SM.road_network
 
 USE_ALREADY_GENERATED_Q_TABLE = True
 NUMBER_OF_SIMULATIONS = 1
-# SM.block_road(387)
-# SM.block_road(1222)
-# SM.block_road(786)
-# SM.block_road(785)
-# SM.block_road(783)
-# SM.block_road(784)
-# SM.block_road(116)
-SM.block_road(86)
+
+
+# RN.block_road(0)
+RN.block_road(534)
+# RN.block_road(1748)
+RN.block_road(116)
+RN.block_road(86)
 c1 = Car.Car(1, 0, 551, START_TIME1, RN, route_algorithm = "q", use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE)
-c2 = Car.Car(2, 0, 551, START_TIME4, RN, route_algorithm="q")
-# c3 = Car.Car(3, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
+# c2 = Car.Car(2, 0, 551, START_TIME4, RN, route_algorithm="q")
+c3 = Car.Car(3, 0, 551, START_TIME1, RN, route_algorithm="sp")
 # c4 = Car.Car(4, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
 # c5 = Car.Car(5, 200, 839, START_TIME1, RN, route_algorithm="shortest_path")
 
 cars = []
 cars.append(c1)
-cars.append(c2)
-# cars.append(c3)
+# cars.append(c2)
+cars.append(c3)
 # cars.append(c4)
 # cars.append(c5)
 
@@ -55,7 +54,7 @@ SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS)
 routes = SM.get_simulation_routes(cars, 0)
 AS.plotting_custom_route(SM, routes, cars)
 # AS.car_times_bar_chart(SM, 4)
-# AS.car_times_bar_chart(SM, 2)
+# AS.car_times_bar_chart(SM, 1)
 # AS.car_times_bar_chart(SM, 3)
 
 SRM = Simulation_Results_Manager()

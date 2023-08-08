@@ -148,6 +148,28 @@ class Road:
         float: The estimated time of arrival (ETA) in seconds.
         """
         return self.eta_dict[time]
+
+    def block_road(self):
+        """
+        Block the road.
+
+        Returns:
+        None
+        """
+        self.is_blocked = True
+        self.estimated_time = float('inf')
+        return
+
+    def unblock_road(self):
+        """
+        Unblock the road.
+
+        Returns:
+        None
+        """
+        self.is_blocked = False
+        new_eta = self.calculate_time()
+        return new_eta, self.current_speed
     def __str__(self):
         return "Road id: " + str(self.id) + ", source node: " + str(self.source_node) + ", destination node: " + str(self.destination_node) + ", length: " + str(self.length) + ", max speed: " + str(self.max_speed) + ", current speed: " + str(self.current_speed) + ", is blocked: " + str(self.is_blocked) #+ ", cars on road: " + str(self.cars_on_road)
 

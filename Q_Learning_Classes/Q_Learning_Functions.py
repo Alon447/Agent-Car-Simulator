@@ -160,7 +160,19 @@ class QLearning:
         distance = great_circle(point_src, point_dst)
         return distance
 
-    def calculate_reward(self, agent: Q_Agent, next_state, src, dst, eta, path_nodes, delta_time):
+    def calculate_reward_basic(self, agent: Q_Agent, next_state, next_road):
+        if next_road.is_blocked:
+            return -100
+        if agent.dst == next_state:
+            # High reward for reaching the destination
+            return 1000
+        elif len(self.q_table[next_state]) == 0:
+            # Penalty for getting blocked
+            return -100
+        else:
+            return -1
+
+    def calculate_reward(self, agent: Q_Agent, next_state, src, dst, next_road, eta, path_nodes, delta_time):
         """
         Calculate the reward for a given action.
 
@@ -180,7 +192,8 @@ class QLearning:
         src_dst_distance = self.calculate_distance(src, dst)
         next_state_dst_distance = self.calculate_distance(next_state, dst)
         distance_delta = src_dst_distance - next_state_dst_distance # positive if the agent is closer to the destination
-
+        if next_road.is_blocked:
+            return -100
         if agent.dst == next_state:
             # High reward for reaching the destination
 
@@ -194,7 +207,9 @@ class QLearning:
             # elif distance_delta < 0:
             #     return -1
             # else:
-                return -1
+            if distance_delta < 0:
+                return -2
+            return -1
 
     def update_q_table(self, state, action, next_state, reward, eta):
         """
@@ -252,7 +267,14 @@ class QLearning:
         Returns:
             None
         """
-        filename = os.path.join(save_path, f'q_table_{src}_{dst}.pkl')
+        blocked_roads = self.road_network.blocked_roads_array
+        blocked_roads_str = 'blcoked_roads'
+        if blocked_roads:
+            for block_road in blocked_roads:
+                blocked_roads_str += '_' + str(block_road)
+        else:
+            blocked_roads_str = ''
+        filename = os.path.join(save_path, f'q_table_{src}_{dst}{blocked_roads_str}.pkl')
         with open(filename, 'wb') as f:
             pickle.dump(self.q_table, f)
 
@@ -268,7 +290,15 @@ class QLearning:
         Returns:
             bool: True if Q-value table was loaded successfully, False if the file was not found.
         """
-        filename = os.path.join(save_path, f'q_table_{src}_{dst}.pkl')
+        blocked_roads = self.road_network.blocked_roads_array
+        blocked_roads_str = 'blcoked_roads'
+        if blocked_roads:
+            for block_road in blocked_roads:
+                blocked_roads_str += '_' + str(block_road)
+        else:
+            blocked_roads_str = ''
+
+        filename = os.path.join(save_path, f'q_table_{src}_{dst}{blocked_roads_str}.pkl')
         try:
             with open(filename, 'rb') as f:
                 self.q_table = pickle.load(f)
@@ -332,6 +362,8 @@ class QLearning:
 
                 action = self.choose_action(state)
                 next_road = self.get_next_road(state, action)
+                if next_road.is_blocked:
+                    print("blocked road")
                 next_state = next_road.destination_node.id
                 # Calculate the rounded minutes
                 rounded_minutes = self.simulation_time.minute - (self.simulation_time.minute % 10)
@@ -342,7 +374,8 @@ class QLearning:
                 self.simulation_time += datetime.timedelta(seconds=eta)
                 drive_time = (self.simulation_time - start_time).total_seconds() # drive time in seconds of the agent
                 delta_time = drive_time - shortest_path_time  # positive if the agent is slower than the shortest path
-                reward = self.calculate_reward(agent, next_state, src, dst, eta, path_nodes, delta_time)
+
+                reward = self.calculate_reward(agent, next_state, src, dst, next_road, eta, path_nodes, delta_time)
 
                 path_roads.append(next_road.id)
                 path_nodes.append(next_road.destination_node.id)
@@ -439,7 +472,7 @@ class QLearning:
             self.simulation_time += datetime.timedelta(seconds=eta)
             drive_time = (self.simulation_time - start_time).total_seconds()
             delta_time = drive_time - shortest_path_time  # positive if the agent is slower than the shortest path
-            reward = self.calculate_reward(agent, next_state, src, dst, eta, path_nodes, delta_time)
+            reward = self.calculate_reward(agent, next_state, src, dst, next_road, eta, path_nodes, delta_time)
 
             path_roads.append(next_road.id)
             path_nodes.append(next_road.destination_node.id)

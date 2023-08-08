@@ -41,8 +41,7 @@ class Simulation_manager:
     """
 
     def __init__(self, graph, time_limit: int, activate_traffic_lights = False,
-                 start_time=datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0,
-                                              second=0)):
+                 start_time = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0,second=0), speeds_file_path = "simulation_speeds.json"):
         """
         Initialize the Simulation_manager.
 
@@ -69,6 +68,8 @@ class Simulation_manager:
         self.simulation_results = []  # list of dictionaries, each dictionary is a simulation result
         self.simulation_update_times = []  # list of times the simulation was updated for the animation
 
+        # DATA
+        self.speeds_file_path = speeds_file_path
         # FUNCTIONS - read speeds
         self.read_road_speeds(self.simulation_datetime_start)
 
@@ -187,9 +188,11 @@ class Simulation_manager:
         """
         self.last_current_speed_update_time = datetime_obj.replace(second=0, microsecond=0)
         self.day_int = (datetime_obj.weekday() + 1) % 7
-        with open('simulation_speeds.json', 'r') as infile:
+        with open(self.speeds_file_path, 'r') as infile:
             data = json.load(infile)
+
         # round the minutes to the nearest 10
+
         minutes = int(datetime_obj.minute / 10) * 10
         time_key = datetime_obj.replace(minute=minutes).strftime("%H:%M")
         day_data = data.get(str(self.day_int), {})
@@ -275,13 +278,6 @@ class Simulation_manager:
         Returns:
         None
         """
-        # self.block_road(0)
-        # self.block_road(900)
-        # self.block_road(901)
-        # self.block_road(902)
-
-        # self.read_road_speeds(self.simulation_datetime_start) #NOT NEEDED ANYMORE
-
         for i in range(number_of_simulations):
             copy_cars = []
             # make a deep copy of the cars list

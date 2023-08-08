@@ -111,6 +111,10 @@ class Car:
         Road object: The first road the car will travel to.
         """
         first_road = self.route.decide_first_road()
+        if first_road.is_blocked:
+            first_road = self.route.get_alt_road()
+            if first_road is None:
+                return "blocked"
         self.current_road = first_road
         self.update_time_until_next_road(self.current_road)
         self.past_nodes.append(self.source_node)
@@ -237,7 +241,8 @@ class Car:
         int: The time in seconds.
         """
         if self.is_blocked:
-            self.time_until_next_road = 600
+            self.time_until_next_road = datetime.timedelta(seconds=600)
+            # return self.time_until_next_road
         return int(self.time_until_next_road.total_seconds())
 
     def get_xy_source(self):
