@@ -1,6 +1,6 @@
 # Multi-Agent Reinforcement Learning of Traffic Routing
 
-![Project Logo](C:\Users\alon4\PycharmProjects\OSMtest\LOGO.png.png) <!-- Add a logo or relevant image here -->
+![Project Logo](LOGO.png) <!-- Add a logo or relevant image here -->
 
 ## Table of Contents
 
