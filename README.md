@@ -1,6 +1,6 @@
 # Multi-Agent Reinforcement Learning of Traffic Routing
 
-![Project Logo](LOGO.png) <!-- Add a logo or relevant image here -->
+![Project Logo](LOGO.png)
 
 ## Table of Contents
 
