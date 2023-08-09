@@ -19,7 +19,7 @@ class Road_Network:
     """
     Road_Network class:
     This class represents a road network, containing the graph of the simulation,
-    all the roads in the graph, and related data.
+    all the roads in the graph, and related Graphs.
 
     Attributes:
     graph (networkx.Graph): The road network graph.
@@ -29,7 +29,8 @@ class Road_Network:
     blocked_roads_array (list): List of road IDs that are currently blocked.
 
     """
-    def __init__(self, graph_path, activate_traffic_lights = False):
+
+    def __init__(self, graph_path, activate_traffic_lights = False, rain_intensity = 0):
 
         # Graph
         self.graph = Getters.get_graph(graph_path) # use graphml file
@@ -49,7 +50,7 @@ class Road_Network:
 
         # Initialize functions
         self.set_nodes_array()
-        self.set_roads_array(activate_traffic_lights)
+        self.set_roads_array(activate_traffic_lights, rain_intensity)
         self.set_adjacency_roads()
         self.create_graph()
 
@@ -82,7 +83,7 @@ class Road_Network:
             new_node = Node.Node(id, osm_id, x, y, traffic_lights, street_count)
             self.nodes_array.append(new_node)
         return
-    def set_roads_array(self, activate_traffic_lights):
+    def set_roads_array(self, activate_traffic_lights, rain_intensity):
         """
         Initialize and populate the roads_array attribute with Road objects.
 
@@ -98,10 +99,15 @@ class Road_Network:
             start_node = self.get_node_from_osm_id(edge[0])
             end_node = self.get_node_from_osm_id(edge[1])
             length = round(self.graph.edges[edge]['length'],2) # round to 2 decimal places
-            max_speed = int(self.graph.edges[edge]['maxspeed'])
+            # max_speed = int(self.graph.edges[edge]['maxspeed'])
+            max_speed = (self.graph.edges[edge]['maxspeed'])
+            if isinstance(max_speed, list):
+                max_speed = int(max_speed[0])  # Use the first element of the list
+            else:
+                max_speed = int(max_speed)
             type = self.graph.edges[edge]['highway']
 
-            new_road = Road.Road(id, start_node ,end_node, length, max_speed,type, activate_traffic_lights)
+            new_road = Road.Road(id, start_node ,end_node, length, max_speed,type, activate_traffic_lights, rain_intensity)
 
             self.roads_array.append(new_road)
 
@@ -299,24 +305,14 @@ class Road_Network:
         None
         """
 
-        # osm_src = self.nodes_array[src].osm_id
-        # osm_dest = self.nodes_array[dest].osm_id
-        # nodes are the osm nodes
-        # path = nx.shortest_path(self.nx_graph, osm_src, osm_dest, weight='length')
-        # path_length = nx.shortest_path_length(self.nx_graph, osm_src, osm_dest, weight='length')
         path = nx.shortest_path(self.nx_graph, src, dest, weight='length')
         path_length = nx.shortest_path_length(self.nx_graph, src, dest, weight='length')
-        # fixed_path=[]
-        # for node in path:
-        #     new_node = self.get_node_from_osm_id(node)
-        #     fixed_path.append(new_node.id)
 
         #updating the distances matrix
         previous_edge_length = 0
         for i,node in enumerate(path[:-1]):
             self.next_node_matrix[node][path[-1]] = path[i + 1]#adds the relevant next node to the distances matrix
             self.distances_matrix[node][path[-1]] = path_length - previous_edge_length
-            # previous_edge_length += self.roads_array[self.road_dict[(node,fixed_path[i + 1])]].length
             previous_edge_length += self.get_road_from_src_dst(node,path[i + 1]).length
         return
 

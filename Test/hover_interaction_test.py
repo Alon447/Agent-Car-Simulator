@@ -53,16 +53,16 @@ plot = fig.add_subplot(111)
 
 # create some curves
 for i in range(4):
-    # Giving unique ids to each data member
+    # Giving unique ids to each Graphs member
     plot.plot(
         [i * 1, i * 2, i * 3, i * 4],
         gid=i)
 
 
 def on_plot_hover(event):
-    # Iterating over each data member plotted
+    # Iterating over each Graphs member plotted
     for curve in plot.get_lines():
-        # Searching which data member corresponds to current mouse position
+        # Searching which Graphs member corresponds to current mouse position
         if curve.contains(event)[0]:
             print("over %s" % curve.get_gid())
 

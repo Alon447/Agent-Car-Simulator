@@ -14,10 +14,10 @@ There are a variety of meanings of the picker property
 
     float - if picker is a number it is interpreted as an
       epsilon tolerance in points and the artist will fire
-      off an event if it's data is within epsilon of the mouse
+      off an event if it's Graphs is within epsilon of the mouse
       event.  For some artists like lines and patch collections,
-      the artist may provide additional data to the pick event
-      that is generated, for example, the indices of the data within
+      the artist may provide additional Graphs to the pick event
+      that is generated, for example, the indices of the Graphs within
       epsilon of the pick event
 
     function - if picker is callable, it is a user supplied
@@ -47,7 +47,7 @@ your callback is always fired with two attributes:
   mouseevent - the mouse event that generate the pick event.  The
     mouse event in turn has attributes like x and y (the coordinates in
     display space, such as pixels from left, bottom) and xdata, ydata (the
-    coords in data space).  Additionally, you can get information about
+    coords in Graphs space).  Additionally, you can get information about
     which buttons were pressed, which keys were pressed, which Axes
     the mouse is over, etc.  See matplotlib.backend_bases.MouseEvent
     for details.
@@ -55,7 +55,7 @@ your callback is always fired with two attributes:
   artist - the matplotlib.artist that generated the pick event.
 
 Additionally, certain artists like Line2D and PatchCollection may
-attach additional meta data like the indices into the data that meet
+attach additional meta Graphs like the indices into the Graphs that meet
 the picker criteria (for example, all the points in the line that are within
 the specified epsilon tolerance)
 
@@ -111,8 +111,8 @@ if 1:  # picking with a custom hit test function
     def line_picker(line, mouseevent):
         """
         find the points within a certain distance from the mouseclick in
-        data coords and attach some extra attributes, pickx and picky
-        which are the data points that were picked
+        Graphs coords and attach some extra attributes, pickx and picky
+        which are the Graphs points that were picked
         """
         if mouseevent.xdata is None:
             return False, dict()
@@ -134,7 +134,7 @@ if 1:  # picking with a custom hit test function
         print('onpick2 line:', event.pickx, event.picky)
 
     fig, ax = plt.subplots()
-    ax.set_title('custom picker for line data')
+    ax.set_title('custom picker for line Graphs')
     line, = ax.plot(rand(100), rand(100), 'o', picker=line_picker)
     fig.canvas.mpl_connect('pick_event', onpick2)
 

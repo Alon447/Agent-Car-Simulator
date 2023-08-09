@@ -39,7 +39,7 @@
 #
 #     return dates, speeds_list
 #
-# # Replace 'data.csv' with the actual filename of your CSV file
+# # Replace 'Graphs.csv' with the actual filename of your CSV file
 # csv_filename = 'trafficinfo.csv'
 # target_id = '1210030100'  # Replace with the specific ID you want to extract speeds for
 #

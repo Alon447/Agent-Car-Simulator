@@ -93,7 +93,7 @@ class QLearning:
             src = route[i]
             j = i + 1
             dst = route[j]
-            eta += float(road_network.graph[src][dst][0].get('eta'))
+            eta += float(road_network.nx_graph[src][dst][0].get('eta'))
         return eta
 
 
@@ -334,7 +334,8 @@ class QLearning:
         src_osm = self.road_network.nodes_array[src].osm_id
         dst_osm = self.road_network.nodes_array[dst].osm_id
         path = nx.shortest_path(self.road_network.graph, src_osm, dst_osm, weight='length')
-        shortest_path_time = self.calculate_route_eta(path, self.road_network)
+        # shortest_path_time = self.calculate_route_eta(path, self.road_network)
+        shortest_path_time = 0
 
         all_training_paths_nodes = []
         all_training_times = []
@@ -448,7 +449,8 @@ class QLearning:
         src_osm = self.road_network.nodes_array[src].osm_id
         dst_osm = self.road_network.nodes_array[dst].osm_id
         path = nx.shortest_path(self.road_network.graph, src_osm, dst_osm, weight='length')
-        shortest_path_time = self.calculate_route_eta(path, self.road_network)
+        # shortest_path_time = self.calculate_route_eta(path, self.road_network)
+        shortest_path_time = 0
         # print("*********************************************")
         # print("          Testing Started                    ")
         print(f"Source: {src}, Destination: {dst}")
@@ -476,9 +478,7 @@ class QLearning:
 
             path_roads.append(next_road.id)
             path_nodes.append(next_road.destination_node.id)
-            path_time = self.calculate_route_eta(node_route_to_osm_route(path_nodes, self.road_network),
-                                                 self.road_network)
-            delta_time = path_time - shortest_path_time  # positive if the agent is slower than the shortest path
+            # path_time = self.calculate_route_eta(node_route_to_osm_route(path_nodes, self.road_network),self.road_network)
 
             test_rewards += reward
             # path_roads.append(next_road.get_id())

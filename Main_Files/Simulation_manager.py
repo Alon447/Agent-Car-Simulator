@@ -8,7 +8,7 @@ import pandas as pd
 import Car_manager
 import Road_Network
 from Main_Files import Car
-from Utilities.Getters import time_delta_to_seconds
+from Utilities.Getters import time_delta_to_seconds, get_simulation_speeds_file_path
 
 
 class Simulation_manager:
@@ -33,14 +33,14 @@ class Simulation_manager:
 
     time_limit (int): The maximum time the simulation will run in seconds.
 
-    day_int (int): Day of the week (0-6, 0-Sunday, 1-Monday, ..., 6-Saturday).
+    day_int (int): Day of the week (0-6, 0 - monday, 1 - tuesday, 2 - wednesday, 3 - thursday, 4 - friday, 5 - saturday, 6 - sunday).
 
     activate_traffic_lights (bool): Indicates whether traffic lights are activated.
 
     simulation_results (list): List of dictionaries containing simulation results.
     """
 
-    def __init__(self, graph, time_limit: int, activate_traffic_lights = False,
+    def __init__(self, graph_name, time_limit: int, activate_traffic_lights = False, rain_intensity = 0,
                  start_time = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0,second=0), speeds_file_path = "simulation_speeds.json"):
         """
         Initialize the Simulation_manager.
@@ -52,7 +52,8 @@ class Simulation_manager:
         :param start_time : (bool, optional) The starting datetime of the simulation. Default is June 29, 2023, 08:00:00.
         """
         # MANAGERS
-        self.road_network = Road_Network.Road_Network(graph, activate_traffic_lights)
+        self.city_name = graph_name
+        self.road_network = Road_Network.Road_Network(graph_name, activate_traffic_lights, rain_intensity)
         self.car_manager = Car_manager.CarManager()
 
         # TIME
@@ -62,7 +63,7 @@ class Simulation_manager:
         self.last_current_speed_update_time = start_time # for updating the current speed of the roads
         self.last_speed_dict_update_time = start_time # for updating the speed dict of the roads
         self.time_limit = time_limit  # the maximum time the simulation will run in seconds
-        self.day_int = (start_time.weekday() + 1) % 7  # 0-6, 0-sunday, 1-monday, 2-tuesday, 3-wednesday, 4-thursday, 5-friday, 6-saturday
+        self.day_int = start_time.weekday() # 0-6, 0 - monday, 1 - tuesday, 2 - wednesday, 3 - thursday, 4 - friday, 5 - saturday, 6 - sunday
 
         # RESULTS
         self.simulation_results = []  # list of dictionaries, each dictionary is a simulation result
@@ -128,7 +129,7 @@ class Simulation_manager:
         self.simulation_time += pd.Timedelta(seconds=time)  # time
         self.simulation_datetime += pd.Timedelta(seconds=time)  # time
         self.simulation_update_times.append(self.simulation_datetime)
-        self.day_int = (self.simulation_datetime.weekday() + 1) % 7  # 0-6, 0-sunday, 1-monday, 2-tuesday, 3-wednesday, 4-thursday, 5-friday, 6-saturday
+        self.day_int = self.simulation_datetime.weekday()  # 0-6, 0 - monday, 1 - tuesday, 2 - wednesday, 3 - thursday, 4 - friday, 5 - saturday, 6 - sunday
         # time_difference = self.simulation_datetime - self.last_current_speed_update_time
         return
 
@@ -142,7 +143,7 @@ class Simulation_manager:
         Returns:
         None
         """
-        last_update_day = (self.last_speed_dict_update_time.weekday()+1) % 7
+        last_update_day = self.last_speed_dict_update_time.weekday()
         if self.day_int != last_update_day:
             # update the road speeds according to the day
             # every day or at the next time a car will be updated (if more than a day passed)
@@ -179,6 +180,9 @@ class Simulation_manager:
     def read_road_speeds(self, datetime_obj: datetime.datetime):
         """
         Read road speeds from a JSON file and update the road network.
+        The Json file supposed to be in the following format:
+        {day_int: {time_key: {road_id: speed}}}
+        The Json file is located at /Speeds_Data/{city_name}_speeds.json
 
         Args:
         datetime_obj (datetime.datetime): The datetime for which road speeds are to be read.
@@ -187,7 +191,8 @@ class Simulation_manager:
         None
         """
         self.last_current_speed_update_time = datetime_obj.replace(second=0, microsecond=0)
-        self.day_int = (datetime_obj.weekday() + 1) % 7
+        self.day_int = datetime_obj.weekday()
+        self.speeds_file_path = get_simulation_speeds_file_path(self.road_network.graph, self.city_name)
         with open(self.speeds_file_path, 'r') as infile:
             data = json.load(infile)
 
@@ -322,7 +327,7 @@ class Simulation_manager:
             car_route = car.past_nodes
             car_key = car.id
             day_of_week_str = car.starting_time.strftime('%A')
-            # save the important data
+            # save the important Graphs
             simulation_results[car_key] = {
                 'reached_destination': car_reached_destination,
                 'routing_algorithm': car.get_routing_algorithm(),
@@ -390,95 +395,3 @@ class Simulation_manager:
         for node in route:
             osm_route.append(self.road_network.nodes_array[node].osm_id)
         return osm_route
-
-
-
-
-# WEEK = 604800
-# DAY = 86400
-# HOUR = 3600
-# MINUTE = 60
-#
-# # initilazires
-# START_TIME1 = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0, second=0)
-# START_TIME2 = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0, second=0)
-# START_TIME3 = datetime.datetime(year=2023, month=6, day=29, hour=21, minute=0, second=0)
-# START_TIME4 = datetime.datetime(year=2023, month=6, day=30, hour=12, minute=0, second=0)
-# START_TIME5 = datetime.datetime(year=2023, month=7, day=1, hour=15, minute=0, second=0)
-#
-# SM = Simulation_manager('/TLV_with_eta.graphml', 20 * HOUR, START_TIME1)  # graph path, time limit, starting time
-# CM = SM.car_manager
-# RN = SM.road_network
-
-#
-# def choose_random_src_dst(road_network):
-#     src = random.Random().randint(0, len(road_network.node_connectivity_dict) - 1)
-#     dst = random.Random().randint(0, len(road_network.node_connectivity_dict) - 1)
-#     src_osm = road_network.reverse_node_dict[src]
-#     dest_osm = road_network.reverse_node_dict[dst]
-#     while (not nx.has_path(road_network.graph, src_osm, dest_osm)) or src == dst:
-#         # print(f"There is no path between {src} and {dst}.")
-#         src = random.Random().randint(0, len(road_network.node_connectivity_dict) - 1)
-#         dst = random.Random().randint(0, len(road_network.node_connectivity_dict) - 1)
-#         src_osm = road_network.reverse_node_dict[src]
-#         dest_osm = road_network.reverse_node_dict[dst]
-#     return src, dst
-#
-
-# def Test():
-#     res = []
-#     for i in range(1):
-#         src, dst = choose_random_src_dst(RN)
-#         print("simulation number: ", i)
-#         print("src: ", src, "dst: ", dst)
-#         c1 = Car.Car(1, src, dst, START_TIME1, RN, route_algorithm="q")
-#         c2 = Car.Car(2, src, dst, START_TIME1, RN, route_algorithm="shortest_path")
-#         cars = [c1, c2]
-#
-#         SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS, TRAFFIC_LIGHTS)
-#
-#         # route1 = SM.get_simulation_route(1, 0)
-#         # route2 = SM.get_simulation_route(2, 0)
-#         print(c1.total_travel_time)
-#         print( c2.total_travel_time)
-#         if c1.total_travel_time <= c2.total_travel_time:
-#             print("Q learning is better")
-#             res.append(1)
-#         else:
-#             print("Shortest path is better")
-#             res.append(0)
-#         percent = 100 * sum(res) / len(res)
-#         print("percent: ", percent, "%")
-#         print("************************************")
-
-#
-# NUMBER_OF_SIMULATIONS = 1
-# TRAFFIC_LIGHTS = False
-# Test()
-"""
-src, dst = choose_random_src_dst(RN)
-c1 = Car.Car(1,src,dst,START_TIME1,RN,route_algorithm = "q")
-c2 = Car.Car(2,200,839,START_TIME1,RN,route_algorithm = "shortest_path")
-c3 = Car.Car(3,200,839,START_TIME3,RN,route_algorithm = "shortest_path")
-c4 = Car.Car(4,113,703,START_TIME4,RN,route_algorithm = "shortest_path")
-c5 = Car.Car(5,110,700,START_TIME5,RN,route_algorithm = "shortest_path")
-cars = [c1,c2]
-
-SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS,TRAFFIC_LIGHTS)
-print("***************************")
-
-
-route1 = SM.get_simulation_route(1,0)
-route2 = SM.get_simulation_route(2,0)
-# route3 = SM.get_simulation_route(3,0)
-routes=[route1,route2]
-SM.plotting_custom_route(routes)
-# SM.car_times_bar_chart(1)
-# SM.car_times_bar_chart(2)
-# SM.car_times_bar_chart(3)
-
-SRM = Simulation_Results_Manager()
-SRM.save_results_to_JSON(SM.simulation_results)
-SM.simulation_results = SRM.read_results_from_JSON()
-SM.print_simulation_results()
-"""

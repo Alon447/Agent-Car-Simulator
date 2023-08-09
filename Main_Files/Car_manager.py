@@ -243,7 +243,7 @@ class CarManager:
 
     def clear(self):
         """
-        Clear all simulation data and reset the CarManager.
+        Clear all simulation Graphs and reset the CarManager.
 
         :return:
         None

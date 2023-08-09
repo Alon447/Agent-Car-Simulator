@@ -33,28 +33,36 @@ class Road:
 
     adjacent_roads (list): A list of IDs of adjacent roads to this road.
     """
-    def __init__(self, id:int , source_node:Node, destination_node:Node, length: int, max_speed: int, type: str, activate_traffic_lights: bool):
+    def __init__(self, id:int , source_node:Node, destination_node:Node, length: int, max_speed: int, type: str, activate_traffic_lights: bool, rain_intensity: int = 0):
 
-        self.id= id
-        self.source_node = source_node # class Node (id, osm_id, lat, lon, street_count, traffic_lights)
-        self.destination_node = destination_node # class Node (id, osm_id, lat, lon, street_count, traffic_lights)
+        # Attributes
+        self.id = id
+        self.source_node = source_node  # class Node (id, osm_id, lat, lon, street_count, traffic_lights)
+        self.destination_node = destination_node  # class Node (id, osm_id, lat, lon, street_count, traffic_lights)
         self.length = length
-
-        self.type = type # "highway" or "street"
+        self.type = type  # "highway" or "street"
         self.max_speed = max_speed
         self.current_speed = 10
-        self.road_speed_dict = {} # key: time (for example "08:00") , value: speed
-        self.eta_dict={} # key: time (for example "08:00") , value: eta
         self.estimated_time = float('inf')
-        self.activate_traffic_lights = activate_traffic_lights
-        self.is_blocked= False
-        # self.cars_on_road = []
-        self.adjacent_roads = [] # list of adjacent roads to this road, includes only the ids of the roads
 
-        self.calculate_time() # initialize the estimated time
+        # Dicts
+        self.road_speed_dict = {}  # key: time (for example "08:00"), value: speed
+        self.eta_dict = {}  # key: time (for example "08:00"), value: eta
+
+        # Flags
+        self.activate_traffic_lights = activate_traffic_lights
+        self.rain_intensity = rain_intensity
+        self.is_blocked = False
+
+        # Adjacency
+        self.adjacent_roads = []  # list of adjacent roads to this road, includes only the ids of the roads
+
+        # Initialize
+        self.calculate_time()  # initialize the estimated time
+
+
 
     # Functions
-
     def calculate_time(self):
         """
         Calculate the estimated time it takes to travel the road.
@@ -88,6 +96,8 @@ class Road:
         float: The updated estimated time of arrival (ETA) in seconds.
         """
         projected_speed = self.road_speed_dict[current_time]
+
+        # add noise to the speed
         mean = 0  # Mean of the normal distribution (adjust as needed)
         if type == 'living_street' or type == 'residential' or type == 'unclassified':
             std_dev = 1
@@ -98,7 +108,18 @@ class Road:
             self.current_speed = max(projected_speed + noise, 1)
         else:
             self.current_speed = min(projected_speed + noise, self.max_speed)
-        # self.current_speed = self.road_speed_dict[current_time]
+
+        # check if there is rain
+        if self.rain_intensity == 0:
+            reduction_factor = 1.0  # No rain, no reduction
+        elif self.rain_intensity == 1:
+            reduction_factor = 0.95  # Light rain, 5% reduction
+        elif self.rain_intensity == 2:
+            reduction_factor = 0.85  # Moderate rain, 15% reduction
+        else: # self.rain_intensity == 3:
+            reduction_factor = 0.70  # Heavy rain, 30% reduction
+        self.current_speed = max(int(self.current_speed * reduction_factor), 1)
+
         eta = self.calculate_time()
         return eta
 

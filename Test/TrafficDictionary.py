@@ -18,7 +18,7 @@ class TrafficDictionary:
         self._dictionary = {}
         self.graph = g
     def fix_edges_max_speed(self, name):
-        g = ox.load_graphml(f'./data/{name}.graphml')
+        g = ox.load_graphml(f'./Graphs/{name}.graphml')
         type_30 = ['residantial', 'living_street', 'unclassified', 'service']
         graph_max_speed = {}
         for i, edge in enumerate(g.edges):
@@ -30,25 +30,23 @@ class TrafficDictionary:
         return
 
     def add_edge_id(name):
-        g = ox.load_graphml(f'./data/{name}.graphml')
+        g = ox.load_graphml(f'./Graphs/{name}.graphml')
         graph_edge_id = {}
         for i, edge in enumerate(g.edges):
             graph_edge_id[edge] = i
         nx.set_edge_attributes(g, graph_edge_id, "edge_id")
-        ox.save_graphml(g, filepath=f'./data/{name}.graphml')
+        ox.save_graphml(g, filepath=f'./Graphs/{name}.graphml')
         return
 
     def add_node_id(name):
-        g = ox.load_graphml(f'./data/{name}.graphml')
+        g = ox.load_graphml(f'./Graphs/{name}.graphml')
         graph_node_id = {}
         for i, node in enumerate(g.nodes):
             graph_node_id[node] = i
         nx.set_node_attributes(g, graph_node_id, "node_id")
-        ox.save_graphml(g, filepath=f'./data/{name}.graphml')
+        ox.save_graphml(g, filepath=f'./Graphs/{name}.graphml')
         return
 
-    def generate_edge_data(self, edge_id, max_speed):
-        return
 
     def generate_speed(self, mean_speed, std_speed, max_speed, highway_type):
         def check_speed(speed):
@@ -70,7 +68,7 @@ class TrafficDictionary:
         """
         Generates a dictionary of speeds for each road in the graph
         based on the day of the week and the time of day
-        generates a json file with the data
+        generates a json file with the Graphs
         :return:
         """
         highway_counts = {}
@@ -166,17 +164,17 @@ class TrafficDictionary:
 
         # Print the dictionary
         print(data)
-        with open('../Main_Files/simulation_speeds.json', 'w') as outfile:
+        with open('../Speeds_Data/simulation_speeds.json', 'w') as outfile:
             json.dump(data, outfile, indent=4)
         return
 
 
     def read_day_data(self,road_number,hour,minute):
-        with open('../Main_Files/simulation_speeds.json', 'r') as infile:
+        with open('../Speeds_Data/simulation_speeds.json', 'r') as infile:
             data = json.load(infile)
         time_key = f"{hour:02d}:{minute:02d}"
 
-        # Get the number from the JSON data
+        # Get the number from the JSON Graphs
         number = data.get(str(road_number), {}).get(time_key)
 
         print(number)
@@ -215,7 +213,7 @@ class TrafficDictionary:
         custom_route = [342355075, 387519294]
         cur = os.getcwd()
         parent = os.path.dirname(cur)
-        data = os.path.join(parent, "data")
+        data = os.path.join(parent, "Graphs")
         graph = ox.load_graphml(data + '/TLV_with_eta.graphml')
 
         # Plot the graph
@@ -242,7 +240,7 @@ class TrafficDictionary:
             print(f"Number {number} appears {count} times")
 
 
-# g = ox.load_graphml(f'../data/graphTLVFix.graphml')
+# g = ox.load_graphml(f'../Graphs/graphTLVFix.graphml')
 
 RN = Road_Network('/TLV_with_eta.graphml')
 g = RN.graph
@@ -261,7 +259,7 @@ print(path)
 # for p in paths:
 #     print(p)
 # path_length = nx.shortest_path_length(RN.graph, src, dest, weight='eta')
-# # G = ox.load_graphml(f'../data/graphTLVFix.graphml')
+# # G = ox.load_graphml(f'../Graphs/graphTLVFix.graphml')
 # route2 = [400,401,216,60,59,173,398,49,34,48,721,190,618,33,813,244,231,927,910,52,67,726,15,153,360,152,62,23,670,692,669,701,700]
 
 # fig, ax = ox.plot_graph(G, close=False, edge_color='lightgray', node_color='gray',show=False, bgcolor='white')
