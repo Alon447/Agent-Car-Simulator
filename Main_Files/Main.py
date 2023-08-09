@@ -31,19 +31,19 @@ SIMULATION_SPEED = 30  # X30 faster than one second interval
 
 # Initialize Simulation Manager
 # SM = Simulation_manager.Simulation_manager('TLV_with_eta', 3 * DAY, TRAFFIC_LIGHTS, Rain_intensity, START_TIME1, SIMULATION_SPEEDS_JSON_NAME)
-SM = Simulation_manager.Simulation_manager('Metula', 3 * DAY, TRAFFIC_LIGHTS, Rain_intensity, START_TIME1, SIMULATION_SPEEDS_JSON_NAME)
+SM = Simulation_manager.Simulation_manager('TLV', 3 * DAY, TRAFFIC_LIGHTS, Rain_intensity, START_TIME1, SIMULATION_SPEEDS_JSON_NAME)
 CM = SM.car_manager
 RN = SM.road_network
 
 # Block roads
-# RN.block_road(534)
+RN.block_road(534)
 # RN.block_road(116)
 # RN.block_road(86)
 
 # Initialize cars
 cars = []
-cars.append(Car.Car(1, 15, 110, START_TIME1, RN, route_algorithm="q", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
-cars.append(Car.Car(3, 15, 110, START_TIME1, RN, route_algorithm="sp"))
+cars.append(Car.Car(1, 15, 410, START_TIME1, RN, route_algorithm="q", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
+cars.append(Car.Car(3, 15, 510, START_TIME1, RN, route_algorithm="sp"))
 
 # Run simulations
 SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS)
@@ -59,7 +59,7 @@ ASS.plotting_custom_route(SM, routes, cars)
 # AS.car_times_bar_chart(SM, 3)
 
 # Manage and display simulation results
-SRM = Simulation_Results_Manager()
+SRM = Simulation_Results_Manager(SM.graph_name)
 SRM.save_results_to_JSON(SM.simulation_results)
 SM.simulation_results = SRM.read_results_from_JSON()
 ASS.print_simulation_results(SM)

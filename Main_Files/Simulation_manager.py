@@ -52,7 +52,7 @@ class Simulation_manager:
         :param start_time : (bool, optional) The starting datetime of the simulation. Default is June 29, 2023, 08:00:00.
         """
         # MANAGERS
-        self.city_name = graph_name
+        self.graph_name = graph_name
         self.road_network = Road_Network.Road_Network(graph_name, activate_traffic_lights, rain_intensity)
         self.car_manager = Car_manager.CarManager()
 
@@ -75,44 +75,45 @@ class Simulation_manager:
         self.read_road_speeds(self.simulation_datetime_start)
 
     # FUNCTIONS - block/unblock roads
-    def block_road(self, road_id):
-        """
-        Block a road in the road network.
 
-        Args:
-        road_id (int): The ID of the road to be blocked.
-
-        Returns:
-        None
-        """
-        self.road_network.block_road(road_id)
-        print("Road", road_id, "blocked")
-        return
-
-    def unblock_road(self, road_id):
-        """
-        Unblock a previously blocked road.
-
-        Args:
-        road_id (int): The ID of the road to be unblocked.
-
-        Returns:
-        None
-        """
-        self.road_network.unblock_road(road_id)
-        print("Road", road_id, "unblocked")
-        return
-
-    def unblock_all_roads(self):
-        """
-        Unblock all roads in the road network.
-
-        Returns:
-        None
-        """
-        self.road_network.unblock_all_roads()
-        print("All roads unblocked")
-        return
+    # def block_road(self, road_id):
+    #     """
+    #     Block a road in the road network.
+    #
+    #     Args:
+    #     road_id (int): The ID of the road to be blocked.
+    #
+    #     Returns:
+    #     None
+    #     """
+    #     self.road_network.block_road(road_id)
+    #     print("Road", road_id, "blocked")
+    #     return
+    #
+    # def unblock_road(self, road_id):
+    #     """
+    #     Unblock a previously blocked road.
+    #
+    #     Args:
+    #     road_id (int): The ID of the road to be unblocked.
+    #
+    #     Returns:
+    #     None
+    #     """
+    #     self.road_network.unblock_road(road_id)
+    #     print("Road", road_id, "unblocked")
+    #     return
+    #
+    # def unblock_all_roads(self):
+    #     """
+    #     Unblock all roads in the road network.
+    #
+    #     Returns:
+    #     None
+    #     """
+    #     self.road_network.unblock_all_roads()
+    #     print("All roads unblocked")
+    #     return
 
 
     def update_simulation_clocks(self, time: int):
@@ -182,7 +183,7 @@ class Simulation_manager:
         Read road speeds from a JSON file and update the road network.
         The Json file supposed to be in the following format:
         {day_int: {time_key: {road_id: speed}}}
-        The Json file is located at /Speeds_Data/{city_name}_speeds.json
+        The Json file is located at /Speeds_Data/{graph_name}_speeds.json
 
         Args:
         datetime_obj (datetime.datetime): The datetime for which road speeds are to be read.
@@ -192,7 +193,7 @@ class Simulation_manager:
         """
         self.last_current_speed_update_time = datetime_obj.replace(second=0, microsecond=0)
         self.day_int = datetime_obj.weekday()
-        self.speeds_file_path = get_simulation_speeds_file_path(self.road_network.graph, self.city_name)
+        self.speeds_file_path = get_simulation_speeds_file_path(self.road_network.graph, self.graph_name)
         with open(self.speeds_file_path, 'r') as infile:
             data = json.load(infile)
 

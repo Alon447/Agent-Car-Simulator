@@ -105,7 +105,7 @@ def test(road_network, number_of_tests = 1):
 
 
 NUM_OF_TESTS = 10
-road_network = Road_Network("/TLV_with_eta.graphml")  # Replace with the correct path to your graphml file
+road_network = Road_Network("/TLV.graphml")  # Replace with the correct path to your graphml file
 test(road_network, number_of_tests = NUM_OF_TESTS)
 
 

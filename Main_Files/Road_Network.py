@@ -33,6 +33,7 @@ class Road_Network:
     def __init__(self, graph_path, activate_traffic_lights = False, rain_intensity = 0):
 
         # Graph
+        self.graph_name = graph_path
         self.graph = Getters.get_graph(graph_path) # use graphml file
         self.nx_graph = None # create_graph() will initialize this attribute
         """
@@ -47,6 +48,7 @@ class Road_Network:
 
         self.node_connectivity_dict = {} # node id to list of connected nodes ids
         self.blocked_roads_array = []
+        self.blocked_roads_dict = {} # key: road id, value: list of blocked times
 
         # Initialize functions
         self.set_nodes_array()
@@ -181,17 +183,19 @@ class Road_Network:
         return
 
     def block_road(self,road_id):
+        # TODO: add start and end times
         """
         Block a specific road by marking it as blocked.
 
         Args:
         road_id (int): ID of the road to be blocked.
 
+
         Returns:
         None
         """
         print(road_id,"blocked")
-        self.roads_array[road_id].block_road()
+        self.roads_array[road_id].block()
 
         # update self.nx_graph
         src = self.roads_array[road_id].source_node.id
@@ -200,8 +204,6 @@ class Road_Network:
         self.nx_graph.edges[src,dest,0]['eta'] = float('inf')
         self.nx_graph.edges[src,dest,0]['current_speed'] = 0
         self.nx_graph.edges[src,dest,0]['length'] = float('inf')
-
-
 
         # add to self.blocked_roads_array
         self.blocked_roads_array.append(road_id)
@@ -218,7 +220,7 @@ class Road_Network:
         None
         """
         print(road_id,"unblocked")
-        new_eta, new_speed = self.roads_array[road_id].unblock_road()
+        new_eta, new_speed = self.roads_array[road_id].unblock()
 
         # update self.nx_graph
         src = self.roads_array[road_id].source_node.id

@@ -12,7 +12,8 @@ class Simulation_Results_Manager:
     read_results_from_JSON(): Reads simulation results from a JSON file.
 
     """
-    def __init__(self):
+    def __init__(self, graph_name):
+        self.graph_name = graph_name
         self.simulation_results = []
 
 
@@ -27,7 +28,7 @@ class Simulation_Results_Manager:
         None
         """
         self.simulation_results.append(results)
-        with open('simulation_results.json', 'w') as outfile:
+        with open(f'../Results/simulation_results_{self.graph_name}.json', 'w') as outfile:
             json.dump(results, outfile, indent=4)
 
     def read_results_from_JSON(self):
@@ -37,6 +38,6 @@ class Simulation_Results_Manager:
         Returns:
         dict: Dictionary containing the loaded simulation results.
         """
-        with open('simulation_results.json', 'r') as infile:
+        with open(f'../Results/simulation_results_{self.graph_name}.json', 'r') as infile:
             new_simulation_results = json.load(infile)
         return new_simulation_results

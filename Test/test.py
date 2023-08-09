@@ -56,6 +56,7 @@
 # plt.show()
 import datetime
 
+import numpy as np
 # import numpy as np
 # import matplotlib.pyplot as plt
 #
@@ -75,6 +76,8 @@ import datetime
 # plt.grid(True)
 # plt.show()
 import osmnx as ox
+from matplotlib import pyplot as plt
+
 
 def get_lat_lng(address):
     # Perform geocoding
@@ -93,9 +96,19 @@ def main():
             print(f"Latitude: {lat}, Longitude: {lng}")
 
 if __name__ == "__main__":
-    arr=[2,5,6,3,4,1]
-    # make a new sorted list of the indices of the original list
-    sorted_arr = sorted(arr)
-    print(sorted_arr[::-1])
-    for item in sorted_arr[::-1]:
-        print(arr.index(item))
+    # Retrieve the graph
+    G = ox.load_graphml('../Graphs/TLV.graphml')
+
+    # Plot the graph
+    fig, ax = ox.plot_graph(ox.project_graph(G), show=False)
+
+    # Add raindrops effect
+    num_raindrops = 500
+    x_coords = np.random.uniform(ax.get_xlim()[0], ax.get_xlim()[1], num_raindrops)
+    y_coords = np.random.uniform(ax.get_ylim()[0], ax.get_ylim()[1], num_raindrops)
+    raindrop_size = 0.1
+
+    ax.scatter(x_coords, y_coords, s=raindrop_size, color='blue', alpha=0.6)
+
+    # Show the rain-covered graph
+    plt.show()

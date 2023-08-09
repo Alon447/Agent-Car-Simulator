@@ -184,7 +184,7 @@ class Road:
         """
         return self.eta_dict[time]
 
-    def block_road(self):
+    def block(self):
         """
         Block the road.
 
@@ -195,7 +195,7 @@ class Road:
         self.estimated_time = float('inf')
         return
 
-    def unblock_road(self):
+    def unblock(self):
         """
         Unblock the road.
 

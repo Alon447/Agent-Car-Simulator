@@ -146,7 +146,7 @@ def generate_day_data(graph, city_name):
         current_time += interval
 
     # Print the dictionary
-    print(data)
+    # print(data)
     path = "../Speeds_Data/" + city_name + "_speeds.json"
     with open(path, 'w') as outfile:
         json.dump(data, outfile, indent=4)

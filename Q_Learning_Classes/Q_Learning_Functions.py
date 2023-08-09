@@ -274,7 +274,7 @@ class QLearning:
                 blocked_roads_str += '_' + str(block_road)
         else:
             blocked_roads_str = ''
-        filename = os.path.join(save_path, f'q_table_{src}_{dst}{blocked_roads_str}.pkl')
+        filename = os.path.join(save_path, f'q_table_{self.road_network.graph_name}_{src}_{dst}{blocked_roads_str}.pkl')
         with open(filename, 'wb') as f:
             pickle.dump(self.q_table, f)
 
@@ -298,7 +298,7 @@ class QLearning:
         else:
             blocked_roads_str = ''
 
-        filename = os.path.join(save_path, f'q_table_{src}_{dst}{blocked_roads_str}.pkl')
+        filename = os.path.join(save_path, f'q_table_{self.road_network.graph_name}_{src}_{dst}{blocked_roads_str}.pkl')
         try:
             with open(filename, 'rb') as f:
                 self.q_table = pickle.load(f)

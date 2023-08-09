@@ -214,7 +214,7 @@ class TrafficDictionary:
         cur = os.getcwd()
         parent = os.path.dirname(cur)
         data = os.path.join(parent, "Graphs")
-        graph = ox.load_graphml(data + '/TLV_with_eta.graphml')
+        graph = ox.load_graphml(data + '/TLV.graphml')
 
         # Plot the graph
         fig, ax = ox.plot_graph(graph, show=False, close=False, edge_color='lightgray', node_color='gray',
@@ -242,7 +242,7 @@ class TrafficDictionary:
 
 # g = ox.load_graphml(f'../Graphs/graphTLVFix.graphml')
 
-RN = Road_Network('/TLV_with_eta.graphml')
+RN = Road_Network('/TLV.graphml')
 g = RN.graph
 td = TrafficDictionary(g)
 # td.generate_day_data()
