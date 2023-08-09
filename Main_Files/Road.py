@@ -1,5 +1,7 @@
 import random
 
+import numpy as np
+
 from Main_Files import Node
 class Road:
     """
@@ -31,13 +33,14 @@ class Road:
 
     adjacent_roads (list): A list of IDs of adjacent roads to this road.
     """
-    def __init__(self, id:int , source_node:Node, destination_node:Node, length: int, max_speed: int, activate_traffic_lights: bool):
+    def __init__(self, id:int , source_node:Node, destination_node:Node, length: int, max_speed: int, type: str, activate_traffic_lights: bool):
 
         self.id= id
         self.source_node = source_node # class Node (id, osm_id, lat, lon, street_count, traffic_lights)
         self.destination_node = destination_node # class Node (id, osm_id, lat, lon, street_count, traffic_lights)
         self.length = length
 
+        self.type = type # "highway" or "street"
         self.max_speed = max_speed
         self.current_speed = 10
         self.road_speed_dict = {} # key: time (for example "08:00") , value: speed
@@ -84,7 +87,18 @@ class Road:
         Returns:
         float: The updated estimated time of arrival (ETA) in seconds.
         """
-        self.current_speed = self.road_speed_dict[current_time]
+        projected_speed = self.road_speed_dict[current_time]
+        mean = 0  # Mean of the normal distribution (adjust as needed)
+        if type == 'living_street' or type == 'residential' or type == 'unclassified':
+            std_dev = 1
+        else:
+            std_dev = 4  # Standard deviation of the normal distribution (adjust as needed)
+        noise = int(np.random.normal(mean, std_dev))
+        if noise < 0:
+            self.current_speed = max(projected_speed + noise, 1)
+        else:
+            self.current_speed = min(projected_speed + noise, self.max_speed)
+        # self.current_speed = self.road_speed_dict[current_time]
         eta = self.calculate_time()
         return eta
 

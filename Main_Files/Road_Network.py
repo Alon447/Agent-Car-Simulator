@@ -92,15 +92,22 @@ class Road_Network:
         Returns:
         None
         """
-        for edge in self.graph.edges:
+        for i,edge in enumerate(self.graph.edges):
+            # make new road
+            id = i
             start_node = self.get_node_from_osm_id(edge[0])
             end_node = self.get_node_from_osm_id(edge[1])
+            length = round(self.graph.edges[edge]['length'],2) # round to 2 decimal places
+            max_speed = int(self.graph.edges[edge]['maxspeed'])
+            type = self.graph.edges[edge]['highway']
 
-            new_road = Road.Road(int(self.graph.edges[edge]['edge_id']), start_node ,end_node,
-                                 self.graph.edges[edge]['length'], int(self.graph.edges[edge]['maxspeed']), activate_traffic_lights)
+            new_road = Road.Road(id, start_node ,end_node, length, max_speed,type, activate_traffic_lights)
+
             self.roads_array.append(new_road)
-            # self.road_dict[(new_road.source_node.id,new_road.destination_node.id)] = new_road.id
+
+            # update node_connectivity_dict
             start_node_id = start_node.id
+
             if start_node_id in self.node_connectivity_dict and isinstance(self.node_connectivity_dict[start_node_id], list):
                 self.node_connectivity_dict[start_node_id].append(new_road.destination_node.id)
             else:
