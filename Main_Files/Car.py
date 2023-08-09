@@ -63,8 +63,7 @@ class Car:
         self.past_roads = [] # a list of the roads the car has been on, and his entering time to each one
         self.past_nodes= [] # a list of the nodes the car has been on, and his entering time to each one
         self.distance_traveled = 0 # the distance the car has traveled so far
-        # self.source_road = None  # source road
-        # self.destination_road = None  # destination road
+
 
         # Time
         self.starting_time = starting_time # the time the car started its journey

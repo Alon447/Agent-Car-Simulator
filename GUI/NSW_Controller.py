@@ -1,5 +1,4 @@
 
-
 class NSW_Controller:
     def __init__(self, view, controller):
         self.view = view
