@@ -47,8 +47,9 @@ class Road_Network:
         self.nodes_array = [] # list of all the nodes in the graph
 
         self.node_connectivity_dict = {} # node id to list of connected nodes ids
-        self.blocked_roads_array = []
-        self.blocked_roads_dict = {} # key: road id, value: list of blocked times
+        self.blocked_roads_array = [] # currently used
+        self.blocked_roads_dict = {}# not used yet          # key: road id, value: list of blocked times
+
 
         # Initialize functions
         self.set_nodes_array()
@@ -180,6 +181,17 @@ class Road_Network:
         for road in self.roads_array:
             if len(road.adjacent_roads) == 0:
                 self.roads_array.remove(road)
+        return
+
+    def plan_road_blockage(self, road_id, start_time, end_time):
+        """
+        Plan a road blockage for a specific road.
+        :param road_id:
+        :param start_time:
+        :param end_time:
+        :return:
+        """
+        self.blocked_roads_dict[road_id] = [start_time, end_time]
         return
 
     def block_road(self,road_id):

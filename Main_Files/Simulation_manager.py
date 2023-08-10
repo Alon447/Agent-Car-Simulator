@@ -131,7 +131,6 @@ class Simulation_manager:
         self.simulation_datetime += pd.Timedelta(seconds=time)  # time
         self.simulation_update_times.append(self.simulation_datetime)
         self.day_int = self.simulation_datetime.weekday()  # 0-6, 0 - monday, 1 - tuesday, 2 - wednesday, 3 - thursday, 4 - friday, 5 - saturday, 6 - sunday
-        # time_difference = self.simulation_datetime - self.last_current_speed_update_time
         return
 
     def update_simulation_roads_speed_dict(self):
@@ -176,6 +175,22 @@ class Simulation_manager:
             self.road_network.update_roads_speeds(time_key) # updates the road speeds according to the current time
 
             print(self.simulation_datetime.strftime("%H:%M:%S"))
+        return
+
+    def update_block_roads(self):
+
+        copied_blocked_roads_dict = self.road_network.blocked_roads_dict.copy()
+
+        for key, value in copied_blocked_roads_dict.items():
+
+            road_id = key
+            start_time = value[0]
+            end_time = value[1]
+            if start_time <= self.simulation_datetime <= end_time and self.road_network.roads_array[road_id].is_blocked == False:
+                self.road_network.block_road(road_id)
+            elif self.simulation_datetime > end_time and self.road_network.roads_array[road_id].is_blocked == True:
+                self.road_network.unblock_road(road_id)
+
         return
 
     def read_road_speeds(self, datetime_obj: datetime.datetime):
@@ -238,7 +253,10 @@ class Simulation_manager:
             self.update_simulation_clocks(time)
             self.update_simulation_roads_speed_dict()
             self.update_simulation_roads_current_speeds()
+            self.update_block_roads()
             self.car_manager.update_cars(time, self.simulation_datetime)
+
+
             # print("simulation_time:", SM.simulation_time)
             # self.car_manager.show_cars_in_simulation()
 
@@ -396,3 +414,5 @@ class Simulation_manager:
         for node in route:
             osm_route.append(self.road_network.nodes_array[node].osm_id)
         return osm_route
+
+

@@ -13,9 +13,13 @@ class Animate_Simulation:
         self.animation = None
         self.animation_speed = self.choose_animation_speed(animation_speed)
         self.repeat = repeat
+        self.last_speed_update_time = None
 
     def choose_animation_speed(self, animation_speed):
-        intervals = {1: 1000, 2: 500, 4: 250, 10: 100, 30: 33,  100:10}
+        intervals = {1: 1000, 2: 500, 4: 250, 10: 100, 30: 33}
+
+        if animation_speed not in [1,2,4,10,30]:
+            return 1000
         return intervals[animation_speed]
     def print_simulation_results(self, SM):
         """
@@ -100,6 +104,10 @@ class Animate_Simulation:
         dest = []
         cars_ids = [car.id for car in cars]
         start_time = SM.simulation_datetime_start.strftime("%H:%M") # get the start time of the simulation in the format of HH:MM
+        blocked_roads = SM.road_network.blocked_roads_dict
+        for key, value in blocked_roads.items():
+            print(key, value)
+        # TODO: update this road according to the road blocked dictionary
         edge_colors = [
             'black' if road.is_blocked else
             'red' if road.road_speed_dict[start_time] < 25 else
@@ -171,31 +179,67 @@ class Animate_Simulation:
         """
         num_updates = len(SM.simulation_update_times)  # Get the number of simulation update times
         temp_dict = {id:j for j,id in enumerate(chosen_cars_ids)}
-        last_update_time = SM.simulation_update_times[0]
+        self.last_speed_update_time = SM.simulation_update_times[0]
+
+        # Create a flag to control animation pause/resume
+        self.is_paused = False
+
+        def on_key(event):
+            if event.key == ' ':
+                self.is_paused = not self.is_paused
+
+        # Connect the key press event to the on_key function
+        fig.canvas.mpl_connect('key_press_event', on_key)
+
         def animate(i):
+            if self.is_paused:
+                return  # Pause the animation if is_paused is True
+
             update_idx = i
 
             current_time = SM.simulation_update_times[update_idx]
-            # delta_time = current_time - last_update_time
+            delta_time = (current_time - self.last_speed_update_time).total_seconds()
+            # print(delta_time)
             for j, updates in enumerate(SM.car_manager.updated_dictionary[current_time]):
                 try:
-                    # if delta_time > datetime.timedelta(minutes=10):
-                    #     # last_update_time = current_time
-                    #     current_hour = current_time.strftime("%H:%M")
-                    #     edge_colors = [
-                    #         'white' if road.is_blocked else
-                    #         'red' if road.road_speed_dict[current_hour] < 25 else
-                    #         'orange' if road.road_speed_dict[current_hour] < 37 else
-                    #         'green'
-                    #         for road in SM.road_network.roads_array
-                    #     ]
-                    #     node_colors = [
-                    #         plt.cm.RdYlGn(node.traffic_lights) if node.traffic_lights else
-                    #         'lightgrey'
-                    #         for node in SM.road_network.nodes_array
-                    #     ]
-                    #     ox.plot_graph(SM.road_network.graph, figsize=(10, 10), show=False, close=False, edge_color=edge_colors,
-                    #                   node_color=node_colors, bgcolor='white', node_size=5,ax=ax)
+                    if delta_time < 0:
+                        self.last_speed_update_time = current_time
+                        current_hour = current_time.replace(minute = 0).strftime("%H:%M")
+                        edge_colors = [
+                            'black' if road.is_blocked else
+                            'red' if road.road_speed_dict[current_hour] < 25 else
+                            'orange' if road.road_speed_dict[current_hour] < 37 else
+                            'green'
+                            for road in SM.road_network.roads_array
+                        ]
+                        node_colors = [
+                            plt.cm.RdYlGn(node.traffic_lights) if node.traffic_lights else
+                            'lightgrey'
+                            for node in SM.road_network.nodes_array
+                        ]
+                        ox.plot_graph(
+                            SM.road_network.graph, figsize=(10, 10), show=False, close=False, edge_color=edge_colors,
+                            node_color=node_colors, bgcolor='white', node_size=5, ax=ax
+                            )
+
+                    if delta_time > 600:
+                        self.last_speed_update_time = current_time
+                        current_hour = current_time.replace(minute = 0).strftime("%H:%M")
+                        edge_colors = [
+                            'white' if road.is_blocked else
+                            'red' if road.road_speed_dict[current_hour] < 25 else
+                            'orange' if road.road_speed_dict[current_hour] < 37 else
+                            'green'
+                            for road in SM.road_network.roads_array
+                        ]
+                        node_colors = [
+                            plt.cm.RdYlGn(node.traffic_lights) if node.traffic_lights else
+                            'lightgrey'
+                            for node in SM.road_network.nodes_array
+                        ]
+                        ox.plot_graph(SM.road_network.graph, figsize=(10, 10), show=False, close=False, edge_color=edge_colors,
+                                      node_color=node_colors, bgcolor='white', node_size=5,ax=ax)
+
                     x_j, y_j = updates[1][0], updates[1][1]
                     scatter_list[temp_dict[updates[0]]].set_offsets(np.c_[x_j, y_j])
 
@@ -224,5 +268,5 @@ class Animate_Simulation:
             date_text.set_y(text_vertical_positions[0])
             time_text.set_y(text_vertical_positions[1])
 
-        self.animation = FuncAnimation(fig, animate, frames = num_updates, interval= self.animation_speed, repeat = self.repeat)
+        self.animation = FuncAnimation(fig, animate, frames = num_updates, interval = self.animation_speed, repeat = self.repeat)
         plt.show()

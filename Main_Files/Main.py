@@ -27,23 +27,23 @@ USE_ALREADY_GENERATED_Q_TABLE = True
 NUMBER_OF_SIMULATIONS = 1
 Rain_intensity = 0 # 0-3 (0 = no rain, 1 = light rain, 2 = moderate rain, 3 = heavy rain)
 REPEAT = True
-SIMULATION_SPEED = 30  # X30 faster than one second interval
+SIMULATION_SPEED = 4  # X30 faster than one second interval
 
 # Initialize Simulation Manager
 # SM = Simulation_manager.Simulation_manager('TLV_with_eta', 3 * DAY, TRAFFIC_LIGHTS, Rain_intensity, START_TIME1, SIMULATION_SPEEDS_JSON_NAME)
-SM = Simulation_manager.Simulation_manager('TLV', 3 * DAY, TRAFFIC_LIGHTS, Rain_intensity, START_TIME1, SIMULATION_SPEEDS_JSON_NAME)
+SM = Simulation_manager.Simulation_manager('TLV', 4 * DAY, TRAFFIC_LIGHTS, Rain_intensity, START_TIME1, SIMULATION_SPEEDS_JSON_NAME)
 CM = SM.car_manager
 RN = SM.road_network
 
 # Block roads
-RN.block_road(534)
-# RN.block_road(116)
-# RN.block_road(86)
-
+# RN.block_road(534)
+RN.plan_road_blockage(100, START_TIME1, START_TIME3)
+RN.plan_road_blockage(555, START_TIME1, START_TIME3)
+RN.plan_road_blockage(1000, START_TIME1, START_TIME3)
 # Initialize cars
 cars = []
-cars.append(Car.Car(1, 15, 410, START_TIME1, RN, route_algorithm="q", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
-cars.append(Car.Car(3, 15, 510, START_TIME1, RN, route_algorithm="sp"))
+cars.append(Car.Car(1, 10, 400, START_TIME1, RN, route_algorithm="q", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
+cars.append(Car.Car(3, 10, 400, START_TIME4, RN, route_algorithm="sp"))
 
 # Run simulations
 SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS)

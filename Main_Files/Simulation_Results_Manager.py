@@ -5,6 +5,7 @@ class Simulation_Results_Manager:
     Manages saving and reading simulation results to/from a JSON file.
 
     Attributes:
+    graph_name (str): name of the graphml file.
     simulation_results (list): List of simulation result dictionaries.
 
     Methods:
