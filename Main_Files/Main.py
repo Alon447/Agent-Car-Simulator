@@ -21,29 +21,37 @@ HOUR = 3600
 MINUTE = 60
 
 # Simulation parameters
-SIMULATION_SPEEDS_JSON_NAME = "simulation_speeds.json"
-TRAFFIC_LIGHTS = True
-USE_ALREADY_GENERATED_Q_TABLE = True
 NUMBER_OF_SIMULATIONS = 1
+TRAFFIC_LIGHTS = False
+ADD_TRAFFIC_WHITE_NOISE = False
 Rain_intensity = 0 # 0-3 (0 = no rain, 1 = light rain, 2 = moderate rain, 3 = heavy rain)
+
+
+# Q-Learning parameters
+USE_ALREADY_GENERATED_Q_TABLE = True
+
+# Animation parameters
+ANIMATE_SIMULATION = True
 REPEAT = True
 SIMULATION_SPEED = 4  # X30 faster than one second interval
 
 # Initialize Simulation Manager
-# SM = Simulation_manager.Simulation_manager('TLV_with_eta', 3 * DAY, TRAFFIC_LIGHTS, Rain_intensity, START_TIME1, SIMULATION_SPEEDS_JSON_NAME)
-SM = Simulation_manager.Simulation_manager('TLV', 4 * DAY, TRAFFIC_LIGHTS, Rain_intensity, START_TIME1, SIMULATION_SPEEDS_JSON_NAME)
+SM = Simulation_manager.Simulation_manager('TLV', 1 * HOUR, TRAFFIC_LIGHTS, Rain_intensity, ADD_TRAFFIC_WHITE_NOISE, START_TIME1)
 CM = SM.car_manager
 RN = SM.road_network
 
 # Block roads
 # RN.block_road(534)
-RN.plan_road_blockage(100, START_TIME1, START_TIME3)
-RN.plan_road_blockage(555, START_TIME1, START_TIME3)
-RN.plan_road_blockage(1000, START_TIME1, START_TIME3)
+RN.plan_road_blockage(168, START_TIME1, START_TIME4)
+RN.plan_road_blockage(181, START_TIME1, START_TIME3)
+RN.plan_road_blockage(182, START_TIME1, START_TIME3)
+RN.plan_road_blockage(912, START_TIME1, START_TIME3)
+RN.plan_road_blockage(382, START_TIME1, START_TIME3)
+# RN.plan_road_blockage(1522, START_TIME1, START_TIME3)
 # Initialize cars
 cars = []
-cars.append(Car.Car(1, 10, 400, START_TIME1, RN, route_algorithm="q", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
-cars.append(Car.Car(3, 10, 400, START_TIME4, RN, route_algorithm="sp"))
+cars.append(Car.Car(1, 39, 507, START_TIME1, RN, route_algorithm="q", use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE))
+cars.append(Car.Car(3, 39, 507, START_TIME1, RN, route_algorithm="sp"))
 
 # Run simulations
 SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS)
@@ -53,7 +61,8 @@ routes = SM.get_simulation_routes(cars, 0)
 ASS = AS.Animate_Simulation(animation_speed=SIMULATION_SPEED, repeat=REPEAT)
 
 # Plot and display simulation results
-ASS.plotting_custom_route(SM, routes, cars)
+if ANIMATE_SIMULATION:
+    ASS.plotting_custom_route(SM, routes, cars)
 # AS.car_times_bar_chart(SM, 4)
 # AS.car_times_bar_chart(SM, 1)
 # AS.car_times_bar_chart(SM, 3)

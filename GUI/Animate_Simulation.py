@@ -105,16 +105,25 @@ class Animate_Simulation:
         cars_ids = [car.id for car in cars]
         start_time = SM.simulation_datetime_start.strftime("%H:%M") # get the start time of the simulation in the format of HH:MM
         blocked_roads = SM.road_network.blocked_roads_dict
-        for key, value in blocked_roads.items():
-            print(key, value)
+
         # TODO: update this road according to the road blocked dictionary
-        edge_colors = [
-            'black' if road.is_blocked else
-            'red' if road.road_speed_dict[start_time] < 25 else
-            'orange' if road.road_speed_dict[start_time] < 37 else
-            'green'
-            for road in RN.roads_array
-        ]
+        edge_colors = []
+        for road in RN.roads_array:
+            if road.id in blocked_roads.keys():
+                # check if the road is blocked at the start time of the simulation
+                blocking_start_time = blocked_roads[road.id][0]
+                blocking_end_time = blocked_roads[road.id][1]
+                if blocking_start_time <= SM.simulation_datetime_start <= blocking_end_time:
+                    # if the road is blocked at the start time of the simulation, color it black
+                    edge_colors.append('black')
+                    continue
+
+            if road.road_speed_dict[start_time]< 25:
+                edge_colors.append('red')
+            elif road.road_speed_dict[start_time]< 37:
+                edge_colors.append('orange')
+            else:
+                edge_colors.append('green')
 
         node_colors = [
             plt.cm.RdYlGn(node.traffic_lights) if node.traffic_lights else
@@ -159,15 +168,12 @@ class Animate_Simulation:
         # Plot the custom route
         # ox.plot_graph_routes(graph, new_routes, route_colors=rc, route_linewidth=6,  node_size=0, bgcolor='k',ax=ax)
 
-        # Show the plot
-        # plt.show()
-        # return
 
-        self.animate_route(SM, ax, fig, scatter_list, cars_ids)
+        self.animate_route(SM, ax, fig, scatter_list, cars_ids, new_routes)
         return
 
 
-    def animate_route(self, SM, ax, fig, scatter_list, chosen_cars_ids):
+    def animate_route(self, SM, ax, fig, scatter_list, chosen_cars_ids, new_routes):
         """
         This function animates the route of a car on the map.
         :param SM: Simulation_Manager object
@@ -194,51 +200,117 @@ class Animate_Simulation:
         def animate(i):
             if self.is_paused:
                 return  # Pause the animation if is_paused is True
-
             update_idx = i
-
+            RN = SM.road_network
             current_time = SM.simulation_update_times[update_idx]
             delta_time = (current_time - self.last_speed_update_time).total_seconds()
             # print(delta_time)
             for j, updates in enumerate(SM.car_manager.updated_dictionary[current_time]):
                 try:
+                    blocked_roads = SM.road_network.blocked_roads_dict
                     if delta_time < 0:
                         self.last_speed_update_time = current_time
                         current_hour = current_time.replace(minute = 0).strftime("%H:%M")
-                        edge_colors = [
-                            'black' if road.is_blocked else
-                            'red' if road.road_speed_dict[current_hour] < 25 else
-                            'orange' if road.road_speed_dict[current_hour] < 37 else
-                            'green'
-                            for road in SM.road_network.roads_array
-                        ]
+                        edge_colors = []
+                        for road in RN.roads_array:
+                            if road.id in blocked_roads.keys():
+                                # check if the road is blocked at the start time of the simulation
+                                blocking_start_time = blocked_roads[road.id][0]
+                                blocking_end_time = blocked_roads[road.id][1]
+                                if blocking_start_time <= current_time <= blocking_end_time:
+                                    # if the road is blocked at the start time of the simulation, color it black
+                                    edge_colors.append('black')
+                                    pass
+
+                            if road.road_speed_dict[current_hour] < 25:
+                                edge_colors.append('red')
+                            elif road.road_speed_dict[current_hour] < 37:
+                                edge_colors.append('orange')
+                            else:
+                                edge_colors.append('green')
                         node_colors = [
                             plt.cm.RdYlGn(node.traffic_lights) if node.traffic_lights else
                             'lightgrey'
                             for node in SM.road_network.nodes_array
                         ]
+                        orig = []
+                        dest = []
+                        for route in new_routes:
+                            origin_x, origin_y = RN.get_xy_from_osm_id(route[0])
+                            geometry_data = [(origin_y, origin_x)]
+                            gdf = gpd.GeoDataFrame(
+                                geometry=[Point(lon, lat) for lat, lon in geometry_data], crs='epsg:4326'
+                            )
+                            orig.append(gdf)
+                            print(orig)
+                            dest_x, dest_y = RN.get_xy_from_osm_id(route[-1])
+                            geometry_data = [(dest_y, dest_x)]
+                            gdf = gpd.GeoDataFrame(
+                                geometry=[Point(lon, lat) for lat, lon in geometry_data], crs='epsg:4326'
+                            )
+                            dest.append(gdf)
                         ox.plot_graph(
                             SM.road_network.graph, figsize=(10, 10), show=False, close=False, edge_color=edge_colors,
                             node_color=node_colors, bgcolor='white', node_size=5, ax=ax
                             )
 
+                        for i in range(len(new_routes)):
+                            if i == 0:
+                                orig[i].plot(ax=ax, color='black', label=f'Origin')
+                                dest[i].plot(ax=ax, color='yellow', label=f'Destination')
+                            orig[i].plot(ax=ax, color='black')
+                            dest[i].plot(ax=ax, color='yellow')
+
                     if delta_time > 600:
                         self.last_speed_update_time = current_time
-                        current_hour = current_time.replace(minute = 0).strftime("%H:%M")
-                        edge_colors = [
-                            'white' if road.is_blocked else
-                            'red' if road.road_speed_dict[current_hour] < 25 else
-                            'orange' if road.road_speed_dict[current_hour] < 37 else
-                            'green'
-                            for road in SM.road_network.roads_array
-                        ]
+                        current_hour = current_time.replace(minute=0).strftime("%H:%M")
+                        edge_colors = []
+                        for road in RN.roads_array:
+                            if road.id in blocked_roads.keys():
+                                # check if the road is blocked at the start time of the simulation
+                                blocking_start_time = blocked_roads[road.id][0]
+                                blocking_end_time = blocked_roads[road.id][1]
+                                if blocking_start_time <= current_time <= blocking_end_time:
+                                    # if the road is blocked at the start time of the simulation, color it black
+                                    edge_colors.append('black')
+                                    pass
+
+                            if road.road_speed_dict[current_hour] < 25:
+                                edge_colors.append('red')
+                            elif road.road_speed_dict[current_hour] < 37:
+                                edge_colors.append('orange')
+                            else:
+                                edge_colors.append('green')
                         node_colors = [
                             plt.cm.RdYlGn(node.traffic_lights) if node.traffic_lights else
                             'lightgrey'
                             for node in SM.road_network.nodes_array
                         ]
+                        orig = []
+                        dest = []
+                        for route in new_routes:
+                            origin_x, origin_y = RN.get_xy_from_osm_id(route[0])
+                            geometry_data = [(origin_y, origin_x)]
+                            gdf = gpd.GeoDataFrame(
+                                geometry=[Point(lon, lat) for lat, lon in geometry_data], crs='epsg:4326'
+                            )
+                            orig.append(gdf)
+                            print(orig)
+                            dest_x, dest_y = RN.get_xy_from_osm_id(route[-1])
+                            geometry_data = [(dest_y, dest_x)]
+                            gdf = gpd.GeoDataFrame(
+                                geometry=[Point(lon, lat) for lat, lon in geometry_data], crs='epsg:4326'
+                            )
+                            dest.append(gdf)
                         ox.plot_graph(SM.road_network.graph, figsize=(10, 10), show=False, close=False, edge_color=edge_colors,
                                       node_color=node_colors, bgcolor='white', node_size=5,ax=ax)
+
+                        for i in range(len(new_routes)):
+                            if i == 0:
+                                orig[i].plot(ax=ax, color='black', label=f'Origin')
+                                dest[i].plot(ax=ax, color='yellow', label=f'Destination')
+                            orig[i].plot(ax=ax, color='black')
+                            dest[i].plot(ax=ax, color='yellow')
 
                     x_j, y_j = updates[1][0], updates[1][1]
                     scatter_list[temp_dict[updates[0]]].set_offsets(np.c_[x_j, y_j])

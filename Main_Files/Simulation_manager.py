@@ -40,7 +40,7 @@ class Simulation_manager:
     simulation_results (list): List of dictionaries containing simulation results.
     """
 
-    def __init__(self, graph_name, time_limit: int, activate_traffic_lights = False, rain_intensity = 0,
+    def __init__(self, graph_name, time_limit: int, activate_traffic_lights = False, rain_intensity = 0, traffic_white_noise = True,
                  start_time = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0,second=0), speeds_file_path = "simulation_speeds.json"):
         """
         Initialize the Simulation_manager.
@@ -53,7 +53,7 @@ class Simulation_manager:
         """
         # MANAGERS
         self.graph_name = graph_name
-        self.road_network = Road_Network.Road_Network(graph_name, activate_traffic_lights, rain_intensity)
+        self.road_network = Road_Network.Road_Network(graph_name, activate_traffic_lights, rain_intensity, traffic_white_noise)
         self.car_manager = Car_manager.CarManager()
 
         # TIME
@@ -70,51 +70,9 @@ class Simulation_manager:
         self.simulation_update_times = []  # list of times the simulation was updated for the animation
 
         # DATA
-        self.speeds_file_path = speeds_file_path
+        self.speeds_file_path = None
         # FUNCTIONS - read speeds
         self.read_road_speeds(self.simulation_datetime_start)
-
-    # FUNCTIONS - block/unblock roads
-
-    # def block_road(self, road_id):
-    #     """
-    #     Block a road in the road network.
-    #
-    #     Args:
-    #     road_id (int): The ID of the road to be blocked.
-    #
-    #     Returns:
-    #     None
-    #     """
-    #     self.road_network.block_road(road_id)
-    #     print("Road", road_id, "blocked")
-    #     return
-    #
-    # def unblock_road(self, road_id):
-    #     """
-    #     Unblock a previously blocked road.
-    #
-    #     Args:
-    #     road_id (int): The ID of the road to be unblocked.
-    #
-    #     Returns:
-    #     None
-    #     """
-    #     self.road_network.unblock_road(road_id)
-    #     print("Road", road_id, "unblocked")
-    #     return
-    #
-    # def unblock_all_roads(self):
-    #     """
-    #     Unblock all roads in the road network.
-    #
-    #     Returns:
-    #     None
-    #     """
-    #     self.road_network.unblock_all_roads()
-    #     print("All roads unblocked")
-    #     return
-
 
     def update_simulation_clocks(self, time: int):
         """
@@ -233,6 +191,7 @@ class Simulation_manager:
 
         self.simulation_time = datetime.timedelta(seconds=0)  # in seconds
         self.simulation_datetime = self.simulation_datetime_start
+        self.update_block_roads()
 
         self.car_manager.clear()
         for car in cars:

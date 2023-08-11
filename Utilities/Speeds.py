@@ -152,10 +152,24 @@ def generate_day_data(graph, city_name):
         json.dump(data, outfile, indent=4)
     return
 
-def get_attr(data, name, type):
-    val = data.get(name)
-    if isinstance(name, list):
-        val = type(val[0])  # Use the first element of the list
-    else:
-        val = type(val)
-    return val
+
+def color_edges_by_speed(SM, start_time, blocked_roads):
+    edge_colors = []
+    RN = SM.road_network
+    for road in RN.roads_array:
+        if road.id in blocked_roads.keys():
+            # check if the road is blocked at the start time of the simulation
+            blocking_start_time = blocked_roads[road.id][0]
+            blocking_end_time = blocked_roads[road.id][1]
+            if blocking_start_time <= SM.simulation_datetime_start <= blocking_end_time:
+                # if the road is blocked at the start time of the simulation, color it black
+                edge_colors.append('black')
+                pass
+
+        if road.road_speed_dict[start_time] < 25:
+            edge_colors.append('red')
+        elif road.road_speed_dict[start_time] < 37:
+            edge_colors.append('orange')
+        else:
+            edge_colors.append('green')
+    return edge_colors

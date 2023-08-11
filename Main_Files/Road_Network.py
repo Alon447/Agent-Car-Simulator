@@ -30,7 +30,7 @@ class Road_Network:
 
     """
 
-    def __init__(self, graph_path, activate_traffic_lights = False, rain_intensity = 0):
+    def __init__(self, graph_path, activate_traffic_lights = False, rain_intensity = 0, traffic_white_noise = True):
 
         # Graph
         self.graph_name = graph_path
@@ -57,14 +57,12 @@ class Road_Network:
         self.set_adjacency_roads()
         self.create_graph()
 
-        # for shortest path
+        # Shortest path
         self.next_node_matrix = [[-1] * len(self.nodes_array) for _ in range(len(self.nodes_array))] # cache for the distance matrix, saves the next node in the shortest path
         self.distances_matrix = [[-1] * len(self.nodes_array) for _ in range(len(self.nodes_array))] # cache for the distance matrix, saves the shortest distance between two nodes
 
-        # self.update_eta()
-        # for q learning
-        self.shortest_time_matrix = [[-1] * len(self.nodes_array) for _ in range(len(self.nodes_array))] # cache for the shortest time matrix, saves the shortest time between two nodes
-    # Functions:
+        # Flags
+        self.traffic_white_noise = traffic_white_noise
 
     def set_nodes_array(self):
         """
@@ -272,7 +270,7 @@ class Road_Network:
         for road in self.roads_array:
             road_id = road.id
             road.update_road_speed_dict(roads_speeds[str(road_id)]) # update the road's speed dict
-            new_eta = road.update_speed(current_time) # update the road's current speed
+            new_eta = road.update_speed(current_time, self.traffic_white_noise) # update the road's current speed
             src = road.source_node.id
             dest = road.destination_node.id
             self.nx_graph.edges[src, dest, 0]['current_speed'] = road.current_speed
@@ -289,7 +287,7 @@ class Road_Network:
         None
         """
         for road in self.roads_array:
-            new_eta = road.update_speed(current_time)
+            new_eta = road.update_speed(current_time, self.traffic_white_noise)
             src = road.source_node.id
             dest = road.destination_node.id
             block = road.is_blocked

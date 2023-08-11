@@ -49,6 +49,9 @@ class Road:
         self.road_speed_dict = {}  # key: time (for example "08:00"), value: speed
         self.eta_dict = {}  # key: time (for example "08:00"), value: eta
 
+        # Past Information
+        self.past_speeds = {}
+
         # Flags
         self.activate_traffic_lights = activate_traffic_lights
         self.rain_intensity = rain_intensity
@@ -85,7 +88,7 @@ class Road:
         self.estimated_time = round(total_time, 2)
         return self.estimated_time
 
-    def update_speed(self, current_time: str):
+    def update_speed(self, current_time: str, traffic_white_noise: bool = True):
         """
         Update the current speed of the road based on the provided time and recalculate ETA.
 
@@ -96,18 +99,18 @@ class Road:
         float: The updated estimated time of arrival (ETA) in seconds.
         """
         projected_speed = self.road_speed_dict[current_time]
-
-        # add noise to the speed
-        mean = 0  # Mean of the normal distribution (adjust as needed)
-        if type == 'living_street' or type == 'residential' or type == 'unclassified':
-            std_dev = 1
-        else:
-            std_dev = 4  # Standard deviation of the normal distribution (adjust as needed)
-        noise = int(np.random.normal(mean, std_dev))
-        if noise < 0:
-            self.current_speed = max(projected_speed + noise, 1)
-        else:
-            self.current_speed = min(projected_speed + noise, self.max_speed)
+        if traffic_white_noise:
+            # add white noise to the speed
+            mean = 0  # Mean of the normal distribution (adjust as needed)
+            if type == 'living_street' or type == 'residential' or type == 'unclassified':
+                std_dev = 1
+            else:
+                std_dev = 4  # Standard deviation of the normal distribution (adjust as needed)
+            noise = int(np.random.normal(mean, std_dev))
+            if noise < 0:
+                projected_speed = max(projected_speed + noise, 1)
+            else:
+                projected_speed = min(projected_speed + noise, self.max_speed)
 
         # check if there is rain
         if self.rain_intensity == 0:
@@ -118,8 +121,8 @@ class Road:
             reduction_factor = 0.85  # Moderate rain, 15% reduction
         else: # self.rain_intensity == 3:
             reduction_factor = 0.70  # Heavy rain, 30% reduction
-        self.current_speed = max(int(self.current_speed * reduction_factor), 1)
 
+        self.current_speed = max(int(projected_speed * reduction_factor), 1)
         eta = self.calculate_time()
         return eta
 
