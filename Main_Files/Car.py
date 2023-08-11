@@ -47,8 +47,8 @@ class Car:
     route (Route): The route the car will take.
     """
 
-    def __init__(self, id: int, source_node: int, destination_node: int, starting_time: datetime,
-                 road_network: Road_Network, route_algorithm = 'random', use_existing_q_table = True):
+    def __init__(self, id: int, source_node: int, destination_node: int,  starting_time: datetime,
+                 road_network: Road_Network, route_algorithm = 'random', num_episodes = 2000, use_existing_q_table = True):
 
         # ID
         self.id = id # car id
@@ -76,9 +76,12 @@ class Car:
         self.car_in_destination = False # indicates if the car is in the destination node
         self.is_blocked = False # indicates if the car is blocked
         self.use_existing_q_table = use_existing_q_table
+
         # Route
+        self.num_episodes = num_episodes
         self.route_algorithm = route_algorithm # the algorithm the car will use to decide its route
         self.route = self.decide_route_algorithm(route_algorithm, source_node, destination_node) # the route the car will take
+
 
     # FUNCTIONS
     def decide_route_algorithm(self, route_algorithm: str, source_node: int, destination_node: int):
@@ -96,7 +99,7 @@ class Car:
         q_learning_names = [ "q learning", "Q learning", "Q Learning", "q Learning","q","Q"]
         shortest_path_names = ["shortest_path", "shortest path", "Shortest Path", "Shortest path", "shortest", "Shortest","SP","sp"]
         if route_algorithm in q_learning_names:
-           return Route.Q_Learning_Route(source_node, destination_node, self.road_network, self.starting_time, self.use_existing_q_table)
+           return Route.Q_Learning_Route(source_node, destination_node, self.road_network, self.starting_time, self.num_episodes, self.use_existing_q_table)
         elif route_algorithm in shortest_path_names:
             return Route.Shortest_path_route(source_node, destination_node, self.road_network)
         else:
@@ -208,12 +211,16 @@ class Car:
         time (float): The time interval.
 
         Returns:
-        None
+        total_travel_time (datetime.timedelta): The total travel time of the car.
         """
         # used when we fast-forward the simulation
         self.total_travel_time += datetime.timedelta(seconds=time)  # time
         self.time_until_next_road -= datetime.timedelta(seconds=time)  # time
-        return
+
+        # limit travel time to 3 hour
+        # if self.total_travel_time > datetime.timedelta(hours=3):
+
+        return self.total_travel_time
 
     def get_routing_algorithm(self):
         """

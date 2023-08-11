@@ -153,7 +153,14 @@ def generate_day_data(graph, city_name):
     return
 
 
-def color_edges_by_speed(SM, start_time, blocked_roads):
+def color_edges_by_speed(SM, current_time, blocked_roads):
+    """
+    Colors the edges of the graph according to the speed of the road at the current time
+    :param SM:
+    :param current_time:
+    :param blocked_roads:
+    :return:
+    """
     edge_colors = []
     RN = SM.road_network
     for road in RN.roads_array:
@@ -164,11 +171,11 @@ def color_edges_by_speed(SM, start_time, blocked_roads):
             if blocking_start_time <= SM.simulation_datetime_start <= blocking_end_time:
                 # if the road is blocked at the start time of the simulation, color it black
                 edge_colors.append('black')
-                pass
+                continue
 
-        if road.road_speed_dict[start_time] < 25:
+        if road.past_speeds[current_time] < 25:
             edge_colors.append('red')
-        elif road.road_speed_dict[start_time] < 37:
+        elif road.past_speeds[current_time] < 37:
             edge_colors.append('orange')
         else:
             edge_colors.append('green')

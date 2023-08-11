@@ -41,7 +41,7 @@ class Simulation_manager:
     """
 
     def __init__(self, graph_name, time_limit: int, activate_traffic_lights = False, rain_intensity = 0, traffic_white_noise = True,
-                 start_time = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0,second=0), speeds_file_path = "simulation_speeds.json"):
+                 start_time = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0,second=0)):
         """
         Initialize the Simulation_manager.
 
@@ -129,7 +129,8 @@ class Simulation_manager:
             minutes = int(self.simulation_datetime.minute / 10) * 10
             self.last_current_speed_update_time = self.simulation_datetime.replace(minute=minutes).replace(second=0).replace(microsecond=0)
 
-            time_key = self.simulation_datetime.replace(minute=minutes).strftime("%H:%M")
+            # time_key = self.simulation_datetime.replace(minute=minutes).strftime("%H:%M")
+            time_key = self.simulation_datetime.replace(minute=minutes)
             self.road_network.update_roads_speeds(time_key) # updates the road speeds according to the current time
 
             print(self.simulation_datetime.strftime("%H:%M:%S"))
@@ -173,11 +174,30 @@ class Simulation_manager:
         # round the minutes to the nearest 10
 
         minutes = int(datetime_obj.minute / 10) * 10
-        time_key = datetime_obj.replace(minute=minutes).strftime("%H:%M")
+        # time_key = datetime_obj.replace(minute=minutes).strftime("%H:%M")
+        time_key = datetime_obj.replace(minute=minutes)
         day_data = data.get(str(self.day_int), {})
         self.road_network.set_roads_speeds_from_dict(day_data, time_key)
         return
 
+    def update_road_blockage(self, road_id, start_time = None, end_time = None):
+        """
+        Update the road blockage in the road network.
+
+        Args:
+        road_id (int): The id of the road to be blocked.
+        start_time (datetime.datetime): The datetime the road is blocked.
+        end_time (datetime.datetime): The datetime the road is unblocked.
+
+        Returns:
+        None
+        """
+        if start_time is None:
+            start_time = self.simulation_datetime_start
+        if end_time is None:
+            end_time = self.simulation_datetime_start + datetime.timedelta(seconds = self.time_limit)
+        self.road_network.plan_road_blockage(road_id, start_time, end_time)
+        return
     def set_up_simulation(self, cars: list):
         """
         Set up the simulation by adding cars to the car manager.

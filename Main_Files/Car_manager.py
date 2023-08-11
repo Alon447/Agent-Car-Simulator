@@ -170,13 +170,25 @@ class CarManager:
         for key in self.cars_in_simulation:
             moved = True
             car = cars[key]
-            car.update_travel_time(timeStamp)
+            current_travel_time = car.update_travel_time(timeStamp)
+
+            # if the car travel time is longer than 3 hours, then force finish the car
+            if current_travel_time > datetime.timedelta(hours=3):
+                car.force_finish()
+                self.cars_stuck.append(car)
+                x, y = car.get_xy_destination()
+                self.add_update_to_dictionary(current_datetime, car.id, x, y, car.destination_node)
+                cars.pop(car.id)
+                moved = False
 
             if car.get_time_until_next_road() == 0:
+                # car is ready to move to the next road
                 result = car.move_next_road(timeStamp)  # result is the next road the car is on
+
+                # add update to list
                 x, y = car.get_xy_current()
                 self.add_update_to_dictionary(current_datetime, car.id, x, y, car.current_road.source_node.id)
-                # add update to list
+
                 if result is None:  # car is finished or stuck
                     cars.pop(car.id)
                     moved = False
@@ -198,7 +210,7 @@ class CarManager:
                     moved = False
             if moved == True and car.is_blocked:
                 car.is_blocked = False
-                blocked_cars.remove(car)  # TODO: check if needed
+                blocked_cars.remove(car)
                 cars[key] = car
                 moved = False
 

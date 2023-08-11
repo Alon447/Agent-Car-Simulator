@@ -218,7 +218,7 @@ class QLearning:
         else:
             # get the hour and minute of the current time
             current_time = self.simulation_time.replace(minute=0).strftime("%H:%M")
-            return min(-next_road.eta_dict[current_time]/10 + distance_delta.km,-1)
+            return min(-next_road.eta_dict[current_time]/7.5 + distance_delta.km,-1)
 
     def update_q_table(self, state, action, next_state, reward, eta):
         """
@@ -303,7 +303,7 @@ class QLearning:
 
 
     # functions for the Route class, gets src and dst instead of agent
-    def train_src_dst(self, src: int, dst: int, start_time: datetime, num_episodes: int,  max_steps_per_episode=100, epsilon_decay_rate=0.99, mean_rewards_interval=100, plot_results=True):
+    def train_src_dst(self, src: int, dst: int, start_time: datetime, num_episodes: int,  max_steps_per_episode=100, epsilon_decay_rate=0.9999, mean_rewards_interval=100, plot_results=True):
         """
         Train the Q-learning agent for a source-destination pair.
 
@@ -321,6 +321,7 @@ class QLearning:
         """
         print("*********************************************")
         print("          Training Started                   ")
+        print(f"Source: {src}, Destination: {dst}")
         print("*********************************************")
 
         # creating an agent and calculating the shortest path
@@ -354,12 +355,8 @@ class QLearning:
                     # agent is already on the road
                     state = agent.current_road.destination_node.id
 
-
                 action = self.choose_action(state)
                 next_road = self.get_next_road(state, action)
-                # id = next_road.id
-                # if next_road.is_blocked or (id in blocked_roads.keys() and blocked_roads[id][0] <= self.simulation_time <= blocked_roads[id][1]):
-                #     print("blocked road")
 
                 next_state = next_road.destination_node.id
                 # Calculate the rounded minutes
@@ -377,15 +374,10 @@ class QLearning:
 
                 path_roads.append(next_road.id)
                 path_nodes.append(next_road.destination_node.id)
-                # path_time = self.calculate_route_eta(node_route_to_osm_route(path_nodes, self.road_network), self.road_network)
-                # delta_time = path_time - shortest_path_time # positive if the agent is slower than the shortest path
 
                 total_episode_reward += reward
                 self.update_q_table(state, action, next_state, reward, eta)
-                # print("simulation time: ", self.simulation_time)
 
-
-                # if next_state == agent.dst:
                 if self.fininshed:
                     # print("agent reached destination")
                     break
@@ -396,7 +388,8 @@ class QLearning:
                 self.update_state(agent, next_road)
 
             self.rewards.append(total_episode_reward)
-            # Calculate mean reward after every 10 episodes
+
+            # Calculate mean reward after every {mean_rewards_interval} episodes
             mean_reward_sum += total_episode_reward
 
             if episode % mean_rewards_interval == 0:
@@ -406,9 +399,9 @@ class QLearning:
                 print("total episode reward: ", total_episode_reward)
                 mean_reward = mean_reward_sum / mean_rewards_interval
                 mean_rewards.append(mean_reward)
-                if mean_reward > 960:
-                    # print("mean reward: ", mean_reward)
-                    print("convrged after ", episode, " episodes")
+                # if mean_reward > 960:
+                #     # print("mean reward: ", mean_reward)
+                #     print("convrged after ", episode, " episodes")
                 mean_reward_sum = 0  # Reset the sum for the next 10 episodes
             self.blocked = False
             self.fininshed = False
@@ -425,7 +418,7 @@ class QLearning:
 
         # Plot mean rewards
         if plot_results:
-            self.plot_results(dst, all_training_paths_nodes, all_training_times, mean_rewards)
+            self.plot_results(src, dst, all_training_paths_nodes, all_training_times, mean_rewards)
         return self.q_table
 
     def test_src_dst(self, src: int, dst: int, start_time:datetime, max_steps_per_episode=100):
@@ -509,7 +502,7 @@ class QLearning:
         """
         return self.q_table
 
-    def car_times_bar_chart(self, dst, all_training_paths_nodes, all_training_times, ax=None):
+    def car_times_bar_chart(self, src, dst, all_training_paths_nodes, all_training_times, ax=None):
 
         if ax is None:
             ax = plt.gca()
@@ -526,7 +519,7 @@ class QLearning:
         # Add labels and title
         ax.set_xlabel('Simulation Number')
         ax.set_ylabel('Time taken [seconds] by Q Agent')
-        ax.set_title('Bar Chart: Times of Q Agent in Simulation')
+        ax.set_title('Bar Chart: Times of Q Agent in Simulation, Source: {}, Destination: {}'.format(src, dst))
         legend_labels = ['Reached Destination', 'Not Reached Destination']
         legend_colors = ['green', 'red']
         legend_patches = [mpatches.Patch(color=color, label=label) for color, label in
@@ -534,7 +527,7 @@ class QLearning:
 
         ax.legend(handles=legend_patches, title='Legend', loc='upper right')
 
-    def plot_rewards(self, var:list, ax=None):
+    def plot_rewards(self, src, dst, var:list, ax=None):
         """
         Plot the mean rewards over training episodes.
 
@@ -550,13 +543,13 @@ class QLearning:
         ax.plot(range(1, len(var) + 1), var)
         ax.set_xlabel('Interval (Every 100 Episodes)')
         ax.set_ylabel('Mean Episode Reward')
-        ax.set_title('Mean Rewards over Training')
+        ax.set_title('Mean Rewards over Training, Source: {}, Destination: {}'.format(src, dst))
 
-    def plot_results(self, dst, all_training_paths_nodes, all_training_times, mean_rewards):
+    def plot_results(self, src, dst, all_training_paths_nodes, all_training_times, mean_rewards):
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 10))  # Create a 2-row, 1-column subplot layout
 
-        self.car_times_bar_chart(dst, all_training_paths_nodes, all_training_times, ax1)
-        self.plot_rewards(mean_rewards, ax2)
+        self.car_times_bar_chart(src, dst, all_training_paths_nodes, all_training_times, ax1)
+        self.plot_rewards(src, dst, mean_rewards, ax2)
 
         plt.tight_layout()  # Adjust layout for better spacing
         plt.show()

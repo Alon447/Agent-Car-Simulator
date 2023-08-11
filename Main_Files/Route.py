@@ -64,10 +64,12 @@ class Random_route(Route):
         self.current_node = src_node
 
     def decide_first_road(self):
-        for road in self.road_network.roads_array:
-            if road.source_node[0] == self.src_node:
-                self.current_node = road.destination_node.id
-                return road
+        connectivity_list = self.road_network.node_connectivity_dict[self.src_node]
+        choice = random.randint(0, len(connectivity_list) - 1)
+        next_node = connectivity_list[choice]
+        next_road = self.road_network.get_road_from_src_dst(self.src_node, next_node)
+        self.current_node = next_node
+        return next_road
 
     def get_next_road(self):
 
@@ -99,7 +101,7 @@ class Random_route(Route):
         return None
 
 class Q_Learning_Route(Route):
-    def __init__(self, src_node: int, dst_node: int, road_network: Road_Network, start_time: datetime.datetime, use_q_table: bool = False):
+    def __init__(self, src_node: int, dst_node: int, road_network: Road_Network, start_time: datetime.datetime,num_episodes = 2000, use_q_table: bool = False):
 
         # src and dst dosent change during the run
         self.src_node = src_node
@@ -110,8 +112,8 @@ class Q_Learning_Route(Route):
         self.road_network = road_network
         self.agent = QLearning(road_network, learning_rate=0.1, discount_factor=0.9, epsilon=0.2)
 
-        num_episodes = 2000
-        max_steps_per_episode = 100
+        # num_episodes = 2000
+        max_steps_per_episode = 125
         full_tables_path = self.get_tables_directory(r"Q Tables Data")
         if use_q_table and self.agent.load_q_table(self.src_node, self.dst_node, full_tables_path):
             self.q_table = self.agent.get_q_table()

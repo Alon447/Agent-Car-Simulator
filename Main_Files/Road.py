@@ -1,3 +1,4 @@
+import datetime
 import random
 
 import numpy as np
@@ -88,7 +89,7 @@ class Road:
         self.estimated_time = round(total_time, 2)
         return self.estimated_time
 
-    def update_speed(self, current_time: str, traffic_white_noise: bool = True):
+    def update_speed(self, current_time: datetime, traffic_white_noise: bool = True):
         """
         Update the current speed of the road based on the provided time and recalculate ETA.
 
@@ -98,7 +99,8 @@ class Road:
         Returns:
         float: The updated estimated time of arrival (ETA) in seconds.
         """
-        projected_speed = self.road_speed_dict[current_time]
+        current_hour_and_minute = current_time.strftime("%H:%M")
+        projected_speed = self.road_speed_dict[current_hour_and_minute]
         if traffic_white_noise:
             # add white noise to the speed
             mean = 0  # Mean of the normal distribution (adjust as needed)
@@ -123,6 +125,7 @@ class Road:
             reduction_factor = 0.70  # Heavy rain, 30% reduction
 
         self.current_speed = max(int(projected_speed * reduction_factor), 1)
+        self.past_speeds[current_time.replace(second=0)] = self.current_speed
         eta = self.calculate_time()
         return eta
 

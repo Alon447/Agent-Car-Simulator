@@ -47,8 +47,8 @@ class Road_Network:
         self.nodes_array = [] # list of all the nodes in the graph
 
         self.node_connectivity_dict = {} # node id to list of connected nodes ids
-        self.blocked_roads_array = [] # currently used
-        self.blocked_roads_dict = {}# not used yet          # key: road id, value: list of blocked times
+        self.blocked_roads_array = []
+        self.blocked_roads_dict = {}  # key: road id, value: list of blocked times
 
 
         # Initialize functions
@@ -169,17 +169,6 @@ class Road_Network:
                 if dest_node == src_node:
                     edge1.adjacent_roads.append(edge2)
         return
-    def remove_blocked_roads(self):
-        """
-        Remove roads from roads_array that have no adjacent roads.
-
-        Returns:
-        None
-        """
-        for road in self.roads_array:
-            if len(road.adjacent_roads) == 0:
-                self.roads_array.remove(road)
-        return
 
     def plan_road_blockage(self, road_id, start_time, end_time):
         """
@@ -255,13 +244,13 @@ class Road_Network:
             self.unblock_road(road)
         return
 
-    def set_roads_speeds_from_dict(self, roads_speeds:dict, current_time:str):
+    def set_roads_speeds_from_dict(self, roads_speeds:dict, current_time:datetime):
         """
         Update road speeds based on the provided speeds dictionary and current time.
 
         Args:
         roads_speeds (dict): Dictionary of road_id: speed for different times of the day.
-        current_time (str): Current time in the simulation.
+        current_time (datetime): Current time in the simulation.
         activate_traffic_lights (bool): Whether to activate traffic lights for roads.
 
         Returns:
@@ -276,12 +265,13 @@ class Road_Network:
             self.nx_graph.edges[src, dest, 0]['current_speed'] = road.current_speed
             self.nx_graph.edges[src, dest, 0]['eta'] = new_eta
         return
-    def update_roads_speeds(self, current_time:str):
+
+    def update_roads_speeds(self, current_time:datetime):
         """
         Update road speeds based on the current time.
 
         Args:
-        current_time (str): Current time in the simulation.
+        current_time (datetime): Current time in the simulation.
 
         Returns:
         None
