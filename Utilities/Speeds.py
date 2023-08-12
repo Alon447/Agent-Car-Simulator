@@ -21,8 +21,8 @@ mean_mapping = {  # [ no traffic, low traffic, medium traffic, high traffic]
     'trunk': [87, 72, 50, 40],
     'primary': [87, 72, 50, 40],
     'secondary': [67, 60, 50, 30],
-    'tertiary': [47.5, 40, 30, 25],
-    'residential': [47.5, 40, 30, 25],
+    'tertiary': [45, 37, 30, 25],
+    'residential': [45, 37, 30, 25],
     'living_street': [29, 27, 25, 22],
     'unclassified': [29, 27, 25, 22]
 }
@@ -163,6 +163,10 @@ def color_edges_by_speed(SM, current_time, blocked_roads):
     """
     edge_colors = []
     RN = SM.road_network
+
+    # we need to make sure that the minutes are rounded to the nearest 10
+    rounded_minutes = current_time.minute - (current_time.minute % 10)
+    current_time = current_time.replace(minute=rounded_minutes, second=0, microsecond=0)
     for road in RN.roads_array:
         if road.id in blocked_roads.keys():
             # check if the road is blocked at the start time of the simulation

@@ -140,7 +140,9 @@ class Car:
 
         # else move to next road
         next_road = self.route.get_next_road()  # gets a road object
-        if next_road.is_blocked:
+        # print("next road: ", next_road)
+
+        if next_road is None or next_road.is_blocked:
             next_road = self.route.get_alt_road()
             if next_road is None:  # all roads are blocked
                 self.is_blocked = True

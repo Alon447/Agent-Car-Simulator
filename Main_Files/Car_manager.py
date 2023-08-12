@@ -168,20 +168,18 @@ class CarManager:
         cars = self.cars_in_simulation.copy()
         blocked_cars = self.cars_blocked.copy()
         for key in self.cars_in_simulation:
-            moved = True
             car = cars[key]
             current_travel_time = car.update_travel_time(timeStamp)
 
             # if the car travel time is longer than 3 hours, then force finish the car
-            if current_travel_time > datetime.timedelta(hours=3):
+            if current_travel_time > datetime.timedelta(hours=2):
                 car.force_finish()
                 self.cars_stuck.append(car)
                 x, y = car.get_xy_destination()
                 self.add_update_to_dictionary(current_datetime, car.id, x, y, car.destination_node)
                 cars.pop(car.id)
-                moved = False
 
-            if car.get_time_until_next_road() == 0:
+            elif car.get_time_until_next_road() == 0:
                 # car is ready to move to the next road
                 result = car.move_next_road(timeStamp)  # result is the next road the car is on
 
@@ -191,7 +189,6 @@ class CarManager:
 
                 if result is None:  # car is finished or stuck
                     cars.pop(car.id)
-                    moved = False
 
                     if car.car_in_destination:
                         print("car", car.id, "finished his journey")
@@ -207,12 +204,7 @@ class CarManager:
                     self.cars_blocked.append(car)
                     car.is_blocked = True
                     blocked_cars.append(car)
-                    moved = False
-            if moved == True and car.is_blocked:
-                car.is_blocked = False
-                blocked_cars.remove(car)
-                cars[key] = car
-                moved = False
+
 
         # after we updated all the cars, we need to handle the waiting cars
         copy_waiting_cars = self.cars_waiting_to_enter.copy()

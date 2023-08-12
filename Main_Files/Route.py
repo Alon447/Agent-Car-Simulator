@@ -72,21 +72,13 @@ class Random_route(Route):
         return next_road
 
     def get_next_road(self):
-
-        adjacency_list = self.road_network.node_connectivity_dict[self.current_node] # list of all the adjacent nodes ids
-        choice = random.randint(0, len(adjacency_list) - 1)
-        next_node = adjacency_list[choice]
+        connectivity_list = self.road_network.node_connectivity_dict[self.current_node]
+        # adjacency_list = self.road_network.node_connectivity_dict[self.current_node] # list of all the adjacent nodes ids
+        choice = random.randint(0, len(connectivity_list) - 1)
+        next_node = connectivity_list[choice]
         next_road = self.road_network.get_road_from_src_dst(self.current_node, next_node)
-        count=0
-        while len(next_road.adjacent_roads) == 0:
-            choice = random.randint(0, len(adjacency_list) - 1)
-            next_node = adjacency_list[choice]
-            next_road = self.road_network.get_road_from_src_dst(self.current_node, next_node)
-            count+=1
-
-            if count>5: # case of no adjacent roads
-                print("no adjacent roads")
-                return None
+        if not next_road.adjacent_roads:
+            return None
 
         self.current_node = next_node
         return next_road
@@ -95,7 +87,7 @@ class Random_route(Route):
         adjacency_list = self.road_network.node_connectivity_dict[self.current_node] # list of all the adjacent nodes ids
         for next_node in adjacency_list:
             road = self.road_network.get_road_from_src_dst(self.current_node, next_node)
-            if not road.is_blocked:
+            if not road.is_blocked and road.adjacent_roads:
                 self.current_node = next_node
                 return road
         return None
@@ -113,7 +105,7 @@ class Q_Learning_Route(Route):
         self.agent = QLearning(road_network, learning_rate=0.1, discount_factor=0.9, epsilon=0.2)
 
         # num_episodes = 2000
-        max_steps_per_episode = 125
+        max_steps_per_episode = 100
         full_tables_path = self.get_tables_directory(r"Q Tables Data")
         if use_q_table and self.agent.load_q_table(self.src_node, self.dst_node, full_tables_path):
             self.q_table = self.agent.get_q_table()

@@ -4,12 +4,11 @@ from Main_Files import Car
 from Main_Files.Simulation_Results_Manager import Simulation_Results_Manager
 import Simulation_manager
 import GUI.Animate_Simulation as AS
-
-
+from Utilities.Getters import get_random_src_dst
 
 # initilazires
 START_TIME1 = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0, second=0)
-START_TIME2 = datetime.datetime(year=2023, month=6, day=29, hour=9, minute=0, second=0)
+START_TIME2 = datetime.datetime(year=2023, month=6, day=29, hour=19, minute=0, second=0)
 START_TIME3 = datetime.datetime(year=2023, month=6, day=29, hour=13, minute=0, second=0)
 START_TIME4 = datetime.datetime(year=2023, month=6, day=30, hour=12, minute=0, second=0)
 START_TIME5 = datetime.datetime(year=2023, month=7, day=1, hour=15, minute=0, second=0)
@@ -29,12 +28,12 @@ Rain_intensity = 0 # 0-3 (0 = no rain, 1 = light rain, 2 = moderate rain, 3 = he
 
 # Q-Learning parameters
 USE_ALREADY_GENERATED_Q_TABLE = True
-NUM_EPISODES = 2500
+NUM_EPISODES = 1000
 
 # Animation parameters
 ANIMATE_SIMULATION = True
 REPEAT = True
-SIMULATION_SPEED = 30  # X30 faster than one second interval
+SIMULATION_SPEED = 10  # X30 faster than one second interval
 
 # Initialize Simulation Manager
 SM = Simulation_manager.Simulation_manager('TLV', 7 * DAY, TRAFFIC_LIGHTS, Rain_intensity, ADD_TRAFFIC_WHITE_NOISE, START_TIME1)
@@ -51,12 +50,13 @@ RN = SM.road_network
 
 # Initialize cars
 cars = []
-cars.append(Car.Car(1, 5, 745, START_TIME1, RN, route_algorithm="rand", use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE))
-cars.append(Car.Car(2, 5, 745, START_TIME1, RN, route_algorithm="rand", use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE))
-cars.append(Car.Car(3, 5, 745, START_TIME1, RN, route_algorithm="rand", use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE))
-# cars.append(Car.Car(2, 5, 745, START_TIME2, RN, route_algorithm="q",num_episodes = NUM_EPISODES, use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE))
-# cars.append(Car.Car(4, 1, 344, START_TIME3, RN, route_algorithm="q",num_episodes = NUM_EPISODES, use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE))
-# cars.append(Car.Car(3, 39, 507, START_TIME5, RN, route_algorithm="sp"))
+src, dst = get_random_src_dst(RN)
+# cars.append(Car.Car(1, 15, 745, START_TIME2, RN, route_algorithm="rand", use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE))
+# cars.append(Car.Car(2, src, dst, START_TIME2, RN, route_algorithm="sp", use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE))
+cars.append(Car.Car(3, src, dst, START_TIME1, RN, route_algorithm="q",num_episodes = NUM_EPISODES, use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE))
+cars.append(Car.Car(4, src, dst, START_TIME2, RN, route_algorithm="q",num_episodes = NUM_EPISODES, use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE))
+cars.append(Car.Car(5, src, dst, START_TIME3, RN, route_algorithm="q",num_episodes = NUM_EPISODES, use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE))
+
 
 # Run simulations
 SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS)

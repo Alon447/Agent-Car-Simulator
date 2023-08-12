@@ -1,4 +1,7 @@
 import os
+import random
+
+import networkx as nx
 import osmnx as ox
 
 import Utilities.Speeds as Speeds
@@ -62,3 +65,16 @@ def node_route_to_osm_route(node_route, road_network):
     for i, node in enumerate(node_route):
         osm_route.append(road_network.nodes_array[node].osm_id)
     return osm_route
+
+def get_random_src_dst(RN):
+    """
+    :param graph: the road network
+    :return: a random source and destination
+    """
+    src = RN.nodes_array[random.randint(0, len(RN.nodes_array) - 1)]
+    dst = RN.nodes_array[random.randint(0, len(RN.nodes_array) - 1)]
+    while not nx.has_path(RN.nx_graph, src.id, dst.id) and src.id != dst.id:
+        src = RN.nodes_array[random.randint(0, len(RN.nodes_array) - 1)]
+        dst = RN.nodes_array[random.randint(0, len(RN.nodes_array) - 1)]
+
+    return src.id, dst.id

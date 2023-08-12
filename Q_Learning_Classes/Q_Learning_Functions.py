@@ -200,9 +200,11 @@ class QLearning:
             float: The calculated reward.
         """
         # Calculate the reward based on the agent's progress and other factors
-        src_dst_distance = self.calculate_distance(src, dst)
-        next_state_dst_distance = self.calculate_distance(next_state, dst)
-        distance_delta = src_dst_distance - next_state_dst_distance # positive if the agent is closer to the destination
+
+        # src_dst_distance = self.calculate_distance(src, dst)
+        # next_state_dst_distance = self.calculate_distance(next_state, dst)
+        # distance_delta = src_dst_distance - next_state_dst_distance # positive if the agent is closer to the destination
+
         id = next_road.id
 
         if next_road.is_blocked or\
@@ -217,9 +219,23 @@ class QLearning:
             return 1000
         else:
             # get the hour and minute of the current time
-            current_time = self.simulation_time.replace(minute=0).strftime("%H:%M")
-            return min(-next_road.eta_dict[current_time]/7.5 + distance_delta.km,-1)
+            # current_time = self.simulation_time.replace(minute=0).strftime("%H:%M")
+            # time = nx.shortest_path_length(self.road_network.nx_graph, src, dst, weight='eta')
+            if nx.has_path(self.road_network.nx_graph, next_state, dst):
+                next_node_time = nx.shortest_path_length(self.road_network.nx_graph, next_state, dst, weight = 'eta') # time to destination from the next node
+                # print("time2", time2)
+            else:
+                return -1000
+            # time3 = nx.shortest_path_length(self.road_network.nx_graph, path_nodes[-1], dst, weight='eta') # time to dest from the current node
 
+            if next_node_time < self.last_node_time:
+                # if the agent is closer to the destination
+                self.last_node_time = next_node_time
+                return -1
+
+            self.last_node_time = next_node_time
+            # if the agent is not closer to the destination
+            return -2
     def update_q_table(self, state, action, next_state, reward, eta):
         """
         Update the Q-value table based on the Q-learning update rule.
@@ -328,7 +344,6 @@ class QLearning:
         agent = Q_Agent.Q_Agent(src, dst, start_time, self.road_network)
 
         blocked_roads = self.road_network.blocked_roads_dict
-        path = nx.shortest_path(self.road_network.nx_graph, src, dst, weight='length')
         # shortest_path_time = self.calculate_route_eta(path, self.road_network)
         shortest_path_time = 0
 
@@ -339,6 +354,7 @@ class QLearning:
 
         for episode in range(num_episodes):
             # Initialize parameters to evaluate the episode
+            self.last_node_time = nx.shortest_path_length(self.road_network.nx_graph, src, dst, weight='eta')  # time to dest from the current node
             self.simulation_time = start_time
             total_episode_reward = 0
             path_nodes = []
@@ -439,6 +455,7 @@ class QLearning:
         agent = Q_Agent.Q_Agent(src, dst, datetime.datetime.now(), self.road_network)
 
         blocked_roads = self.road_network.blocked_roads_dict
+        self.last_node_time = nx.shortest_path_length(self.road_network.nx_graph, src, dst, weight='eta')  # time to dest from the current node
 
         path = nx.shortest_path(self.road_network.nx_graph, src, dst, weight='length')
         # shortest_path_time = self.calculate_route_eta(path, self.road_network)
