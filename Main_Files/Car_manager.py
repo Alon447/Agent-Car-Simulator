@@ -1,6 +1,6 @@
 import datetime
 
-import Car
+from Main_Files import Car
 
 
 class CarManager:

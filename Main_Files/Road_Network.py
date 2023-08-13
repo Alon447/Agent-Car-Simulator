@@ -1,17 +1,9 @@
 import datetime
-import os
-import time
 
-import osmnx as ox
-from matplotlib import pyplot as plt
-
-import Road
-import pandas as pd
 import networkx as nx
-import random
 
+from Main_Files import Road
 import Utilities.Getters as Getters
-
 from Main_Files import Node
 
 
@@ -34,7 +26,7 @@ class Road_Network:
 
         # Graph
         self.graph_name = graph_path
-        self.graph = Getters.get_graph(graph_path) # use graphml file
+        self.graph,_ = Getters.get_graph(graph_path) # use graphml file
         self.nx_graph = None # create_graph() will initialize this attribute
         """
         self.nx_graph attributes:

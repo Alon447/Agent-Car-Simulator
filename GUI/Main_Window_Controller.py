@@ -1,4 +1,3 @@
-from tkinter import ttk
 class Main_Window_Controller:
     def __init__(self, view, controller):
         self.view = view
@@ -40,4 +39,4 @@ class Main_Window_Controller:
         self.controller.start_new_simulation()
 
     def quit(self):
-        self.view.quit()
+        self.view.destroy()

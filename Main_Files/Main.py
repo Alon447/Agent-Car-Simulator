@@ -36,7 +36,7 @@ REPEAT = True
 SIMULATION_SPEED = 10  # X30 faster than one second interval
 
 # Initialize Simulation Manager
-SM = Simulation_manager.Simulation_manager('TLV', 7 * DAY, TRAFFIC_LIGHTS, Rain_intensity, ADD_TRAFFIC_WHITE_NOISE, START_TIME1)
+SM = Simulation_manager.Simulation_manager('eilat', 7 * DAY, TRAFFIC_LIGHTS, Rain_intensity, ADD_TRAFFIC_WHITE_NOISE, START_TIME1)
 CM = SM.car_manager
 RN = SM.road_network
 

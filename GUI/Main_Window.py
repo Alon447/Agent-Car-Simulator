@@ -1,9 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
+
 import GUI.Main_Window_Controller as mwc
+
+
 # import Main_Window_Controller as MWC
-from tkinter.simpledialog import askstring  # Import askstring from tkinter.simpledialog
-from tkinter.simpledialog import Dialog
 
 
 # import Controller.Controller as Controller
@@ -120,6 +121,4 @@ class Main_Window(tk.Tk):
     def main(self):
         self.mainloop()
 
-# if __name__ == "__main__":
-#     Controller = Controller.Controller()
-#     main(Controller)
+

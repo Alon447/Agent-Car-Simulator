@@ -1,12 +1,20 @@
+from GUI import Insert_Car_Window as icw
+
 
 class NSW_Controller:
     def __init__(self, view, controller):
+        self.map_loaded = False
+        self.ready_to_start = False
         self.view = view
         self.controller = controller
+        self.blocked_roads = []
+
 
     def add_new_car(self):
-        print("Adding new car")
-
+        if self.map_loaded:
+            icw.Insert_Car_Window(self.view)
+        else:
+            self.view.no_map_loaded_error()
     def block_road(self):
         # Code for blocking a road
         print("Blocking road")
@@ -34,3 +42,14 @@ class NSW_Controller:
     def open_settings(self):
         # Code to open settings
         print("Opening settings")
+
+    def load_city_map(self):
+        city_name = self.view.get_city_name()
+        self.map_loaded = self.controller.load_city_map(city_name)
+        if self.map_loaded:
+            print("loaded city map")
+            self.view.set_load_status_label("City map loaded")
+        else:
+            print("failed to load city map")
+            self.view.set_load_status_label("Failed to load city map")
+

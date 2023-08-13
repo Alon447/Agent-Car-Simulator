@@ -44,7 +44,7 @@ while True:
         simulation_speed = float(values["simulation_speed"])
 
         # Initialize Simulation Manager
-        SM = Simulation_manager.Simulation_manager('TLV', 3 * DAY, TRAFFIC_LIGHTS, Rain_intensity, start_time, SIMULATION_SPEEDS_JSON_NAME)
+        SM = Simulation_manager.Simulation_Manager('TLV', 3 * DAY, TRAFFIC_LIGHTS, Rain_intensity, start_time, SIMULATION_SPEEDS_JSON_NAME)
         CM = SM.car_manager
         RN = SM.road_network
         RN.block_road(534)

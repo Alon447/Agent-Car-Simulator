@@ -5,8 +5,8 @@ import random
 import networkx as nx
 import pandas as pd
 
-import Car_manager
-import Road_Network
+from Main_Files import Car_manager
+from Main_Files import Road_Network
 from Main_Files import Car
 from Utilities.Getters import time_delta_to_seconds, get_simulation_speeds_file_path
 
