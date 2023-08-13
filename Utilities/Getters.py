@@ -6,6 +6,20 @@ import osmnx as ox
 
 import Utilities.Speeds as Speeds
 
+# Simulation results dictionary keys
+Simulation_number = 'Simulation_number'
+Source = 'Source'
+Destination = 'Destination'
+Reached_destination = 'Reached_destination'
+Routing_algorithm = 'Routing_algorithm'
+Time_taken = 'Time_taken'
+Day_of_week = 'Day_of_week'
+Start_time = 'Start_time'
+End_time = 'End_time'
+Route = 'Route'
+Roads_used = 'Roads_used'
+Distance_travelled = 'Distance_travelled'
+
 
 def get_graph(graph_name: str):
     """
@@ -55,7 +69,7 @@ def get_lat_lng(address):
 def time_delta_to_seconds(time):
     return int(time.total_seconds())
 
-def node_route_to_osm_route(node_route, road_network):
+def node_route_to_osm_route(road_network, node_route):
     """
     :param node_route: a list of nodes in the route
     :param road_network: the road network
@@ -78,3 +92,19 @@ def get_random_src_dst(RN):
         dst = RN.nodes_array[random.randint(0, len(RN.nodes_array) - 1)]
 
     return src.id, dst.id
+
+def get_key_from_value(dictionary, value):
+    """
+    Retrieve the corresponding key from a dictionary given a value.
+
+    Args:
+    dictionary (dict): The dictionary to search in.
+    value: The value to search for.
+
+    Returns:
+    key: The key corresponding to the given value.
+    """
+    for key, val in dictionary.items():
+        if int(val) == value:
+            return key
+    return None

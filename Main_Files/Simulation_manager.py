@@ -8,7 +8,9 @@ import pandas as pd
 from Main_Files import Car_manager
 from Main_Files import Road_Network
 from Main_Files import Car
-from Utilities.Getters import time_delta_to_seconds, get_simulation_speeds_file_path
+from Utilities.Getters import time_delta_to_seconds, get_simulation_speeds_file_path, Source, Destination, \
+    Reached_destination, Routing_algorithm, Time_taken, Day_of_week, Start_time, End_time, Route, Roads_used, \
+    Distance_travelled, Simulation_number
 
 
 class Simulation_manager:
@@ -39,6 +41,8 @@ class Simulation_manager:
 
     simulation_results (list): List of dictionaries containing simulation results.
     """
+
+
 
     def __init__(self, graph_name, time_limit: int, activate_traffic_lights = False, rain_intensity = 0, traffic_white_noise = True,
                  start_time = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0,second=0)):
@@ -326,20 +330,22 @@ class Simulation_manager:
             car_key = car.id
             day_of_week_str = car.starting_time.strftime('%A')
             # save the important Graphs
-            simulation_results[car_key] = {
-                'reached_destination': car_reached_destination,
-                'routing_algorithm': car.get_routing_algorithm(),
-                'time_taken': car_time_taken,  # in seconds
-                'day_of_week': day_of_week_str,  # day of the week string
-                'start_time': car_starting_time,  # datetime object string
-                'end_time': car_ending_time,  # datetime object string
-                'route': car_route,
-                'roads_used': car.past_roads,
-                'distance_travelled': int(car.distance_traveled),  # in meters, int
-            }
 
+            simulation_results[car_key] = {
+                Source: car.source_node,
+                Destination: car.destination_node,
+                Reached_destination: car_reached_destination,
+                Routing_algorithm: car.get_routing_algorithm(),
+                Time_taken: car_time_taken,  # in seconds
+                Day_of_week: day_of_week_str,  # day of the week string
+                Start_time: car_starting_time,  # datetime object string
+                End_time: car_ending_time,  # datetime object string
+                Route: car_route,
+                Roads_used: car.past_roads,
+                Distance_travelled: int(car.distance_traveled),  # in meters, int
+            }
         self.simulation_results.append({
-            'simulation_number': i + 1,
+            Simulation_number: i + 1,
             **simulation_results
         })
 
@@ -357,41 +363,9 @@ class Simulation_manager:
         cars_ids = [car.id for car in cars]
         routes = []
         for carInd in cars_ids:
-            if self.simulation_results[simulation_number][carInd]['route'] == None:
+            if self.simulation_results[simulation_number][carInd][Route] == None:
                 pass
             else:
-                routes.append(self.simulation_results[simulation_number][carInd]['route'])
+                routes.append(self.simulation_results[simulation_number][carInd][Route])
         return routes
-
-    def get_key_from_value(self, dictionary, value):
-        """
-        Retrieve the corresponding key from a dictionary given a value.
-
-        Args:
-        dictionary (dict): The dictionary to search in.
-        value: The value to search for.
-
-        Returns:
-        key: The key corresponding to the given value.
-        """
-        for key, val in dictionary.items():
-            if int(val) == value:
-                return key
-        return None
-
-    def transform_node_id_route_to_osm_id_route(self, route):
-        """
-        Transform a route from node IDs to OSM IDs.
-
-        Args:
-        route (list): List of node IDs representing a route.
-
-        Returns:
-        list: List of OSM IDs representing the transformed route.
-        """
-        osm_route = []
-        for node in route:
-            osm_route.append(self.road_network.nodes_array[node].osm_id)
-        return osm_route
-
 

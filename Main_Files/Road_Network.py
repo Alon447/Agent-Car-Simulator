@@ -101,18 +101,14 @@ class Road_Network:
             type = self.graph.edges[edge]['highway']
 
             new_road = Road.Road(id, start_node ,end_node, length, max_speed,type, activate_traffic_lights, rain_intensity)
-
             self.roads_array.append(new_road)
 
             # update node_connectivity_dict
             start_node_id = start_node.id
-
             if start_node_id in self.node_connectivity_dict and isinstance(self.node_connectivity_dict[start_node_id], list):
                 self.node_connectivity_dict[start_node_id].append(new_road.destination_node.id)
             else:
                 self.node_connectivity_dict[start_node_id] = [new_road.destination_node.id]
-
-            # print(new_road)
         return
 
     def create_graph(self):

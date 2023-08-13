@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from matplotlib import pyplot as plt
 import matplotlib.patches as mpatches
@@ -8,6 +9,10 @@ from shapely.geometry import Point
 import geopandas as gpd
 import numpy as np
 
+from Main_Files.Road_Network import Road_Network
+
+from Utilities.Getters import Route, Time_taken, Distance_travelled, Simulation_number, Reached_destination, Source, \
+    Destination, node_route_to_osm_route, Roads_used
 from Utilities.Speeds import color_edges_by_speed
 
 
@@ -37,17 +42,17 @@ class Animate_Simulation:
         """
         for result in SM.simulation_results:
             for array_index, result_dict in result.items():
-                if array_index != "simulation_number":
+                if array_index != Simulation_number:
                     print("*******************************************")
-                    print("Simulation number: ", result['simulation_number'])
+                    print("Simulation number: ", result[Simulation_number])
 
                     print(array_index, ": ")
                     for key, value in result_dict.items():
-                        if key != "route" and key != "time_taken" and key != "distance_travelled":
+                        if key != Route and key != Time_taken and key != Distance_travelled:
                             print(key, ": ", value)
-                        elif key == "time_taken":
+                        elif key == Time_taken:
                             print(key, ": ", int(value / 60), "minutes")
-                        elif key == "distance_travelled":
+                        elif key == Distance_travelled:
                             print(key, ": ", round(value / 1000, 1), "km")
                         else:
                             print("Route length: ", len(value), "roads")
@@ -67,8 +72,8 @@ class Animate_Simulation:
 
         for result in SM.simulation_results:
             car_key = car_number
-            times.append(result[car_key]['time_taken'])
-            if result[car_key]['reached_destination']:
+            times.append(result[car_key][Time_taken])
+            if result[car_key][Reached_destination]:
                 colors.append('green')
             else:
                 colors.append('red')
@@ -110,7 +115,8 @@ class Animate_Simulation:
 
         # color the edges by speed
         self.edge_colors = color_edges_by_speed(SM, start_time, blocked_roads)
-
+        self.origins=[]
+        self.destinations=[]
         # color the nodes by traffic lights
         self.node_colors = [
             plt.cm.RdYlGn(node.traffic_lights) if node.traffic_lights else
@@ -120,10 +126,11 @@ class Animate_Simulation:
         # Plot the graph
         fig, ax = ox.plot_graph(graph, figsize=(10, 10), show=False, close=False, edge_color=self.edge_colors,
                                 node_color=self.node_colors, bgcolor='white', node_size=5)
-        colors = ['red', 'blue', 'purple']  # Add more colors as needed
+        colors = ['purple','blue','red']  # Add more colors as needed
 
         for j, route in enumerate(custom_routes):
             origin_x, origin_y = RN.get_xy_from_node_id(route[0])
+
             if cars[j].route_algorithm == "q":
                 color = colors[2]
             elif cars[j].route_algorithm == "sp":
@@ -137,21 +144,19 @@ class Animate_Simulation:
                                            label=label,
                                            alpha=.75,
                                            color=color))
-            print("scatter list: ", scatter_list)
+            # print("scatter list: ", scatter_list)
             geometry_data = [(origin_y, origin_x)]
             gdf = gpd.GeoDataFrame(geometry=[Point(lon, lat) for lat, lon in geometry_data], crs='epsg:4326')
             self.origins.append(gdf)
 
-            dest_x, dest_y = RN.get_xy_from_node_id(route[-1])
+            dest_x, dest_y = cars[j].get_xy_destination()
+            # dest_x, dest_y = RN.get_xy_from_node_id(route[-1])
             geometry_data = [(dest_y, dest_x)]
             gdf = gpd.GeoDataFrame(geometry=[Point(lon, lat) for lat, lon in geometry_data], crs='epsg:4326')
             self.destinations.append(gdf)
 
         # plot origins and destinations
         for i in range(len(self.origins)):
-            if i==0:
-                self.origins[i].plot(ax=ax, color='black', label=f'Origin')
-                self.destinations[i].plot(ax=ax, color='yellow', label=f'Destination')
             self.origins[i].plot(ax=ax, color='black')
             self.destinations[i].plot(ax=ax, color='yellow')
         # Add a legend with labels from scatter plots
@@ -185,17 +190,31 @@ class Animate_Simulation:
 
         # Create a flag to control animation pause/resume
         self.is_paused = False
+        self.running = True
 
         def on_key(event):
             if event.key == ' ':
                 self.is_paused = not self.is_paused
+                if self.is_paused and self.running:
+                    self.animation.pause()  # Pause the animation if is_paused is True
+                    self.running = False
+                elif not self.is_paused and not self.running:
+                    self.running = True
+                    self.animation.resume()  # Resume the animation if is_paused is False
+            elif event.key == 'escape':
+                plt.close()
+                self.animation = None
+                return
 
         # Connect the key press event to the on_key function
         fig.canvas.mpl_connect('key_press_event', on_key)
 
         def animate(i):
-            if self.is_paused:
-                return  # Pause the animation if is_paused is True
+
+
+            if i >= num_updates:
+                self.animation.event_source.stop()  # Stop the animation when it's complete
+                return
             update_idx = i
             current_time = SM.simulation_update_times[update_idx]
             delta_time = (current_time - self.last_speed_update_time).total_seconds()
@@ -215,9 +234,6 @@ class Animate_Simulation:
 
                         # plot origins and destinations
                         for i in range(len(self.origins)):
-                            if i == 0:
-                                self.origins[i].plot(ax=ax, color='black')
-                                self.destinations[i].plot(ax=ax, color='yellow')
                             self.origins[i].plot(ax=ax, color='black')
                             self.destinations[i].plot(ax=ax, color='yellow')
                         # plt.legend(frameon=False)
@@ -230,6 +246,10 @@ class Animate_Simulation:
 
                     x_j, y_j = updates[1][0], updates[1][1]
                     scatter_list[temp_dict[updates[0]]].set_offsets(np.c_[x_j, y_j])
+                    # plot
+                    for i in range(len(self.origins)):
+                        self.origins[i].plot(ax=ax, color='black')
+                        self.destinations[i].plot(ax=ax, color='yellow')
 
                 except:
                     print("Error in animate function")
@@ -257,5 +277,64 @@ class Animate_Simulation:
             date_text.set_y(text_vertical_positions[0])
             time_text.set_y(text_vertical_positions[1])
 
-        self.animation = FuncAnimation(fig, animate, frames = num_updates, interval = self.animation_speed, repeat = self.repeat)
+        self.animation = FuncAnimation(fig, animate, frames = num_updates, interval = self.animation_speed, repeat = self.repeat, repeat_delay=100)
         plt.show()
+        return
+
+    def plot_past_result(self, past_result_json_name):
+        """
+        This function plots the past result of the simulation.
+        :param past_result_json:
+        :return:
+        """
+        global ax, fig, origin_x, dest_x, origin_y, dest_y
+        substring_to_remove = "simulation_results_"
+
+        graph_name = past_result_json_name.replace(substring_to_remove, "")
+        RN = Road_Network(graph_name)
+        # Load the past result
+        with open(f'../Results/{past_result_json_name}.json') as json_file:
+            past_result = json.load(json_file)
+        self.origins = []
+        self.destinations = []
+        # Plot the past result where simulation number = 0
+        first_simulation = past_result[0]
+        routes = []
+        for key in first_simulation.keys():
+            if key != Simulation_number:
+                car_results = first_simulation[key]
+                car_source = car_results[Source]
+                car_destination = car_results[Destination]
+                origin_x, origin_y = RN.get_xy_from_node_id(car_source)
+                self.origins.append((origin_x, origin_y))
+                dest_x, dest_y = RN.get_xy_from_node_id(car_destination)
+                self.destinations.append((dest_x, dest_y))
+
+                car_route = car_results[Route]
+                # car_roads = car_results[Roads_used]
+                routes.append(car_route)
+        if len(routes) == 1:
+            route = node_route_to_osm_route(RN, routes[0])
+            fig, ax = ox.plot_graph_route(
+                RN.graph, route, route_color='red', route_linewidth=2, node_size=0, bgcolor='white', show=False,
+                close=False)
+
+
+        else:
+            for i in range(len(routes)):
+                routes[i] = node_route_to_osm_route(RN, routes[i])
+            fig, ax = ox.plot_graph_routes(RN.graph, routes, route_color='red', route_linewidth=2, node_size=0, bgcolor='white',show=False,
+                close=False)
+
+        for i in range(len(self.origins)):
+            orig_x, orig_y = self.origins[i]
+            dest_x, dest_y = self.destinations[i]
+            ax.scatter(orig_x, orig_y, color='black', s=50, label='Start')
+            ax.scatter(dest_x, dest_y, color='yellow', s=50, label='End')
+        # ax.scatter(origin_x, origin_y, color='black', s=50, label='Start')
+        # ax.scatter(dest_x, dest_y, color='yellow', s=50, label='End')
+        ax.legend()
+
+
+        plt.show()
+        return

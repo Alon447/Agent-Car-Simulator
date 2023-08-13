@@ -122,7 +122,7 @@ class Car:
         self.past_nodes.append(self.source_node)
         return self.current_road
 
-    def move_next_road(self, time):
+    def move_next_road(self, time:float):
         """
         Move the car to the next road, based on the route's next node.
         Update car's time until the next road.
@@ -185,7 +185,6 @@ class Car:
         None
         """
         self.past_roads.append({self.current_road.id: round(time_delta_to_seconds(self.current_road_time), 2)})
-        # self.past_nodes.append(self.current_road.destination_node[0])
         return
 
 
@@ -218,10 +217,6 @@ class Car:
         # used when we fast-forward the simulation
         self.total_travel_time += datetime.timedelta(seconds=time)  # time
         self.time_until_next_road -= datetime.timedelta(seconds=time)  # time
-
-        # limit travel time to 3 hour
-        # if self.total_travel_time > datetime.timedelta(hours=3):
-
         return self.total_travel_time
 
     def get_routing_algorithm(self):
@@ -250,7 +245,6 @@ class Car:
         """
         if self.is_blocked:
             self.time_until_next_road = datetime.timedelta(seconds=600)
-            # return self.time_until_next_road
         return int(self.time_until_next_road.total_seconds())
 
     def get_xy_source(self):

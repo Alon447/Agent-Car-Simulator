@@ -3,7 +3,6 @@ import datetime
 import os
 import pickle
 import matplotlib.patches as mpatches
-
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,7 +11,6 @@ from geopy.distance import great_circle
 
 from Main_Files.Road_Network import Road_Network
 from Q_Learning_Classes import Q_Agent
-from Utilities.Getters import node_route_to_osm_route
 
 
 class QLearning:
@@ -85,25 +83,6 @@ class QLearning:
                 row_values.append(0)
             q_values.append(row_values)
         return q_values
-
-    def calculate_route_eta(self, route, road_network):
-        """
-        Calculate the estimated time of arrival for a given route.
-
-        Args:
-            route (list): A list of roads in the route.
-            road_network (Road_Network): The road network.
-
-        Returns:
-            float: Estimated time of arrival (ETA) for the given route.
-        """
-        eta = 0
-        for i in range(len(route) - 1):
-            src = route[i]
-            j = i + 1
-            dst = route[j]
-            eta += float(road_network.nx_graph[src][dst][0].get('eta'))
-        return eta
 
 
     def choose_action(self, state):
@@ -219,14 +198,10 @@ class QLearning:
             return 1000
         else:
             # get the hour and minute of the current time
-            # current_time = self.simulation_time.replace(minute=0).strftime("%H:%M")
-            # time = nx.shortest_path_length(self.road_network.nx_graph, src, dst, weight='eta')
             if nx.has_path(self.road_network.nx_graph, next_state, dst):
                 next_node_time = nx.shortest_path_length(self.road_network.nx_graph, next_state, dst, weight = 'eta') # time to destination from the next node
-                # print("time2", time2)
             else:
                 return -1000
-            # time3 = nx.shortest_path_length(self.road_network.nx_graph, path_nodes[-1], dst, weight='eta') # time to dest from the current node
 
             if next_node_time < self.last_node_time:
                 # if the agent is closer to the destination
