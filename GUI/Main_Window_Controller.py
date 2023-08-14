@@ -1,3 +1,5 @@
+
+#TODO: add functions to support loading existin simulation from file
 class Main_Window_Controller:
     def __init__(self, view, controller):
         self.view = view
@@ -36,7 +38,7 @@ class Main_Window_Controller:
     def start_new_simulation(self):
         # self.quit()
         self.view.destroy()
-        self.controller.start_new_simulation()
+        self.controller.start_new_simulation_window()
 
     def quit(self):
         self.view.destroy()

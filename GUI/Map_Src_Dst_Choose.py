@@ -1,13 +1,14 @@
-import osmnx as ox
 import matplotlib.pyplot as plt
-import sklearn
+import osmnx as ox
+
 import Utilities.Getters as Getters
+#TODO: maybe change it so it will immidiateley show the changes on the map
+#   also maybe add somewhere else explaination for the functionality: a - src, z - dst, r - reset, q - quit
 
-
-class MapClickHandler:
-    def __init__(self, fig=None, ax=None, G=None):
-        self.fig = fig
-        self.ax = ax
+class Map_Src_Dst_Choose:
+    def __init__(self, G, controller = None):
+        self.fig = None
+        self.ax = None
         self.src_osmid = None
         self.dst_osmid = None
         self.G = G
@@ -17,11 +18,18 @@ class MapClickHandler:
         self.curr_y = None
         self.count = 0
         self.scatter = None
+        self.src_scatter = None
+        self.dst_scatter = None
+        self.controller = controller
+        self.is_temp = False
+        self.have_src = False
+        self.have_dst = False
+
 
     def onclick(self, event):
         if event.xdata is not None and event.ydata is not None:
             # Get the limits of the plot
-            # ax.clear()
+
             xlim = self.ax.get_xlim()
             ylim = self.ax.get_ylim()
 
@@ -33,59 +41,78 @@ class MapClickHandler:
             self.curr_x = self.G.nodes[self.osmid]['x']
             self.curr_y = self.G.nodes[self.osmid]['y']
 
-            # if self.scatter is not None and self.count == 2:
-            #     self.scatter.remove(self.curr_x, self.curr_y)
-            #     self.count = 0
-            if self.scatter is not None and self.scatter.get_label() == 'temporary':
+
+            if self.is_temp is True:
                 self.scatter.remove()
             self.scatter = self.ax.scatter(self.curr_x, self.curr_y, color='gray', s=50, label='temporary')
-            # plt.legend()
+            self.is_temp = True
+            plt.legend()
+
             print("Clicked Junction OSMID:", self.osmid)
-            # fig.canvas.draw()
-            # fig.canvas.flush_events()
-            self.count += 1
+
+
 
     def onpress(self, event):
+        if event.key in ['a','z','r','q']:
+            self.scatter.remove()
         if event.key == 'a':
             self.key_pressed = True
-            self.create_src()
             print("pressed a")
+            self.create_src()
         elif event.key == 'z':
             self.key_pressed = True
-            self.create_dst()
             print("pressed z")
+            self.create_dst()
         elif event.key == 'r':
             self.key_pressed = True
-            self.reset_src_dst()
             print("pressed r")
+            self.reset_src_dst()
         elif event.key == 'q':
+            print("pressed q")
             plt.close()
 
     def create_src(self):
-        self.scatter = self.ax.scatter(self.curr_x, self.curr_y, color='green', s=50, label='Start')
+        if self.src_scatter is not None:
+            self.src_scatter.remove()
+        self.is_temp = False
+        self.src_scatter = self.ax.scatter(self.curr_x, self.curr_y, color='green', s=50, label='Start')
+        self.src_osmid = self.osmid
+        # self.have_src = True
         plt.legend()
 
     def create_dst(self):
-        self.scatter = self.ax.scatter(self.curr_x, self.curr_y, color='red', s=50, label='End')
+        if self.dst_scatter is not None:
+            self.dst_scatter.remove()
+        self.is_temp = False
+        self.dst_scatter = self.ax.scatter(self.curr_x, self.curr_y, color='red', s=50, label='End')
+        self.dst_osmid = self.osmid
+        # self.have_dst = True
         plt.legend()
 
     def reset_src_dst(self):
-        self.scatter.remove()
+
+        self.scatter = None
+        self.is_temp = False
         self.scatter = None
         self.curr_x = None
         self.curr_y = None
-        # self.count = 0
+        self.src_osmid = None
+        self.dst_osmid = None
+        if self.src_scatter is not None:
+            self.src_scatter.remove()
+            self.src_scatter = None
+        if self.dst_scatter is not None:
+            self.dst_scatter.remove()
+            self.dst_scatter = None
+
 
     def create_show_map(self):
-        location = (40.7128, -74.0060)  # New York City
-        network_type = "drive"
 
-        # G = ox.graph_from_point(location, dist=1000, network_type=network_type)
-        self.G, _ = Getters.get_graph('TLV')
+
+
         self.fig, self.ax = ox.plot_graph(self.G, bgcolor='white', node_color='black', show=False, close=False)
-        click_handler = MapClickHandler(self.fig, self.ax, self.G)
-        self.fig.canvas.mpl_connect('button_press_event', click_handler.onclick)
-        self.fig.canvas.mpl_connect('key_press_event', click_handler.onpress)
+        self.fig.canvas.mpl_connect('button_press_event', self.onclick)
+        self.fig.canvas.mpl_connect('key_press_event', self.onpress)
         plt.show()
 
     def get_nodes_id(self):
@@ -100,11 +127,3 @@ class MapClickHandler:
         self.curr_y = None
         self.prev_x = None
         self.prev_y = None
-
-
-# Example usage
-if __name__ == "__main__":
-    temp_map = MapClickHandler(None, None, None)
-    temp_map.create_show_map()
-    print("done")
-

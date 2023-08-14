@@ -369,3 +369,14 @@ class Simulation_manager:
                 routes.append(self.simulation_results[simulation_number][carInd][Route])
         return routes
 
+    def get_fixed_node_id(self, node_id: int):
+        """
+        Get the fixed node id of a node.
+
+        Args:
+        node_id (int): Node id.
+
+        Returns:
+        int: Fixed node id.
+        """
+        return self.road_network.get_node_from_osm_id(node_id)

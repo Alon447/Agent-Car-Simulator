@@ -6,39 +6,73 @@ import datetime
 from Utilities import Getters
 
 
+# TODO-s:
+#  - document the code
+#  - add functionality of showing the cars animation for chosen run when done running the simulations -
+#  - add option for custom speeds generating (choose algorithm) and load custom speeds from file (optional?) - add
+#  - functionality of blocking roads with interactive map (principle similar to choosing src and dst) (i think we
+#    should have it)
+#  - maybe polish the user interface a bit more (add some more options, maybe add some more windows, idk)
+#
+
 class Controller:
 
     def __init__(self, simulation_speed=30, repeat=False):
-        # TODO: remove default values after testing
+        # TODO: remove default values after testing (if needed)
+        #  also add number of simulations to run
+        self.traffic_lights = None
+        self.rain_intensity = None
         self.graph_loaded = False
         self.G = None
-        self.G_path = None
+        self.G_name = None
         self.view = None
         self.model = None
+
+        # Simulation parameters
         self.simulation_speed = simulation_speed
         self.repeat = repeat
+        self.cars = []
+        self.simulation_duration = None
+        self.add_traffic_white_noise = False
+        self.simulation_starting_time = None
+
+        # helper variables
 
     # view control
-    def start_main(self):
+    def start_main_window(self):
         self.view = Main_Window(self)
         self.view.main()
 
-    def start_new_simulation(self):
-        # animation,fig = self.get_canvas_test()
-        # self.view = New_Simulation_Window(self,animation,fig)
-        # self.view.add_canvas(canvas,animation,fig,ax)
+    def start_new_simulation_window(self):
         self.view = New_Simulation_Window(self)
         self.view.main()
 
     # model control
 
-    # gather settings
-    def add_car(self):
+    def start_simulation(self):
+        # TODO: insert the cars to the simulation, also option to show statistics
+        #  also add option to load existing simulation
         pass
+
+    # gather settings
+
+    def set_simulation_manager(self):
+        # TODO: add checks for values (check if they exist and are valid)
+        SM = Simulation_manager.Simulation_manager(self.G_name, self.simulation_duration, self.traffic_lights,
+                                                   self.rain_intensity,
+                                                   self.add_traffic_white_noise, self.simulation_starting_time)
+        self.model = SM
+
+    def add_car(self, car_id, temp_src_id, temp_dst_id, start_time, speed, routing_alg, use_existing_q_table):
+        # TODO: make sure that we have all of the parameters for the car
+        start_node = self.model.get_fixed_node_id(temp_src_id)
+        end_node = self.model.get_fixed_node_id(temp_dst_id)
+        new_car = Car.Car(car_id, start_node, end_node, start_time, speed, routing_alg, use_existing_q_table)
+        self.cars.append(new_car)
 
     def load_city_map(self, city_map):
         try:
-            self.G, self.G_path = Getters.get_graph(city_map)
+            self.G, self.G_name = Getters.get_graph(city_map)
             self.graph_loaded = True
             return True
         except:
@@ -46,15 +80,14 @@ class Controller:
             print("Error loading graph")
             return False
 
-
     def get_graph(self):
         if self.graph_loaded:
-            return self.G, self.G_path
+            return self.G, self.G_name
         else:
             return None, None
 
     # get resources
-    def get_canvas_test(self):
+    def get_canvas_test(self):  # TODO: remove after testing
         START_TIME1 = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0, second=0)
         START_TIME2 = datetime.datetime(year=2023, month=6, day=29, hour=9, minute=0, second=0)
         START_TIME3 = datetime.datetime(year=2023, month=6, day=29, hour=13, minute=0, second=0)
@@ -118,4 +151,4 @@ class Controller:
 
 if __name__ == "__main__":
     controller = Controller()
-    controller.start_main()
+    controller.start_main_window()

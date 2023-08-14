@@ -1,26 +1,16 @@
 import tkinter as tk
 from tkinter import ttk
 from GUI import ICW_Controller as icwc
-
-hours = [i for i in range(0, 24)]
-minutes = [i for i in range(0, 60)]
-seconds = [i for i in range(0, 60)]
-
-days = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday"
-]
+from Utilities.Getters import hours, minutes, seconds, days_of_the_week
 
 
+# TODO: add buttons with functionality to reset choices and cars,
+#   also display current list of cars and their parameters
+#   and most importantly fill in on inputting the rest of the car parameters
 class Insert_Car_Window(tk.Toplevel):
-    def __init__(self, master=None):
+    def __init__(self, master=None, controller=None):
         super().__init__(master=master)
-        self.icwc = icwc.ICW_Controller(self, master)
+        self.icwc = icwc.ICW_Controller(self, master, controller)
         self.title("Insert Car")
         self.geometry("500x500")
 
@@ -38,7 +28,7 @@ class Insert_Car_Window(tk.Toplevel):
         self.hour_menu_label.pack()
 
         self.drop_hours = ttk.Combobox(self, values=hours)
-        self.drop_hours.current(0)
+        self.drop_hours.current(8)
         self.drop_hours.pack()
 
         self.min_menu_label = ttk.Label(self, text="Minute")
@@ -58,20 +48,34 @@ class Insert_Car_Window(tk.Toplevel):
         self.day_menu_label = ttk.Label(self, text="Car's Starting Day")
         self.day_menu_label.pack()
 
-        self.drop_days = ttk.Combobox(self, values=days)
+        self.drop_days = ttk.Combobox(self, values=days_of_the_week)
         self.drop_days.current(0)
         self.drop_days.pack()
 
         ###############################
-        # car's source
+        # car's source and destination
         ###############################
+        self.source_title_label = ttk.Label(self, text="Car's Source:")
+        self.source_title_label.pack()
+        self.source_lable = ttk.Label(self, text="(no source selected)")
+        self.source_lable.pack()
 
-        ###############################
-        # car's destination
-        ###############################
+        self.destination_title_label = ttk.Label(self, text="Car's Destination:")
+        self.destination_title_label.pack()
+        self.destination_lable = ttk.Label(self, text="(no destination selected)")
+        self.destination_lable.pack()
+
+        self.choose_source_button = ttk.Button(self, text="Choose Source and destination",
+                                               command=self.icwc.choose_src_dst)
+        self.choose_source_button.pack()
 
         ###############################
         # confirm choice button
         ###############################
 
-        self.confirm_button = ttk.Button(self, text="Confirm", command=self.icwc.confirm_choice())
+        self.confirm_button = ttk.Button(self, text="Confirm", command=self.icwc.confirm_choice)
+        self.confirm_button.pack()
+
+    # TODO: add more error functions as needed
+    def no_map_loaded_error(self):
+        tk.messagebox.showerror("Error", "No map loaded!")

@@ -42,7 +42,7 @@ RN = SM.road_network
 
 # Block roads
 # RN.block_road(534)
-# SM.update_road_blockage(168, START_TIME1)
+SM.update_road_blockage(168, START_TIME1)
 # SM.update_road_blockage(181)
 # SM.update_road_blockage(182)
 # SM.update_road_blockage(912)

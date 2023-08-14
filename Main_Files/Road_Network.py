@@ -37,6 +37,7 @@ class Road_Network:
         # Edges and Nodes
         self.roads_array = [] # list of all the roads in the graph
         self.nodes_array = [] # list of all the nodes in the graph
+        self.old_to_new_node_id_dict = {} # key: old node id, value: new node id
 
         self.node_connectivity_dict = {} # node id to list of connected nodes ids
         self.blocked_roads_array = []
@@ -66,6 +67,7 @@ class Road_Network:
         for i, node in enumerate(self.graph.nodes):
             id = i
             osm_id = int(node)
+            self.old_to_new_node_id_dict[osm_id] = id
             x = self.graph.nodes[node].get('x')
             y = self.graph.nodes[node].get('y')
             if self.graph.nodes[node].get('highway') == 'traffic_signals':
@@ -372,10 +374,8 @@ class Road_Network:
         Returns:
         Node object: Node corresponding to the OSM ID.
         """
-        for node in self.nodes_array:
-            if node.osm_id == osm_id:
-                return node
-        return None
+
+        return self.old_to_new_node_id_dict[osm_id]
 
     def get_road_from_src_dst(self, src_id, dst_id):
         """

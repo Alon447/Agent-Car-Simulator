@@ -20,6 +20,24 @@ Route = 'Route'
 Roads_used = 'Roads_used'
 Distance_travelled = 'Distance_travelled'
 
+hours = [i for i in range(0, 24)]
+minutes = [i for i in range(0, 60)]
+seconds = [i for i in range(0, 60)]
+
+days = [i for i in range(0, 7)]
+weeks = [i for i in range(0, 4)]
+months = [i for i in range(0, 12)]
+
+days_of_the_week = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday"
+]
+
 
 def get_graph(graph_name: str):
     """

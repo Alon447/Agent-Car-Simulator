@@ -1,5 +1,5 @@
 
-
+#TODO: check if necessary, probably not. tried to embed matplot in tkinter
 class Finalized_Simulation_Animation:
     def __init__(self,figure,ax,animation):
         self.figure = figure
