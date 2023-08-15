@@ -4,6 +4,8 @@ import random
 
 import networkx as nx
 import pandas as pd
+from matplotlib import pyplot as plt
+
 from Q_Learning_Classes import Q_Learning
 from Main_Files import Car_manager
 from Main_Files import Road_Network
@@ -78,7 +80,7 @@ class Simulation_manager:
         # FUNCTIONS - read speeds
         self.read_road_speeds(self.simulation_datetime_start)
 
-    def run_full_simulation(self, cars, number_of_simulations=1):
+    def run_full_simulation(self, cars, number_of_simulations=1, num_episodes=1000, max_steps_per_episode=150):
         """
         Run the full simulation process including setup, execution, and result printing.
 
@@ -105,7 +107,7 @@ class Simulation_manager:
                 copy_cars = cars
 
             # set up the simulation
-            self.start_q_learning_simulation(copy_cars)
+            self.start_q_learning_simulation(copy_cars, num_episodes, max_steps_per_episode)
             self.set_up_simulation(copy_cars)
             self.start_simulation()
             self.end_simulation(i)
@@ -114,13 +116,13 @@ class Simulation_manager:
 
         return
 
-    def start_q_learning_simulation(self, copy_cars):
+    def start_q_learning_simulation(self, copy_cars, num_episodes, max_steps_per_episode):
         q_learning_cars = []
 
         for car in copy_cars:
             if car.route_algorithm_name == "q" and car.route.q_table is None:
                 q_learning_cars.append(car)
-        q_learn = Q_Learning.Q_Learning(self.road_network, cars = q_learning_cars, learning_rate=0.1, discount_factor=0.9, epsilon=0.1)
+        q_learn = Q_Learning.Q_Learning(self.road_network, cars = q_learning_cars, num_episodes= num_episodes, max_steps_per_episode = max_steps_per_episode, learning_rate=0.1, discount_factor=0.9, epsilon=0.1)
         q_learn.train_cars(self.simulation_datetime_start)
         return
 
@@ -172,6 +174,8 @@ class Simulation_manager:
         # self.car_manager.force_cars_to_finish()
         for car in self.car_manager.cars_stuck:
             car.force_finish()
+
+        # show results
         return
 
     def end_simulation(self, simulation_number):
@@ -345,8 +349,13 @@ class Simulation_manager:
         None
         """
         simulation_results = {}
+        reached_destination = []
         for j, car in enumerate(copy_cars):
             car_reached_destination = self.car_manager.is_car_finished(car)
+            if self.car_manager.is_car_finished(car):
+                reached_destination.append(True)
+            else:
+                reached_destination.append(False)
             car_time_taken = int(car.total_travel_time.total_seconds()) # car.get_total_travel_time()
             car_starting_time = str(car.starting_time)
             car_ending_time = str(car.total_travel_time + car.starting_time)
@@ -368,6 +377,10 @@ class Simulation_manager:
                 Roads_used: car.past_roads,
                 Distance_travelled: int(car.distance_traveled),  # in meters, int
             }
+
+        plt.pie([reached_destination.count(True), reached_destination.count(False)], labels = ['True', 'False'], autopct = '%1.1f%%')
+        plt.title('Proportion of Simulation Results')
+        plt.show()
         self.simulation_results.append({
             Simulation_number: i + 1,
             **simulation_results

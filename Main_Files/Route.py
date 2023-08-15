@@ -94,7 +94,7 @@ class Random_route(Route):
         return None
 
 class Q_Learning_Route(Route):
-    def __init__(self, src_node: int, dst_node: int, road_network: Road_Network, start_time: datetime.datetime,num_episodes = 2000, use_q_table: bool = False):
+    def __init__(self, src_node: int, dst_node: int, road_network: Road_Network, start_time: datetime.datetime, use_q_table: bool = False):
 
         # src and dst dosent change during the run
         self.src_node = src_node

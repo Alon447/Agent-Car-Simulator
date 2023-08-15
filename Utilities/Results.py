@@ -151,11 +151,11 @@ def plot_past_result(past_result_json_name):
         dest_x, dest_y = destinations[i]
         ax.scatter(orig_x, orig_y, color='black', s=50, label='Start')
         ax.scatter(dest_x, dest_y, color='yellow', s=50, label='End')
-    ax.legend(handles=ax.collections, labels=route_labels, title='Routes', loc='upper right')
+    ax.legend()
 
-    plt.show(block=False)
-    plt.pause(2)
-    plt.close()
+    plt.show(block=True)
+    # plt.pause(2)
+    # plt.close()
     return
 
 # plot q learning results

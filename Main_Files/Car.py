@@ -48,7 +48,7 @@ class Car:
     """
 
     def __init__(self, id: int, source_node: int, destination_node: int,  starting_time: datetime,
-                 road_network: Road_Network, route_algorithm = 'random', num_episodes = 2000, use_existing_q_table = True):
+                 road_network: Road_Network, route_algorithm = 'random', use_existing_q_table = True):
 
         # ID
         self.id = id # car id
@@ -78,7 +78,6 @@ class Car:
         self.use_existing_q_table = use_existing_q_table
 
         # Route
-        self.num_episodes = num_episodes
         self.route_algorithm_name = route_algorithm # the algorithm the car will use to decide its route
         self.route = self.decide_route_algorithm(route_algorithm, source_node, destination_node) # the route the car will take
 
@@ -100,7 +99,7 @@ class Car:
         shortest_path_names = ["shortest_path", "shortest path", "Shortest Path", "Shortest path", "shortest", "Shortest","SP","sp"]
         if route_algorithm in q_learning_names:
             self.route_algorithm_name = "q"
-            return Route.Q_Learning_Route(source_node, destination_node, self.road_network, self.starting_time, self.num_episodes, self.use_existing_q_table)
+            return Route.Q_Learning_Route(source_node, destination_node, self.road_network, self.starting_time, self.use_existing_q_table)
         elif route_algorithm in shortest_path_names:
             self.route_algorithm_name = "sp"
             return Route.Shortest_path_route(source_node, destination_node, self.road_network)

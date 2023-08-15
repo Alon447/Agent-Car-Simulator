@@ -29,10 +29,10 @@ Rain_intensity = 0 # 0-3 (0 = no rain, 1 = light rain, 2 = moderate rain, 3 = he
 
 # Q-Learning parameters
 USE_ALREADY_GENERATED_Q_TABLE = False
-NUM_EPISODES = 500
+NUM_EPISODES = 2500
 
 # Animation parameters
-ANIMATE_SIMULATION = True
+ANIMATE_SIMULATION = False
 REPEAT = True
 SIMULATION_SPEED = 10  # X30 faster than one second interval
 
@@ -51,18 +51,22 @@ RN = SM.road_network
 
 # Initialize cars
 cars = []
-src1, dst1 = get_random_src_dst(RN)
-src2, dst2 = 517, 348
+# for i in range(20):
+#     src1, dst1 = get_random_src_dst(RN)
+#     cars.append(Car.Car(i, src1, dst1, START_TIME1, RN, route_algorithm = "q", num_episodes = NUM_EPISODES, use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE))
+
+src2, dst2 = 250, 207
+src4, dst4 = 558, 735
 src3, dst3 = get_random_src_dst(RN)
-cars.append(Car.Car(1, 577, 750, START_TIME1, RN, route_algorithm="q", num_episodes = NUM_EPISODES,use_existing_q_table = False))
-cars.append(Car.Car(2, 577, 750, START_TIME1, RN, route_algorithm="sp",num_episodes = NUM_EPISODES, use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE))
+cars.append(Car.Car(1, src2, dst2, START_TIME1, RN, route_algorithm="sp",use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE))
+# cars.append(Car.Car(2, src3, dst3, START_TIME1, RN, route_algorithm="q",num_episodes = NUM_EPISODES, use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE))
 # cars.append(Car.Car(3, src2, dst2, START_TIME1, RN, route_algorithm="q",num_episodes = NUM_EPISODES, use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE))
 # cars.append(Car.Car(4, src2, dst2, START_TIME1, RN, route_algorithm="q",num_episodes = NUM_EPISODES, use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE))
 # cars.append(Car.Car(5, src2, dst2, START_TIME1, RN, route_algorithm="q",num_episodes = NUM_EPISODES, use_existing_q_table = USE_ALREADY_GENERATED_Q_TABLE))
 
 
 # Run simulations
-SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS)
+SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS, num_episodes = 3500, max_steps_per_episode = 150)
 routes = SM.get_simulation_routes(cars, 0)
 
 # Initialize Animation

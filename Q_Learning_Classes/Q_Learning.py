@@ -36,7 +36,7 @@ class Q_Learning:
 
 
     """
-    def __init__(self, road_network, cars, learning_rate=0.1, discount_factor=0.9, epsilon=0.2):
+    def __init__(self, road_network, cars, num_episodes = 1000, max_steps_per_episode = 100, learning_rate=0.05, discount_factor=0.9, epsilon=0.2):
         """
         Initialize the Q_Learning class.
 
@@ -63,6 +63,8 @@ class Q_Learning:
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
         self.epsilon = epsilon
+        self.num_episodes = num_episodes
+        self.max_steps_per_episode = max_steps_per_episode
 
         # Q Learning Variables
         # self.q_table = self.initialize_q_table()
@@ -72,41 +74,41 @@ class Q_Learning:
         self.blocked = False
         self.finished = False
 
-    def initialize_q_table(self):
-        """
-        Initialize the Q-values table.
-
-        Returns:
-            list: A list of lists representing Q-values for state-action pairs.
-        """
-        q_values = []
-        for i in range(len(self.road_network.nodes_array)):
-            row_values = []
-            if self.node_list.get(i) is None:
-                q_values.append([])
-                continue
-            for j in range(len(self.node_list[i])):
-                row_values.append(0)
-            q_values.append(row_values)
-        return q_values
-
-    def choose_action(self, state):
-        """
-        Choose an action based on the current state using an epsilon-greedy policy.
-
-        Args:
-            state (int): The current state index.
-
-        Returns:
-            int: The chosen action index.
-        """
-        # Epsilon-greedy policy to choose an action
-        if np.random.rand() < self.epsilon:
-            return np.random.choice(len(self.q_table[state]))
-        else:
-            if len(self.q_table[state]) == 0:
-                print("No available actions")
-            return np.argmax(self.q_table[state])  # Exploit by choosing the action with the highest Q-value
+    # def initialize_q_table(self):
+    #     """
+    #     Initialize the Q-values table.
+    #
+    #     Returns:
+    #         list: A list of lists representing Q-values for state-action pairs.
+    #     """
+    #     q_values = []
+    #     for i in range(len(self.road_network.nodes_array)):
+    #         row_values = []
+    #         if self.node_list.get(i) is None:
+    #             q_values.append([])
+    #             continue
+    #         for j in range(len(self.node_list[i])):
+    #             row_values.append(0)
+    #         q_values.append(row_values)
+    #     return q_values
+    #
+    # def choose_action(self, state):
+    #     """
+    #     Choose an action based on the current state using an epsilon-greedy policy.
+    #
+    #     Args:
+    #         state (int): The current state index.
+    #
+    #     Returns:
+    #         int: The chosen action index.
+    #     """
+    #     # Epsilon-greedy policy to choose an action
+    #     if np.random.rand() < self.epsilon:
+    #         return np.random.choice(len(self.q_table[state]))
+    #     else:
+    #         if len(self.q_table[state]) == 0:
+    #             print("No available actions")
+    #         return np.argmax(self.q_table[state])  # Exploit by choosing the action with the highest Q-value
 
     def get_next_road(self, src_node, action):
         """
@@ -470,7 +472,7 @@ class Q_Learning:
         return test_rewards, path_nodes
 
     # for many cars
-    def train_cars(self, start_time: datetime, num_episodes: int = 5000,  max_steps_per_episode=100, epsilon_decay_rate=0.999, mean_rewards_interval=100, is_plot_results=True):
+    def train_cars(self, start_time: datetime, epsilon_decay_rate=0.99, mean_rewards_interval=100, is_plot_results=True):
         """
         Train the Q-learning agent for a source-destination pair.
 
@@ -478,8 +480,6 @@ class Q_Learning:
             src (int): The source node index.
             dst (int): The destination node index.
             start_time (datetime): The start time of the simulation.
-            num_episodes (int): The number of training episodes.
-            max_steps_per_episode (int): The maximum number of steps per episode.
             epsilon_decay_rate (float): The rate of epsilon decay.
             mean_rewards_interval (int): The interval to calculate mean rewards.
 
@@ -496,24 +496,31 @@ class Q_Learning:
             self.agent_list[-1].initialize_q_table()
 
         blocked_roads = self.road_network.blocked_roads_dict
-        # all_training_paths_nodes = [] # list of all the paths the agents took
-        # all_training_times = [] # list of all the training times
-        # mean_rewards = []  # List to store mean rewards for every 10 episodes
-        # mean_reward_sum = 0  # Variable to keep track of the sum of rewards in the last 10 episodes
-
-        for episode in tqdm(range(num_episodes), desc="Episodes", unit="episode"):
+        for episode in tqdm(range(self.num_episodes), desc="Episodes", unit="episode"):
 
             # print("episode: ", episode)
 
             # Initialize parameters to evaluate the episode
-            # self.simulation_time = start_time
-            for agent in self.agent_list:
-                inital_eta = nx.shortest_path_length(self.road_network.nx_graph, agent.src, agent.dst, weight='eta')  # time to dest from the current node
-                agent.last_node_time = inital_eta
+            # for agent in self.agent_list:
+            #     inital_eta = nx.shortest_path_length(self.road_network.nx_graph, agent.src, agent.dst, weight='eta')  # time to dest from the current node
+            #     agent.last_node_time = inital_eta
 
-            for step in range(max_steps_per_episode): # every car can take max_steps_per_episode steps
+            for step in range(self.max_steps_per_episode): # every car can take max_steps_per_episode steps
+
+                # Initialize a flag to check if all agents are done
+                all_agents_done = True
+
+                for agent in self.agent_list:
+                    if not (agent.finished or agent.blocked):
+                        all_agents_done = False
+                        break  # No need to check further if we found an active agent
+
+                if all_agents_done:
+                    # print("All agents are either finished or blocked.")
+                    break  # Exit the episode loop
 
                 for i, agent in enumerate(self.agent_list):
+
                     # for every agent we need to update the state, action, next_state, reward
                     if agent.finished or agent.blocked:
                         # print(f"agent {i} reached destination or blocked!")
@@ -533,7 +540,7 @@ class Q_Learning:
                     # calculate the simulation time for the agent
                     agent.add_time_to_simulation_time()
                     # calculate the reward
-                    reward = agent.calculate_reward(next_state, agent.src, agent.dst, next_road, blocked_roads)
+                    reward = agent.calculate_reward_basic(next_state, agent.src, agent.dst, next_road, blocked_roads)
 
                     # update the agent's path
                     agent.path_roads.append(next_road.id)
@@ -544,10 +551,11 @@ class Q_Learning:
 
                     agent.current_road = agent.next_road
                     agent.num_of_steps += 1
-                    if agent.num_of_steps >= max_steps_per_episode:
+                    if agent.num_of_steps >= self.max_steps_per_episode:
                         agent.reached_destinations.append(False)
                         agent.is_blocked = True
                         continue
+
 
             # agent.rewards.append(total_episode_reward)
             # Calculate mean reward after every {mean_rewards_interval} episodes

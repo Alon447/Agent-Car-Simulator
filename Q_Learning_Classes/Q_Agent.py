@@ -136,21 +136,52 @@ class Q_Agent:
 
         else:
             # get the hour and minute of the current time
-            # if nx.has_path(self.road_network.nx_graph, self.next_state, self.dst):
-            #     self.next_node_time = nx.shortest_path_length(self.road_network.nx_graph, next_state, dst, weight = 'eta') # time to destination from the next node
-            # else:
-            #     # if there is no path to the destination
-            #     return -1000
-            #
-            # if self.next_node_time < self.last_node_time:
-            #     # if the agent is closer to the destination
-            #     self.last_node_time = self.next_node_time
-            return -1
+            if nx.has_path(self.road_network.nx_graph, self.next_state, self.dst):
+                self.next_node_time = nx.shortest_path_length(self.road_network.nx_graph, next_state, dst, weight = 'eta') # time to destination from the next node
+            else:
+                # if there is no path to the destination
+                return -1000
 
-            # self.last_node_time = self.next_node_time
+            if self.next_node_time < self.last_node_time:
+                # if the agent is closer to the destination
+                self.last_node_time = self.next_node_time
+                return -1
+
+            self.last_node_time = self.next_node_time
             # if the agent is not closer to the destination
-            # return -3
+            return -3
 
+    def calculate_reward_basic(self, next_state, src, dst, next_road, blocked_roads):
+        """
+        Calculate the reward for a given action.
+
+        Args:
+            next_state (int): The next node id.
+            src (int): The inital source node index.
+            dst (int): The final destination node index.
+            eta (float): The estimated time of arrival for the next action.
+            path_nodes (list): The list of nodes in the path.
+            delta_time (float): The difference in travel time compared to the shortest path.
+
+        Returns:
+            float: The calculated reward.
+        """
+        # Calculate the reward based on the agent's progress and other factors
+        id = self.next_road.id
+
+        if self.next_road.is_blocked or\
+                (id in blocked_roads.keys() and blocked_roads[id][0] <= self.simulation_time <= blocked_roads[id][1]) or\
+                len(self.q_table[next_state]) == 0:
+            self.blocked = True
+            return -1000
+
+        if self.dst == self.next_state:
+            # High reward for reaching the destination
+            self.finished = True
+            return 1000
+
+        else:
+            return -1
     def update_q_table(self, reward, learning_rate, discount_factor):
         """
         Update the Q-value table based on the Q-learning update rule.
