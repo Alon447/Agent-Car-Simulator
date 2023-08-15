@@ -8,18 +8,13 @@ from matplotlib.animation import FuncAnimation
 from shapely.geometry import Point
 import geopandas as gpd
 import numpy as np
-
-from Main_Files.Road_Network import Road_Network
-
-from Utilities.Getters import Route, Time_taken, Distance_travelled, Simulation_number, Reached_destination, Source, \
-    Destination, node_route_to_osm_route, Roads_used
 from Utilities.Speeds import color_edges_by_speed
 
 
 class Animate_Simulation:
-    def __init__(self, animation_speed = 1, repeat = True ):
+    def __init__(self, animation_speed = 1, repeat = True):
         self.animation = None
-        self.animation_speed = self.choose_animation_speed(animation_speed)
+        self.animation_speed = 1000/animation_speed
         self.repeat = repeat
         self.last_speed_update_time = None
 
@@ -29,69 +24,6 @@ class Animate_Simulation:
         self.origins = []
         self.destinations = []
 
-    def choose_animation_speed(self, animation_speed):
-        return 1000/animation_speed
-    def print_simulation_results(self, SM):
-        """
-        simulation_results follow the format:
-            all_simulations : [ simulation_1:{simulation_number, car_1_info:{..},car_2_info:{..} }, { {},{} }, { {},{} } ]
-        the function prints the results of the simulation in a readable format
-        :param SM: Simulation_Manager object
-
-        :return: None
-        """
-        for result in SM.simulation_results:
-            for array_index, result_dict in result.items():
-                if array_index != Simulation_number:
-                    print("*******************************************")
-                    print("Simulation number: ", result[Simulation_number])
-
-                    print(array_index, ": ")
-                    for key, value in result_dict.items():
-                        if key != Route and key != Time_taken and key != Distance_travelled:
-                            print(key, ": ", value)
-                        elif key == Time_taken:
-                            print(key, ": ", int(value / 60), "minutes")
-                        elif key == Distance_travelled:
-                            print(key, ": ", round(value / 1000, 1), "km")
-                        else:
-                            print("Route length: ", len(value), "roads")
-
-        return
-
-
-    def car_times_bar_chart(self, SM, car_number):
-        """
-        This function plots a bar chart of the times of a specific car in the simulation.
-
-        :param SM: Simulation_Manager object
-        :param car_number: The car number for which the chart will be plotted.
-        """
-        times = []
-        colors = []
-
-        for result in SM.simulation_results:
-            car_key = car_number
-            times.append(result[car_key][Time_taken])
-            if result[car_key][Reached_destination]:
-                colors.append('green')
-            else:
-                colors.append('red')
-        # time_seconds = [td.total_seconds() for td in times]
-        plt.bar((range(1, len(times) + 1)), times, color=colors)
-
-        # Add labels and title
-        plt.xlabel('Simulation Number')
-        plt.ylabel('Time taken [seconds] by Car {}'.format(car_number))
-        plt.title('Bar Chart: Times of Car {} in Simulation'.format(car_number))
-        legend_labels = ['Reached Destination', 'Not Reached Destination']
-        legend_colors = ['green', 'red']
-        legend_patches = [mpatches.Patch(color=color, label=label) for color, label in
-                          zip(legend_colors, legend_labels)]
-
-        plt.legend(handles=legend_patches, title='Legend', loc='upper right')
-
-        plt.show()
 
 
     def plotting_custom_route(self, SM, custom_routes: list, cars: list):
@@ -131,13 +63,13 @@ class Animate_Simulation:
         for j, route in enumerate(custom_routes):
             origin_x, origin_y = RN.get_xy_from_node_id(route[0])
 
-            if cars[j].route_algorithm == "q":
+            if cars[j].route_algorithm_name == "q":
                 color = colors[2]
-            elif cars[j].route_algorithm == "sp":
+            elif cars[j].route_algorithm_name == "sp":
                 color = colors[1]
             else:
                 color=colors[0]
-            label = f'Car {j + 1} ({cars[j].route_algorithm})'  # Create a label for the scatter plot
+            label = f'Car {j + 1} ({cars[j].route_algorithm_name})'  # Create a label for the scatter plot
 
             scatter_list.append(ax.scatter(origin_x,  # x coordiante of the first node of the j route
                                            origin_y,  # y coordiante of the first node of the j route
@@ -163,11 +95,6 @@ class Animate_Simulation:
         plt.legend(frameon=False)
         self.handles, self.labels = ax.get_legend_handles_labels()
 
-        # ax.legend(
-        #     handles=handles + scatter_list, labels=labels + [scatter.get_label() for scatter in scatter_list],
-        #     frameon=False
-        #     )
-
         # animate the route
         self.animate_route(SM, ax, fig, scatter_list, cars_ids)
         return
@@ -176,12 +103,12 @@ class Animate_Simulation:
     def animate_route(self, SM, ax, fig, scatter_list, chosen_cars_ids):
         """
         This function animates the route of the car on the map.
-        :param SM:
+
+        :param SM: Simulation_Manager object
         :param ax:
         :param fig:
         :param scatter_list:
         :param chosen_cars_ids:
-        :param new_routes:
         :return:
         """
         num_updates = len(SM.simulation_update_times)  # Get the number of simulation update times
@@ -202,16 +129,17 @@ class Animate_Simulation:
                     self.running = True
                     self.animation.resume()  # Resume the animation if is_paused is False
             elif event.key == 'escape':
-                plt.close()
                 self.animation = None
+                plt.close()
+
+
+                # plt.close()
                 return
 
         # Connect the key press event to the on_key function
         fig.canvas.mpl_connect('key_press_event', on_key)
 
         def animate(i):
-
-
             if i >= num_updates:
                 self.animation.event_source.stop()  # Stop the animation when it's complete
                 return
@@ -278,63 +206,6 @@ class Animate_Simulation:
             time_text.set_y(text_vertical_positions[1])
 
         self.animation = FuncAnimation(fig, animate, frames = num_updates, interval = self.animation_speed, repeat = self.repeat, repeat_delay=100)
-        plt.show()
+        plt.show(block=True)
         return
 
-    def plot_past_result(self, past_result_json_name):
-        """
-        This function plots the past result of the simulation.
-        :param past_result_json:
-        :return:
-        """
-        global ax, fig, origin_x, dest_x, origin_y, dest_y
-        substring_to_remove = "simulation_results_"
-
-        graph_name = past_result_json_name.replace(substring_to_remove, "")
-        RN = Road_Network(graph_name)
-        # Load the past result
-        with open(f'../Results/{past_result_json_name}.json') as json_file:
-            past_result = json.load(json_file)
-        self.origins = []
-        self.destinations = []
-        # Plot the past result where simulation number = 0
-        first_simulation = past_result[0]
-        routes = []
-        for key in first_simulation.keys():
-            if key != Simulation_number:
-                car_results = first_simulation[key]
-                car_source = car_results[Source]
-                car_destination = car_results[Destination]
-                origin_x, origin_y = RN.get_xy_from_node_id(car_source)
-                self.origins.append((origin_x, origin_y))
-                dest_x, dest_y = RN.get_xy_from_node_id(car_destination)
-                self.destinations.append((dest_x, dest_y))
-
-                car_route = car_results[Route]
-                # car_roads = car_results[Roads_used]
-                routes.append(car_route)
-        if len(routes) == 1:
-            route = node_route_to_osm_route(RN, routes[0])
-            fig, ax = ox.plot_graph_route(
-                RN.graph, route, route_color='red', route_linewidth=2, node_size=0, bgcolor='white', show=False,
-                close=False)
-
-
-        else:
-            for i in range(len(routes)):
-                routes[i] = node_route_to_osm_route(RN, routes[i])
-            fig, ax = ox.plot_graph_routes(RN.graph, routes, route_color='red', route_linewidth=2, node_size=0, bgcolor='white',show=False,
-                close=False)
-
-        for i in range(len(self.origins)):
-            orig_x, orig_y = self.origins[i]
-            dest_x, dest_y = self.destinations[i]
-            ax.scatter(orig_x, orig_y, color='black', s=50, label='Start')
-            ax.scatter(dest_x, dest_y, color='yellow', s=50, label='End')
-        # ax.scatter(origin_x, origin_y, color='black', s=50, label='Start')
-        # ax.scatter(dest_x, dest_y, color='yellow', s=50, label='End')
-        ax.legend()
-
-
-        plt.show()
-        return

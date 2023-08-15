@@ -44,6 +44,10 @@ def get_graph(graph_name: str):
     Load an OSMnx MultiDiGraph from a graphml file.
 
     :param graph_name: the name of the graph file, without the extension
+
+
+
+    :param graph_name: the name of the graph file, without the extension
     :return: osmnx multiDiGraph
     """
     cur = os.getcwd()
@@ -57,19 +61,22 @@ def get_graph(graph_name: str):
 
     return ox.load_graphml(path),path
 
-def get_simulation_speeds_file_path(graph, city_name):
+def get_simulation_speeds_file_path(graph, graph_name):
     """
     Load a dictionary of speeds for each road in the graph.
 
+    :param graph: the graph
     :param graph_name: the name of the graph file, without the extension
+
+
     :return: dictionary of speeds for each road in the graph
     """
     cur = os.getcwd()
     parent = os.path.dirname(cur)
     Speeds_Data = os.path.join(parent, "Speeds_Data")
-    path = Speeds_Data + "/" + city_name + "_speeds.json"
+    path = Speeds_Data + "/" + graph_name + "_speeds.json"
     if not os.path.exists(path):
-        Speeds.generate_day_data(graph, city_name)
+        Speeds.generate_day_data(graph, graph_name)
         print("file created")
     return path
 def get_lat_lng(address):
@@ -85,6 +92,11 @@ def get_lat_lng(address):
     return latitude, longitude
 
 def time_delta_to_seconds(time):
+    """
+    transform a time delta to seconds
+    :param time: timedelta
+    :return:
+    """
     return int(time.total_seconds())
 
 def node_route_to_osm_route(road_network, node_route):
@@ -100,7 +112,8 @@ def node_route_to_osm_route(road_network, node_route):
 
 def get_random_src_dst(RN):
     """
-    :param graph: the road network
+    get a random source and destination from the road network that have a path between them
+    :param RN: the road network
     :return: a random source and destination
     """
     src = RN.nodes_array[random.randint(0, len(RN.nodes_array) - 1)]

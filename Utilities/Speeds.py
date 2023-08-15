@@ -17,7 +17,7 @@ max_speed_mapping = {
 }
 mean_mapping = {  # [ no traffic, low traffic, medium traffic, high traffic]
     'motorway': [87, 72, 50, 40],
-    'motorway_link': [60, 55, 50, 40],  # TODO: check if this is correct
+    'motorway_link': [60, 55, 50, 40],
     'trunk': [87, 72, 50, 40],
     'primary': [87, 72, 50, 40],
     'secondary': [67, 60, 50, 30],
@@ -59,7 +59,16 @@ def add_max_speed_to_graph(graph):
 
 
 def generate_speed(highway, max_speed, day, current_time):
+    """
+    Generate a speed for a road based on the day and time.
 
+    :param highway: (str) highway type
+    :param max_speed: (int) max speed of the road
+    :param day: (int) day of the week
+    :param current_time: (datetime) current time
+
+    :return: speed (int)
+    """
 
     if day == 4: # friday
         if 10 < current_time.hour < 16:  # medium traffic, rush hours in friday
@@ -84,7 +93,6 @@ def generate_speed(highway, max_speed, day, current_time):
             traffic = 1
         else:  # no traffic, night in sunday - thursday
             traffic = 0
-    # print(highway)
 
     mean_speed = mean_mapping.get(highway, [30, 30, 30, 30])
     std = std_mapping.get(highway, [3, 3, 3, 3])
@@ -96,12 +104,16 @@ def generate_speed(highway, max_speed, day, current_time):
     return speed
 
 
-def generate_day_data(graph, city_name):
+def generate_day_data(graph, graph_name):
     """
     Generates a dictionary of speeds for each road in the graph
     based on the day of the week and the time of day
     generates a json file with the Graphs
-    :return:
+
+    :param graph: osmnx multiDiGraph
+    :param graph_name: (str) name of the city
+
+    :return: None
     """
     number_of_roads = len(graph.edges)
     roads = [str(i) for i in range(number_of_roads)]
@@ -147,7 +159,7 @@ def generate_day_data(graph, city_name):
 
     # Print the dictionary
     # print(data)
-    path = "../Speeds_Data/" + city_name + "_speeds.json"
+    path = "../Speeds_Data/" + graph_name + "_speeds.json"
     with open(path, 'w') as outfile:
         json.dump(data, outfile, indent=4)
     return
@@ -156,10 +168,12 @@ def generate_day_data(graph, city_name):
 def color_edges_by_speed(SM, current_time, blocked_roads):
     """
     Colors the edges of the graph according to the speed of the road at the current time
-    :param SM:
-    :param current_time:
-    :param blocked_roads:
-    :return:
+
+    :param SM: (SimulationManager)
+    :param current_time: (datetime)
+    :param blocked_roads: (dict) {road_id: [start_time, end_time]}
+
+    :return: edge_colors (list)
     """
     edge_colors = []
     RN = SM.road_network

@@ -8,36 +8,37 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from geopy.distance import great_circle
+from tqdm import tqdm
 
 from Main_Files.Road_Network import Road_Network
 from Q_Learning_Classes import Q_Agent
+from Utilities.Results import plot_results
 
 
-class QLearning:
+class Q_Learning:
     """
     A Q-learning algorithm implementation for route optimization in a road network.
 
     Attributes:
 
         road_network (Road_Network): The road network for which the Q-learning algorithm is applied.
-
+        node_list (list): A list of lists representing the nodes connectivity in the road network.
+        simulation_time (datetime): The current simulation time.
         learning_rate (float): The learning rate for updating Q-values.
-
         discount_factor (float): The discount factor for future rewards in Q-learning.
-
         epsilon (float): The exploration-exploitation trade-off factor.
+        q_table (dict): A dictionary representing the Q-table.
+        rewards (list): A list of rewards received in each episode.
+        blocked (bool): A flag indicating whether the agent is blocked.
+        finished (bool): A flag indicating whether the agent has reached its destination.
 
-        node_list (dict): Dictionary of node connectivity for available actions.
 
-        q_table (list): A list of Q-values for state-action pairs.
 
-        rewards (list): List to store the rewards during training.
 
-        simulation_time (int): The simulation time in seconds.
     """
-    def __init__(self, road_network, learning_rate=0.1, discount_factor=0.9, epsilon=0.2):
+    def __init__(self, road_network, cars, learning_rate=0.1, discount_factor=0.9, epsilon=0.2):
         """
-        Initialize the QLearning class.
+        Initialize the Q_Learning class.
 
         Args:
             road_network (Road_Network): The road network for which the Q-learning algorithm is applied.
@@ -51,7 +52,12 @@ class QLearning:
         # General
         self.road_network = road_network
         self.node_list = self.road_network.node_connectivity_dict
+
+        # Train and Test
         self.simulation_time = None # datetime object
+        self.cars_list = cars # list of cars
+        self.agent_list = [] # list of agents
+        self.last_node_times = [] # will store the time from the last node to the destination
 
         # Q Learning Parameters
         self.learning_rate = learning_rate
@@ -59,12 +65,12 @@ class QLearning:
         self.epsilon = epsilon
 
         # Q Learning Variables
-        self.q_table = self.initialize_q_table()
+        # self.q_table = self.initialize_q_table()
         self.rewards = []
 
         # Flags
         self.blocked = False
-        self.fininshed = False
+        self.finished = False
 
     def initialize_q_table(self):
         """
@@ -83,7 +89,6 @@ class QLearning:
                 row_values.append(0)
             q_values.append(row_values)
         return q_values
-
 
     def choose_action(self, state):
         """
@@ -120,37 +125,17 @@ class QLearning:
 
 
 
-    def update_state(self, q_agent: Q_Agent, next_road):
-        """
-        Update the state of the Q-Agent after taking an action.
-
-        Args:
-            q_agent (Q_Agent): The Q_Agent instance.
-            next_road (Road): The next road taken.
-
-        Returns:
-            None
-        """
-        q_agent.current_road = next_road
-        return
-
-    def calculate_distance(self, src:int, dst:int):
-        """
-        Calculate the distance between two nodes using their coordinates.
-
-        Args:
-            src (int): The source node index.
-            dst (int): The destination node index.
-
-        Returns:
-            float: The distance between the two nodes.
-        """
-        point_src = (self.road_network.nodes_array[src].y,self.road_network.nodes_array[src].x)
-        point_dst = (self.road_network.nodes_array[dst].y,self.road_network.nodes_array[dst].x)
-        distance = great_circle(point_src, point_dst)
-        return distance
-
     def calculate_reward_basic(self, agent: Q_Agent, next_state, next_road):
+        """
+        THIS IS THE BASIC REWARD FUNCTION FOR THE Q-LEARNING ALGORITHM.
+        ITS TRYING TO MINIMIZE THE NUMBER OF ROADS TAKEN TO REACH THE DESTINATION.
+
+        Calculate the reward for a given action.
+        :param agent:
+        :param next_state:
+        :param next_road:
+        :return:
+        """
         if next_road.is_blocked:
             return -100
         if agent.dst == next_state:
@@ -162,7 +147,7 @@ class QLearning:
         else:
             return -1
 
-    def calculate_reward(self, agent: Q_Agent, next_state, src, dst, next_road, blocked_roads,  eta, path_nodes, delta_time):
+    def calculate_reward(self, agent: Q_Agent, next_state, src, dst, next_road, blocked_roads):
         """
         Calculate the reward for a given action.
 
@@ -179,11 +164,6 @@ class QLearning:
             float: The calculated reward.
         """
         # Calculate the reward based on the agent's progress and other factors
-
-        # src_dst_distance = self.calculate_distance(src, dst)
-        # next_state_dst_distance = self.calculate_distance(next_state, dst)
-        # distance_delta = src_dst_distance - next_state_dst_distance # positive if the agent is closer to the destination
-
         id = next_road.id
 
         if next_road.is_blocked or\
@@ -194,13 +174,14 @@ class QLearning:
 
         if agent.dst == next_state:
             # High reward for reaching the destination
-            self.fininshed = True
+            self.finished = True
             return 1000
         else:
             # get the hour and minute of the current time
             if nx.has_path(self.road_network.nx_graph, next_state, dst):
                 next_node_time = nx.shortest_path_length(self.road_network.nx_graph, next_state, dst, weight = 'eta') # time to destination from the next node
             else:
+                # if there is no path to the destination
                 return -1000
 
             if next_node_time < self.last_node_time:
@@ -210,8 +191,9 @@ class QLearning:
 
             self.last_node_time = next_node_time
             # if the agent is not closer to the destination
-            return -2
-    def update_q_table(self, state, action, next_state, reward, eta):
+            return -3
+
+    def update_q_table(self, state, action, next_state, reward):
         """
         Update the Q-value table based on the Q-learning update rule.
 
@@ -233,14 +215,11 @@ class QLearning:
             if len(self.q_table[next_state]) == 0:
                 max_next_q_value = 0
             else:
-                max_next_q_value = np.max(self.q_table[next_state])  #
+                max_next_q_value = np.max(self.q_table[next_state])
         new_q_value = (1 - self.learning_rate) * current_q_value + self.learning_rate * (reward + self.discount_factor * max_next_q_value)
         self.q_table[state][action] = new_q_value
 
-
-
-
-    def save_q_table(self, src, dst, save_path):
+    def save_q_table(self, agent, save_path):
         """
         Save the Q-value table to a file.
 
@@ -253,15 +232,15 @@ class QLearning:
             None
         """
         blocked_roads = self.road_network.blocked_roads_dict
-        blocked_roads_str = '_blcoked_roads'
+        blocked_roads_str = '_blocked_roads'
         if blocked_roads:
             for block_road in blocked_roads:
                 blocked_roads_str += '_' + str(block_road)
         else:
             blocked_roads_str = ''
-        filename = os.path.join(save_path, f'q_table_{self.road_network.graph_name}_{src}_{dst}{blocked_roads_str}.pkl')
+        filename = os.path.join(save_path, f'q_table_{self.road_network.graph_name}_{agent.src}_{agent.dst}{blocked_roads_str}.pkl')
         with open(filename, 'wb') as f:
-            pickle.dump(self.q_table, f)
+            pickle.dump(agent.q_table, f)
 
     def load_q_table(self, src, dst, save_path):
         """
@@ -276,7 +255,7 @@ class QLearning:
             bool: True if Q-value table was loaded successfully, False if the file was not found.
         """
         blocked_roads = self.road_network.blocked_roads_dict
-        blocked_roads_str = '_blcoked_roads'
+        blocked_roads_str = '_blocked_roads'
         if blocked_roads:
             for block_road in blocked_roads.keys():
                 blocked_roads_str += '_' + str(block_road)
@@ -292,9 +271,24 @@ class QLearning:
             # print(f"Q-table file '{filename}' not found.")
             return False
 
+    def add_time_to_simulation_time(self, next_road):
+        """
+        Add the time to the simulation time.
 
-    # functions for the Route class, gets src and dst instead of agent
-    def train_src_dst(self, src: int, dst: int, start_time: datetime, num_episodes: int,  max_steps_per_episode=100, epsilon_decay_rate=0.9999, mean_rewards_interval=100, plot_results=True):
+        Args:
+            next_road (Road): The next road to travel on.
+
+        :return: Nne
+        """
+        rounded_minutes = self.simulation_time.minute - (self.simulation_time.minute % 10)
+        time_obj = self.simulation_time.replace(minute=rounded_minutes, second=0, microsecond=0)
+        time_str = time_obj.strftime("%H:%M")
+        eta = float(next_road.get_eta(time_str))  # eta in seconds
+        self.simulation_time += datetime.timedelta(seconds=eta)
+
+
+    # train and test for one car
+    def train(self, src: int, dst: int, start_time: datetime, num_episodes: int,  max_steps_per_episode=100, epsilon_decay_rate=0.9999, mean_rewards_interval=100, is_plot_results=True):
         """
         Train the Q-learning agent for a source-destination pair.
 
@@ -317,10 +311,7 @@ class QLearning:
 
         # creating an agent and calculating the shortest path
         agent = Q_Agent.Q_Agent(src, dst, start_time, self.road_network)
-
         blocked_roads = self.road_network.blocked_roads_dict
-        # shortest_path_time = self.calculate_route_eta(path, self.road_network)
-        shortest_path_time = 0
 
         all_training_paths_nodes = []
         all_training_times = []
@@ -338,7 +329,7 @@ class QLearning:
 
             # print("episode: ", episode)
             for step in range(max_steps_per_episode):
-                if step == 0:
+                if agent.num_of_steps == 0:
                     # agent starting now
                     state = agent.src
                     path_nodes.append(state)
@@ -348,38 +339,38 @@ class QLearning:
 
                 action = self.choose_action(state)
                 next_road = self.get_next_road(state, action)
-
                 next_state = next_road.destination_node.id
+
                 # Calculate the rounded minutes
-                rounded_minutes = self.simulation_time.minute - (self.simulation_time.minute % 10)
-                time_obj = self.simulation_time.replace(minute=rounded_minutes,second=0, microsecond=0)
-                time_str = time_obj.strftime("%H:%M")
-
-                eta = float(next_road.get_eta(time_str)) # eta in seconds
-                self.simulation_time += datetime.timedelta(seconds=eta)
-                drive_time = (self.simulation_time - start_time).total_seconds() # drive time in seconds of the agent
-                delta_time = drive_time - shortest_path_time  # positive if the agent is slower than the shortest path
-
-                reward = self.calculate_reward(agent, next_state, src, dst, next_road, blocked_roads, eta, path_nodes, delta_time)
+                # rounded_minutes = self.simulation_time.minute - (self.simulation_time.minute % 10)
+                # time_obj = self.simulation_time.replace(minute=rounded_minutes,second=0, microsecond=0)
+                # time_str = time_obj.strftime("%H:%M")
+                # eta = float(next_road.get_eta(time_str)) # eta in seconds
+                # self.simulation_time += datetime.timedelta(seconds=eta)
+                self.add_time_to_simulation_time(next_road)
+                reward = self.calculate_reward(agent, next_state, src, dst, next_road, blocked_roads)
 
 
                 path_roads.append(next_road.id)
                 path_nodes.append(next_road.destination_node.id)
 
                 total_episode_reward += reward
-                self.update_q_table(state, action, next_state, reward, eta)
+                self.update_q_table(state, action, next_state, reward)
 
-                if self.fininshed:
+                if self.finished:
                     # print("agent reached destination")
                     break
 
                 if self.blocked:  # agent is blocked
                     # print("agent is blocked")
                     break
-                self.update_state(agent, next_road)
+
+                agent.current_road = next_road
+                agent.num_of_steps += 1
+                if agent.num_of_steps >= max_steps_per_episode:
+                    break
 
             self.rewards.append(total_episode_reward)
-
             # Calculate mean reward after every {mean_rewards_interval} episodes
             mean_reward_sum += total_episode_reward
 
@@ -393,9 +384,10 @@ class QLearning:
                 # if mean_reward > 960:
                 #     # print("mean reward: ", mean_reward)
                 #     print("convrged after ", episode, " episodes")
-                mean_reward_sum = 0  # Reset the sum for the next 10 episodes
+                mean_reward_sum = 0  # Reset the sum for the next mean_rewards_interval episodes
+
             self.blocked = False
-            self.fininshed = False
+            self.finished = False
             all_training_paths_nodes.append(copy.deepcopy(path_nodes))
             all_training_times.append(int((self.simulation_time-start_time).total_seconds()))
             path_roads.clear()
@@ -408,11 +400,11 @@ class QLearning:
         print("*********************************************")
 
         # Plot mean rewards
-        if plot_results:
-            self.plot_results(src, dst, all_training_paths_nodes, all_training_times, mean_rewards)
+        if is_plot_results:
+            plot_results(src, dst, all_training_paths_nodes, all_training_times, mean_rewards)
         return self.q_table
 
-    def test_src_dst(self, src: int, dst: int, start_time:datetime, max_steps_per_episode=100):
+    def test(self, src: int, dst: int, start_time:datetime, max_steps_per_episode=100):
         """
         Test the trained Q-learning agent for a source-destination pair.
 
@@ -425,6 +417,8 @@ class QLearning:
         Returns:
             Tuple[float, list]: A tuple containing the total test reward and a list of visited nodes during testing.
         """
+        self.finished = False
+        self.blocked = False
         self.simulation_time = start_time
 
         agent = Q_Agent.Q_Agent(src, dst, datetime.datetime.now(), self.road_network)
@@ -432,9 +426,6 @@ class QLearning:
         blocked_roads = self.road_network.blocked_roads_dict
         self.last_node_time = nx.shortest_path_length(self.road_network.nx_graph, src, dst, weight='eta')  # time to dest from the current node
 
-        path = nx.shortest_path(self.road_network.nx_graph, src, dst, weight='length')
-        # shortest_path_time = self.calculate_route_eta(path, self.road_network)
-        shortest_path_time = 0
         # print("*********************************************")
         # print("          Testing Started                    ")
         print(f"Source: {src}, Destination: {dst}")
@@ -450,98 +441,137 @@ class QLearning:
             action = np.argmax(self.q_table[state])
             next_road = self.get_next_road(state, action)
             next_state = next_road.destination_node.id
+
             # Calculate the rounded minutes
-            rounded_minutes = self.simulation_time.minute - (self.simulation_time.minute % 10)
-            time_obj = self.simulation_time.replace(minute=rounded_minutes, second=0, microsecond=0)
-            time_str = time_obj.strftime("%H:%M")
-            eta = float(next_road.get_eta(time_str))  # eta in seconds
-            self.simulation_time += datetime.timedelta(seconds=eta)
-            drive_time = (self.simulation_time - start_time).total_seconds()
-            delta_time = drive_time - shortest_path_time  # positive if the agent is slower than the shortest path
-            reward = self.calculate_reward(agent, next_state, src, dst, next_road, blocked_roads, eta, path_nodes, delta_time)
+
+            self.add_time_to_simulation_time(next_road)
+
+            reward = self.calculate_reward(agent, next_state, src, dst, next_road, blocked_roads)
 
             path_roads.append(next_road.id)
             path_nodes.append(next_road.destination_node.id)
             # path_time = self.calculate_route_eta(node_route_to_osm_route(path_nodes, self.road_network),self.road_network)
 
             test_rewards += reward
-            # path_roads.append(next_road.get_id())
-            # path_nodes.append(next_road.destination_node[0])
-            # print("path nodes: ", path_nodes)
-            if reward == -100 or reward == 1000:  # agent is blocked or reached destination
-                if reward == -100:
-                    print("agent is blocked!")
-                else:
-                    print("agent reached the destination!")
+
+            if self.blocked:
+                print("agent is blocked!")
+                break
+            elif self.finished:
+                print("agent reached the destination!")
                 break
 
             state = next_state
             if state == agent.dst:
                 # print("agent reached destination")
                 break
-        # print("path nodes: ", path_nodes)
-        # print("path roads: ", path_roads)
+
         print(f"Test reward: {test_rewards:.2f}")
-        # print("*********************************************")
         return test_rewards, path_nodes
 
-    def get_q_table(self):
+    # for many cars
+    def train_cars(self, start_time: datetime, num_episodes: int = 5000,  max_steps_per_episode=100, epsilon_decay_rate=0.999, mean_rewards_interval=100, is_plot_results=True):
         """
-        Get the current Q-value table.
-
-        Returns:
-            list: The current Q-value table.
-        """
-        return self.q_table
-
-    def car_times_bar_chart(self, src, dst, all_training_paths_nodes, all_training_times, ax=None):
-
-        if ax is None:
-            ax = plt.gca()
-        colors = []
-
-        for path in all_training_paths_nodes:
-            if path[-1] == dst:
-                colors.append('green')
-            else:
-                colors.append('red')
-        # time_seconds = [td.total_seconds() for td in times]
-        ax.bar((range(1, len(all_training_times) + 1)), all_training_times, color=colors)
-
-        # Add labels and title
-        ax.set_xlabel('Simulation Number')
-        ax.set_ylabel('Time taken [seconds] by Q Agent')
-        ax.set_title('Bar Chart: Times of Q Agent in Simulation, Source: {}, Destination: {}'.format(src, dst))
-        legend_labels = ['Reached Destination', 'Not Reached Destination']
-        legend_colors = ['green', 'red']
-        legend_patches = [mpatches.Patch(color=color, label=label) for color, label in
-                          zip(legend_colors, legend_labels)]
-
-        ax.legend(handles=legend_patches, title='Legend', loc='upper right')
-
-    def plot_rewards(self, src, dst, var:list, ax=None):
-        """
-        Plot the mean rewards over training episodes.
+        Train the Q-learning agent for a source-destination pair.
 
         Args:
-            var (list): List of mean rewards.
+            src (int): The source node index.
+            dst (int): The destination node index.
+            start_time (datetime): The start time of the simulation.
+            num_episodes (int): The number of training episodes.
+            max_steps_per_episode (int): The maximum number of steps per episode.
+            epsilon_decay_rate (float): The rate of epsilon decay.
+            mean_rewards_interval (int): The interval to calculate mean rewards.
 
         Returns:
-            None
+            list: The Q-value table after training.
         """
-        if ax is None:
-            ax = plt.gca()
+        print("*********************************************")
+        print("          Training Started                   ")
+        print("*********************************************")
+        # agents = []
+        # creating an agent and calculating the shortest path
+        for car in self.cars_list:
+            self.agent_list.append(Q_Agent.Q_Agent(car.source_node, car.destination_node, start_time, self.road_network))
+            self.agent_list[-1].initialize_q_table()
 
-        ax.plot(range(1, len(var) + 1), var)
-        ax.set_xlabel('Interval (Every 100 Episodes)')
-        ax.set_ylabel('Mean Episode Reward')
-        ax.set_title('Mean Rewards over Training, Source: {}, Destination: {}'.format(src, dst))
+        blocked_roads = self.road_network.blocked_roads_dict
+        # all_training_paths_nodes = [] # list of all the paths the agents took
+        # all_training_times = [] # list of all the training times
+        # mean_rewards = []  # List to store mean rewards for every 10 episodes
+        # mean_reward_sum = 0  # Variable to keep track of the sum of rewards in the last 10 episodes
 
-    def plot_results(self, src, dst, all_training_paths_nodes, all_training_times, mean_rewards):
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 10))  # Create a 2-row, 1-column subplot layout
+        for episode in tqdm(range(num_episodes), desc="Episodes", unit="episode"):
 
-        self.car_times_bar_chart(src, dst, all_training_paths_nodes, all_training_times, ax1)
-        self.plot_rewards(src, dst, mean_rewards, ax2)
+            # print("episode: ", episode)
 
-        plt.tight_layout()  # Adjust layout for better spacing
-        plt.show()
+            # Initialize parameters to evaluate the episode
+            # self.simulation_time = start_time
+            for agent in self.agent_list:
+                inital_eta = nx.shortest_path_length(self.road_network.nx_graph, agent.src, agent.dst, weight='eta')  # time to dest from the current node
+                agent.last_node_time = inital_eta
+
+            for step in range(max_steps_per_episode): # every car can take max_steps_per_episode steps
+
+                for i, agent in enumerate(self.agent_list):
+                    # for every agent we need to update the state, action, next_state, reward
+                    if agent.finished or agent.blocked:
+                        # print(f"agent {i} reached destination or blocked!")
+                        continue
+
+                    # print("agent: ", i)
+                    if agent.num_of_steps == 0:
+                        # agent starting now
+                        agent.current_state = agent.src
+                        agent.path_nodes.append(agent.current_state)
+                    else:
+                        # agent is already on the road
+                        agent.current_state = agent.current_road.destination_node.id
+
+                    action, next_road, next_state = agent.step(self.epsilon)
+
+                    # calculate the simulation time for the agent
+                    agent.add_time_to_simulation_time()
+                    # calculate the reward
+                    reward = agent.calculate_reward(next_state, agent.src, agent.dst, next_road, blocked_roads)
+
+                    # update the agent's path
+                    agent.path_roads.append(next_road.id)
+                    agent.path_nodes.append(next_road.destination_node.id)
+
+                    agent.total_episode_reward += reward
+                    agent.update_q_table(reward, self.learning_rate, self.discount_factor)
+
+                    agent.current_road = agent.next_road
+                    agent.num_of_steps += 1
+                    if agent.num_of_steps >= max_steps_per_episode:
+                        agent.reached_destinations.append(False)
+                        agent.is_blocked = True
+                        continue
+
+            # agent.rewards.append(total_episode_reward)
+            # Calculate mean reward after every {mean_rewards_interval} episodes
+
+            for agent in self.agent_list:
+                # end of episode, we need to update the agent and get him ready for the next episode
+                agent.reset()
+
+            self.epsilon *= epsilon_decay_rate
+
+
+        print("*********************************************")
+        print("          Training Finished                  ")
+        print("*********************************************")
+
+        # Plot mean rewards
+        if is_plot_results:
+            for agent in self.agent_list:
+                plot_results(agent.src, agent.dst, agent.all_training_paths_nodes, agent.all_training_times, agent.mean_rewards)
+                self.save_q_table(agent,self.get_tables_directory())
+
+    def get_tables_directory(self):
+        tables_directory = "Q Tables Data"
+        cur = os.getcwd()
+        parent = os.path.dirname(cur)
+        path = os.path.join(parent, tables_directory)
+        return path

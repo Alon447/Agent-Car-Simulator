@@ -212,8 +212,8 @@ class Road:
         new_eta = self.calculate_time()
         return new_eta, self.current_speed
     def __str__(self):
-        return "Road id: " + str(self.id) + ", source node: " + str(self.source_node) + ", destination node: " + str(self.destination_node) + ", length: " + str(self.length) + ", max speed: " + str(self.max_speed) + ", current speed: " + str(self.current_speed) + ", is blocked: " + str(self.is_blocked) #+ ", cars on road: " + str(self.cars_on_road)
+        return "Road id: " + str(self.id) + ", source node: " + str(self.source_node.id) + ", destination node: " + str(self.destination_node.id) + ", length: " + str(self.length) + ", max speed: " + str(self.max_speed) + ", current speed: " + str(self.current_speed) + ", is blocked: " + str(self.is_blocked) #+ ", cars on road: " + str(self.cars_on_road)
 
 
     def __repr__(self):
-        return f"Road(road_id={self.id}, source_node={self.source_node}, destination_node={self.destination_node}, length={self.length}, speed={self.current_speed})"
+        return f"Road(road_id={self.id}, source_node={self.source_node.id}, destination_node={self.destination_node.id}, length={self.length}, speed={self.current_speed})"

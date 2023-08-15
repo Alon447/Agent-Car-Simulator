@@ -1,11 +1,12 @@
 import datetime
 import os
+import pickle
 from abc import abstractmethod, ABC
 import random
 
 import numpy as np
 
-from Q_Learning_Classes.Q_Learning_Functions import QLearning
+from Q_Learning_Classes.Q_Learning import Q_Learning
 from Main_Files.Road_Network import Road_Network
 
 
@@ -102,18 +103,20 @@ class Q_Learning_Route(Route):
         self.current_node = src_node
         self.start_time = start_time
         self.road_network = road_network
-        self.agent = QLearning(road_network, learning_rate=0.1, discount_factor=0.9, epsilon=0.2)
+        # self.agent = Q_Learning(road_network, learning_rate=0.1, discount_factor=0.9, epsilon=0.2)
 
         # num_episodes = 2000
         max_steps_per_episode = 100
         full_tables_path = self.get_tables_directory(r"Q Tables Data")
-        if use_q_table and self.agent.load_q_table(self.src_node, self.dst_node, full_tables_path):
-            self.q_table = self.agent.get_q_table()
-        else:
-            self.q_table = self.agent.train_src_dst(src_node, dst_node, self.start_time, num_episodes, max_steps_per_episode=max_steps_per_episode)
-            self.agent.save_q_table(self.src_node, self.dst_node, full_tables_path)
+        self.q_table = None
+        if use_q_table:
+            self.load_q_table(self.src_node, self.dst_node, full_tables_path)
+
+        # else:
+            # self.q_table = self.agent.train(src_node, dst_node, self.start_time, num_episodes, max_steps_per_episode=max_steps_per_episode)
+            # self.agent.save_q_table(self.src_node, self.dst_node, full_tables_path)
         # Test the agent
-        test_reward, agent_path = self.agent.test_src_dst(src_node, dst_node, self.start_time)  # this will be the Test function
+        # test_reward, agent_path = self.agent.test(src_node, dst_node, self.start_time)  # this will be the Test function
         self.path = [src_node]
 
     def get_tables_directory(self, tables_directory):
@@ -122,9 +125,38 @@ class Q_Learning_Route(Route):
         data = os.path.join(parent, tables_directory)
         return data
 
+    def load_q_table(self, src, dst, save_path):
+        """
+        Load the Q-value table from a file.
+
+        Args:
+            src (int): The source node index.
+            dst (int): The destination node index.
+            save_path (str): The path to load the Q-value table.
+
+        Returns:
+            bool: True if Q-value table was loaded successfully, False if the file was not found.
+        """
+        blocked_roads = self.road_network.blocked_roads_dict
+        blocked_roads_str = '_blocked_roads'
+        if blocked_roads:
+            for block_road in blocked_roads.keys():
+                blocked_roads_str += '_' + str(block_road)
+        else:
+            blocked_roads_str = ''
+
+        filename = os.path.join(save_path, f'q_table_{self.road_network.graph_name}_{src}_{dst}{blocked_roads_str}.pkl')
+        try:
+            with open(filename, 'rb') as f:
+                self.q_table = pickle.load(f)
+            return True
+        except FileNotFoundError:
+            # print(f"Q-table file '{filename}' not found.")
+            return False
 
     def decide_first_road(self):
-
+        if self.q_table is None:
+            self.load_q_table(self.src_node, self.dst_node, self.get_tables_directory(r"Q Tables Data"))
         action = np.argmax(self.q_table[self.src_node]) # action is the index of the destination node in the q table
         dest_node = self.road_network.node_connectivity_dict[self.src_node][action] # dest_node is the id of the next node
         self.current_node = dest_node
@@ -190,16 +222,6 @@ class Q_Learning_Route(Route):
                 if not potential_road.is_blocked and potential_q_value > max_q_val:
                     next_road = potential_road
                     dest_node = potential_dest_node
-        # while next_road.is_blocked:
-        #     valid_actions = [a for a in range(len(self.q_table[self.current_node])) if a != action]
-        #
-        #     if not valid_actions:
-        #         return None
-        #
-        #     second_best_action = np.argmax([self.q_table[self.current_node][a] for a in valid_actions])
-        #     action = valid_actions[second_best_action]
-        #     dest_node = self.road_network.node_connectivity_dict[self.current_node][action]
-        #     next_road = self.road_network.get_road_from_src_dst(self.current_node, dest_node)
 
         self.current_node = dest_node
         return next_road
@@ -224,7 +246,6 @@ class Shortest_path_route(Route):
 
 
     def get_next_road(self):
-        # TODO: update according to distance matrix implementation
         if self.current_node == self.dst_node:
             return None
         next_road = self.road_network.get_next_road_shortest_path(self.current_node, self.dst_node)

@@ -96,6 +96,7 @@ class CarManager:
         self.calc_nearest_update_time(time)
         x, y = car.get_xy_source()
         self.add_update_to_dictionary(car_starting_time, car.id, x, y, car.source_node)
+        return
 
     def sort_cars_in_simulation(self):
         """
@@ -108,12 +109,13 @@ class CarManager:
         # sort the dict by the time until the next road
         # also update the nearest update time
         if len(self.cars_in_simulation) == 0:
-            # self.cars_nearest_update_time=0
             return False
+
         self.cars_in_simulation = dict(
             sorted(self.cars_in_simulation.items(), key=lambda item: item[1].get_time_until_next_road()))
         first_index, first_car = next(iter(self.cars_in_simulation.items()))
         self.cars_nearest_update_time = first_car.get_time_until_next_road()
+        return True
 
     def calc_nearest_update_time(self, time: datetime.datetime):
         """
@@ -167,6 +169,7 @@ class CarManager:
         """
         cars = self.cars_in_simulation.copy()
         blocked_cars = self.cars_blocked.copy()
+
         for key in self.cars_in_simulation:
             car = cars[key]
             current_travel_time = car.update_travel_time(timeStamp)

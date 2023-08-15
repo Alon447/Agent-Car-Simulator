@@ -4,7 +4,7 @@ import random
 
 import networkx as nx
 import pandas as pd
-
+from Q_Learning_Classes import Q_Learning
 from Main_Files import Car_manager
 from Main_Files import Road_Network
 from Main_Files import Car
@@ -78,130 +78,53 @@ class Simulation_manager:
         # FUNCTIONS - read speeds
         self.read_road_speeds(self.simulation_datetime_start)
 
-    def update_simulation_clocks(self, time: int):
+    def run_full_simulation(self, cars, number_of_simulations=1):
         """
-        Update the simulation clocks.
+        Run the full simulation process including setup, execution, and result printing.
 
         Args:
-        time (int): The time interval to update the simulation clock in seconds.
+        cars (list): List of Car objects for the simulation.
+        number_of_simulations (int, optional): Number of simulations to run. Default is 1.
 
         Returns:
         None
         """
-        # update both the spesific simulation time and the datetime
-        self.simulation_time += pd.Timedelta(seconds=time)  # time
-        self.simulation_datetime += pd.Timedelta(seconds=time)  # time
-        self.simulation_update_times.append(self.simulation_datetime)
-        self.day_int = self.simulation_datetime.weekday()  # 0-6, 0 - monday, 1 - tuesday, 2 - wednesday, 3 - thursday, 4 - friday, 5 - saturday, 6 - sunday
-        return
+        for i in range(number_of_simulations):
+            copy_cars = []
+            # make a deep copy of the cars list
+            if number_of_simulations > 1:
+                for car in cars:
+                    new_car = Car.Car(car.id,
+                                      car.source_node,
+                                      car.destination_node,
+                                      car.starting_time,
+                                      self.road_network,
+                                      car.get_routing_algorithm())
+                    copy_cars.append(new_car)
+            else:
+                copy_cars = cars
 
-    def update_simulation_roads_speed_dict(self):
-        """
-        Check if a day is passed in the simulation and update the road speeds accordingly.
-
-        Args:
-        None
-
-        Returns:
-        None
-        """
-        last_update_day = self.last_speed_dict_update_time.weekday()
-        if self.day_int != last_update_day:
-            # update the road speeds according to the day
-            # every day or at the next time a car will be updated (if more than a day passed)
-
-            self.last_speed_dict_update_time = self.simulation_datetime.replace(hour=0).replace(minute=0).replace(second=0).replace(microsecond=0)
-            self.read_road_speeds(self.simulation_datetime)
-        return
-
-    def update_simulation_roads_current_speeds(self):
-        """
-
-        Check if 10 minutes passed in the simulation and update the road speeds accordingly.
-
-        Args:
-        None
-
-        Returns:
-        None
-        """
-        time_difference = self.simulation_datetime - self.last_current_speed_update_time
-        if (self.simulation_datetime.minute % 10 == 0 and self.simulation_datetime.minute - self.last_current_speed_update_time.minute > 0) or time_difference.seconds >= 600:
-            # update the road speeds according to the time
-            # every 10 minutes or at the next time a car will be updated (if more than 10 minutes passed)
-
-            minutes = int(self.simulation_datetime.minute / 10) * 10
-            self.last_current_speed_update_time = self.simulation_datetime.replace(minute=minutes).replace(second=0).replace(microsecond=0)
-
-            # time_key = self.simulation_datetime.replace(minute=minutes).strftime("%H:%M")
-            time_key = self.simulation_datetime.replace(minute=minutes)
-            self.road_network.update_roads_speeds(time_key) # updates the road speeds according to the current time
-
-            print(self.simulation_datetime.strftime("%H:%M:%S"))
-        return
-
-    def update_block_roads(self):
-
-        copied_blocked_roads_dict = self.road_network.blocked_roads_dict.copy()
-
-        for key, value in copied_blocked_roads_dict.items():
-
-            road_id = key
-            start_time = value[0]
-            end_time = value[1]
-            if start_time <= self.simulation_datetime <= end_time and self.road_network.roads_array[road_id].is_blocked == False:
-                self.road_network.block_road(road_id)
-            elif self.simulation_datetime > end_time and self.road_network.roads_array[road_id].is_blocked == True:
-                self.road_network.unblock_road(road_id)
+            # set up the simulation
+            self.start_q_learning_simulation(copy_cars)
+            self.set_up_simulation(copy_cars)
+            self.start_simulation()
+            self.end_simulation(i)
+            # self.road_network.unblock_all_roads()
+            self.write_simulation_results(copy_cars, i)
 
         return
 
-    def read_road_speeds(self, datetime_obj: datetime.datetime):
-        """
-        Read road speeds from a JSON file and update the road network.
-        The Json file supposed to be in the following format:
-        {day_int: {time_key: {road_id: speed}}}
-        The Json file is located at /Speeds_Data/{graph_name}_speeds.json
+    def start_q_learning_simulation(self, copy_cars):
+        q_learning_cars = []
 
-        Args:
-        datetime_obj (datetime.datetime): The datetime for which road speeds are to be read.
-
-        Returns:
-        None
-        """
-        self.last_current_speed_update_time = datetime_obj.replace(second=0, microsecond=0)
-        self.day_int = datetime_obj.weekday()
-        self.speeds_file_path = get_simulation_speeds_file_path(self.road_network.graph, self.graph_name)
-        with open(self.speeds_file_path, 'r') as infile:
-            data = json.load(infile)
-
-        # round the minutes to the nearest 10
-
-        minutes = int(datetime_obj.minute / 10) * 10
-        # time_key = datetime_obj.replace(minute=minutes).strftime("%H:%M")
-        time_key = datetime_obj.replace(minute=minutes)
-        day_data = data.get(str(self.day_int), {})
-        self.road_network.set_roads_speeds_from_dict(day_data, time_key)
+        for car in copy_cars:
+            if car.route_algorithm_name == "q" and car.route.q_table is None:
+                q_learning_cars.append(car)
+        q_learn = Q_Learning.Q_Learning(self.road_network, cars = q_learning_cars, learning_rate=0.1, discount_factor=0.9, epsilon=0.1)
+        q_learn.train_cars(self.simulation_datetime_start)
         return
 
-    def update_road_blockage(self, road_id, start_time = None, end_time = None):
-        """
-        Update the road blockage in the road network.
 
-        Args:
-        road_id (int): The id of the road to be blocked.
-        start_time (datetime.datetime): The datetime the road is blocked.
-        end_time (datetime.datetime): The datetime the road is unblocked.
-
-        Returns:
-        None
-        """
-        if start_time is None:
-            start_time = self.simulation_datetime_start
-        if end_time is None:
-            end_time = self.simulation_datetime_start + datetime.timedelta(seconds = self.time_limit)
-        self.road_network.plan_road_blockage(road_id, start_time, end_time)
-        return
     def set_up_simulation(self, cars: list):
         """
         Set up the simulation by adding cars to the car manager.
@@ -274,40 +197,141 @@ class Simulation_manager:
         print("************************************")
         return
 
-    def run_full_simulation(self, cars, number_of_simulations=1):
+    # update functions for the simulation run
+    def update_simulation_clocks(self, time: int):
         """
-        Run the full simulation process including setup, execution, and result printing.
+        Update the simulation clocks.
 
         Args:
-        cars (list): List of Car objects for the simulation.
-        number_of_simulations (int, optional): Number of simulations to run. Default is 1.
+        time (int): The time interval to update the simulation clock in seconds.
 
         Returns:
         None
         """
-        for i in range(number_of_simulations):
-            copy_cars = []
-            # make a deep copy of the cars list
-            if number_of_simulations > 1:
-                for car in cars:
-                    new_car = Car.Car(car.id,
-                                      car.source_node,
-                                      car.destination_node,
-                                      car.starting_time,
-                                      self.road_network,
-                                      car.get_routing_algorithm())
-                    copy_cars.append(new_car)
-            else:
-                copy_cars = cars
+        # update both the spesific simulation time and the datetime
+        self.simulation_time += pd.Timedelta(seconds=time)  # time
+        self.simulation_datetime += pd.Timedelta(seconds=time)  # time
+        self.simulation_update_times.append(self.simulation_datetime)
+        self.day_int = self.simulation_datetime.weekday()  # 0-6, 0 - monday, 1 - tuesday, 2 - wednesday, 3 - thursday, 4 - friday, 5 - saturday, 6 - sunday
+        return
 
-            # set up the simulation
-            self.set_up_simulation(copy_cars)
-            self.start_simulation()
-            self.end_simulation(i)
-            # self.road_network.unblock_all_roads()
-            self.write_simulation_results(copy_cars, i)
+    def update_simulation_roads_speed_dict(self):
+        """
+        Check if a day is passed in the simulation and update the road speeds accordingly.
+
+        Args:
+        None
+
+        Returns:
+        None
+        """
+        last_update_day = self.last_speed_dict_update_time.weekday()
+        if self.day_int != last_update_day:
+            # update the road speeds according to the day
+            # every day or at the next time a car will be updated (if more than a day passed)
+
+            self.last_speed_dict_update_time = self.simulation_datetime.replace(hour=0).replace(minute=0).replace(second=0).replace(microsecond=0)
+            self.read_road_speeds(self.simulation_datetime)
+        return
+
+    def update_simulation_roads_current_speeds(self):
+        """
+
+        Check if 10 minutes passed in the simulation and update the road speeds accordingly.
+
+        Args:
+        None
+
+        Returns:
+        None
+        """
+        time_difference = self.simulation_datetime - self.last_current_speed_update_time
+        if (self.simulation_datetime.minute % 10 == 0 and self.simulation_datetime.minute - self.last_current_speed_update_time.minute > 0) or time_difference.seconds >= 600:
+            # update the road speeds according to the time
+            # every 10 minutes or at the next time a car will be updated (if more than 10 minutes passed)
+
+            minutes = int(self.simulation_datetime.minute / 10) * 10
+            self.last_current_speed_update_time = self.simulation_datetime.replace(minute=minutes).replace(second=0).replace(microsecond=0)
+
+            # time_key = self.simulation_datetime.replace(minute=minutes).strftime("%H:%M")
+            time_key = self.simulation_datetime.replace(minute=minutes)
+            self.road_network.update_roads_speeds(time_key) # updates the road speeds according to the current time
+
+            print(self.simulation_datetime.strftime("%H:%M:%S"))
+        return
+
+    def update_block_roads(self):
+        """
+
+        Update all the blocked and soon to be blocked roads in the simulation,
+        according to the current time.
+
+
+        :return: None
+        """
+
+        copied_blocked_roads_dict = self.road_network.blocked_roads_dict.copy()
+
+        for key, value in copied_blocked_roads_dict.items():
+
+            road_id = key
+            start_time = value[0]
+            end_time = value[1]
+            if start_time <= self.simulation_datetime <= end_time and self.road_network.roads_array[road_id].is_blocked == False:
+                self.road_network.block_road(road_id)
+            elif self.simulation_datetime > end_time and self.road_network.roads_array[road_id].is_blocked == True:
+                self.road_network.unblock_road(road_id)
 
         return
+
+    def read_road_speeds(self, datetime_obj: datetime.datetime):
+        """
+        Read road speeds from a JSON file and update the road network.
+        The Json file supposed to be in the following format:
+        {day_int: {time_key: {road_id: speed}}}
+        The Json file is located at /Speeds_Data/{graph_name}_speeds.json
+
+        Args:
+        datetime_obj (datetime.datetime): The datetime for which road speeds are to be read.
+
+        Returns:
+        None
+        """
+        self.last_current_speed_update_time = datetime_obj.replace(second=0, microsecond=0)
+        self.day_int = datetime_obj.weekday()
+        self.speeds_file_path = get_simulation_speeds_file_path(self.road_network.graph, self.graph_name)
+        with open(self.speeds_file_path, 'r') as infile:
+            data = json.load(infile)
+
+        # round the minutes to the nearest 10
+
+        minutes = int(datetime_obj.minute / 10) * 10
+        # time_key = datetime_obj.replace(minute=minutes).strftime("%H:%M")
+        time_key = datetime_obj.replace(minute=minutes)
+        day_data = data.get(str(self.day_int), {})
+        self.road_network.set_roads_speeds_from_dict(day_data, time_key)
+        return
+
+    def update_road_blockage(self, road_id, start_time = None, end_time = None):
+        """
+        Update the road blockage in the road network.
+
+        Args:
+        road_id (int): The id of the road to be blocked.
+        start_time (datetime.datetime): The datetime the road is blocked.
+        end_time (datetime.datetime): The datetime the road is unblocked.
+
+        Returns:
+        None
+        """
+        if start_time is None:
+            start_time = self.simulation_datetime_start
+        if end_time is None:
+            end_time = self.simulation_datetime_start + datetime.timedelta(seconds = self.time_limit)
+        self.road_network.plan_road_blockage(road_id, start_time, end_time)
+        return
+
+
 
     def write_simulation_results(self, copy_cars: list, i: int):
         """
@@ -368,6 +392,8 @@ class Simulation_manager:
             else:
                 routes.append(self.simulation_results[simulation_number][carInd][Route])
         return routes
+
+
 
     def get_fixed_node_id(self, node_id: int):
         """

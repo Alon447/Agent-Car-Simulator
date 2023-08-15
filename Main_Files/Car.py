@@ -79,7 +79,7 @@ class Car:
 
         # Route
         self.num_episodes = num_episodes
-        self.route_algorithm = route_algorithm # the algorithm the car will use to decide its route
+        self.route_algorithm_name = route_algorithm # the algorithm the car will use to decide its route
         self.route = self.decide_route_algorithm(route_algorithm, source_node, destination_node) # the route the car will take
 
 
@@ -99,10 +99,13 @@ class Car:
         q_learning_names = [ "q learning", "Q learning", "Q Learning", "q Learning","q","Q"]
         shortest_path_names = ["shortest_path", "shortest path", "Shortest Path", "Shortest path", "shortest", "Shortest","SP","sp"]
         if route_algorithm in q_learning_names:
-           return Route.Q_Learning_Route(source_node, destination_node, self.road_network, self.starting_time, self.num_episodes, self.use_existing_q_table)
+            self.route_algorithm_name = "q"
+            return Route.Q_Learning_Route(source_node, destination_node, self.road_network, self.starting_time, self.num_episodes, self.use_existing_q_table)
         elif route_algorithm in shortest_path_names:
+            self.route_algorithm_name = "sp"
             return Route.Shortest_path_route(source_node, destination_node, self.road_network)
         else:
+            self.route_algorithm_name = "rand"
             return Route.Random_route(source_node, destination_node, self.road_network)
 
     def start_car(self):
@@ -229,9 +232,9 @@ class Car:
         q_learning_names = ["q learning", "Q learning", "Q Learning", "q Learning", "q", "Q"]
         shortest_path_names = ["shortest_path", "shortest path", "Shortest Path", "Shortest path", "shortest",
                                "Shortest", "SP", "sp"]
-        if self.route_algorithm in q_learning_names:
+        if self.route_algorithm_name in q_learning_names:
             return "Q Learning"
-        elif self.route_algorithm in shortest_path_names:
+        elif self.route_algorithm_name in shortest_path_names:
             return "Shortest Path"
         else:
             return "Random Route"
