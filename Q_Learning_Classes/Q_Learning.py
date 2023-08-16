@@ -572,10 +572,11 @@ class Q_Learning:
         print("*********************************************")
 
         # Plot mean rewards
-        if is_plot_results:
-            for agent in self.agent_list:
+
+        for agent in self.agent_list:
+            if is_plot_results:
                 plot_results(agent.src, agent.dst, agent.all_training_paths_nodes, agent.all_training_times, agent.mean_rewards)
-                self.save_q_table(agent,self.get_tables_directory())
+            self.save_q_table(agent,self.get_tables_directory())
 
     def get_tables_directory(self):
         tables_directory = "Q Tables Data"

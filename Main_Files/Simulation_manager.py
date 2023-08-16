@@ -123,7 +123,7 @@ class Simulation_manager:
             if car.route_algorithm_name == "q" and car.route.q_table is None:
                 q_learning_cars.append(car)
         q_learn = Q_Learning.Q_Learning(self.road_network, cars = q_learning_cars, num_episodes= num_episodes, max_steps_per_episode = max_steps_per_episode, learning_rate=0.1, discount_factor=0.9, epsilon=0.1)
-        q_learn.train_cars(self.simulation_datetime_start)
+        q_learn.train_cars(self.simulation_datetime_start,is_plot_results=False)
         return
 
 
