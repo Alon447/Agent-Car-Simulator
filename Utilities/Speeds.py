@@ -186,7 +186,7 @@ def color_edges_by_speed(SM, current_time, blocked_roads):
             # check if the road is blocked at the start time of the simulation
             blocking_start_time = blocked_roads[road.id][0]
             blocking_end_time = blocked_roads[road.id][1]
-            if blocking_start_time <= SM.simulation_datetime_start <= blocking_end_time:
+            if blocking_start_time <= current_time <= blocking_end_time:
                 # if the road is blocked at the start time of the simulation, color it black
                 edge_colors.append('black')
                 continue

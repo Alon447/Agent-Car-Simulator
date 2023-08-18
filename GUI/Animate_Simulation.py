@@ -1,15 +1,10 @@
-import datetime
-import json
-
 from matplotlib import pyplot as plt
-import matplotlib.patches as mpatches
 import osmnx as ox
 from matplotlib.animation import FuncAnimation
 from shapely.geometry import Point
 import geopandas as gpd
 import numpy as np
 from Utilities.Speeds import color_edges_by_speed
-
 
 class Animate_Simulation:
     def __init__(self, animation_speed = 1, repeat = True):
@@ -23,8 +18,6 @@ class Animate_Simulation:
         self.node_colors = []
         self.origins = []
         self.destinations = []
-
-
 
     def plotting_custom_route(self, SM, custom_routes: list, cars: list):
         """
@@ -46,13 +39,13 @@ class Animate_Simulation:
         blocked_roads = SM.road_network.blocked_roads_dict
 
         # color the edges by speed
-        self.edge_colors = color_edges_by_speed(SM, start_time, blocked_roads)
+        self.edge_colors = color_edges_by_speed(SM, SM.simulation_update_times[0], blocked_roads)
         self.origins=[]
         self.destinations=[]
         # color the nodes by traffic lights
         self.node_colors = [
             plt.cm.RdYlGn(node.traffic_lights) if node.traffic_lights else
-            'lightgrey'
+            '#EAEAEA'
             for node in RN.nodes_array
         ]
         # Plot the graph

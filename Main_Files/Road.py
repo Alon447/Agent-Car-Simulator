@@ -1,8 +1,6 @@
 import datetime
 import random
-
 import numpy as np
-
 from Main_Files import Node
 class Road:
     """

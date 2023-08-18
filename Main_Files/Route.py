@@ -3,10 +3,7 @@ import os
 import pickle
 from abc import abstractmethod, ABC
 import random
-
 import numpy as np
-
-from Q_Learning_Classes.Q_Learning import Q_Learning
 from Main_Files.Road_Network import Road_Network
 
 
@@ -120,6 +117,12 @@ class Q_Learning_Route(Route):
         self.path = [src_node]
 
     def get_tables_directory(self, tables_directory):
+        """
+        Get the path to the Q-value tables directory.
+
+        :param tables_directory (str): The name of the directory.
+        :return:
+        """
         cur = os.getcwd()
         parent = os.path.dirname(cur)
         data = os.path.join(parent, tables_directory)
@@ -127,22 +130,26 @@ class Q_Learning_Route(Route):
 
     def load_q_table(self, src, dst, save_path):
         """
-        Load the Q-value table from a file.
+        Load a Q-value table from a file.
+        If the file is not found, the Q-value table will not be loaded.
 
         Args:
+
             src (int): The source node index.
             dst (int): The destination node index.
             save_path (str): The path to load the Q-value table.
 
         Returns:
+
             bool: True if Q-value table was loaded successfully, False if the file was not found.
         """
         blocked_roads = self.road_network.blocked_roads_dict
         blocked_roads_str = '_blocked_roads'
         if blocked_roads:
-            for block_road in blocked_roads.keys():
-                blocked_roads_str += '_' + str(block_road)
-        else:
+            for block_road in blocked_roads:
+                if blocked_roads[block_road][0] <= self.start_time <= blocked_roads[block_road][1]:
+                    blocked_roads_str += '_' + str(block_road)
+        if blocked_roads_str == '_blocked_roads':
             blocked_roads_str = ''
 
         filename = os.path.join(save_path, f'q_table_{self.road_network.graph_name}_{src}_{dst}{blocked_roads_str}.pkl')
@@ -165,8 +172,12 @@ class Q_Learning_Route(Route):
         return self.road_network.get_road_from_src_dst(self.src_node,dest_node)
 
     def find_best_available_road(self, next_node):
-        # function that need to be applied on the next node and not the current node
-        # return the best road to take from the current node if there is one, else return None
+        """
+        function that need to be applied on the next node and not the current node
+        :param next_node (int): the id of the next node to check
+        :return:  the best road to take from the current node if there is one, else return None
+        """
+
         max_q = float('-inf')
         best_road = None
         if len(self.road_network.node_connectivity_dict[next_node]) != 0:
@@ -188,17 +199,16 @@ class Q_Learning_Route(Route):
             # action = np.argmax(actions)  # action is the index of the destination node in the q table
             dest_node = self.road_network.node_connectivity_dict[self.current_node][action]
             next_road = self.road_network.get_road_from_src_dst(self.current_node, dest_node)
+            if next_road.id == 59:
+                print("get_next_road")
+
             if not next_road.is_blocked:
+                # if the road is not blocked, we check if the next road is blocked
                 next_next_road = self.find_best_available_road(dest_node)
                 if next_next_road is not None:
                     self.path.append(dest_node)
                     self.current_node = dest_node
                     return next_road
-        # get the next road after him from the q table and check if it is blocked
-
-        # Check if the chosen road is not blocked
-
-
         return None
 
 

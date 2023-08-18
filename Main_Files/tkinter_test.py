@@ -1,7 +1,6 @@
 import datetime
 import PySimpleGUI as sg
 from Main_Files import Car
-from Main_Files.Simulation_Results_Manager import Simulation_Results_Manager
 import Simulation_manager
 import GUI.Animate_Simulation as AS
 
@@ -44,7 +43,7 @@ while True:
         simulation_speed = float(values["simulation_speed"])
 
         # Initialize Simulation Manager
-        SM = Simulation_manager.Simulation_Manager('TLV', 3 * DAY, TRAFFIC_LIGHTS, Rain_intensity, start_time, SIMULATION_SPEEDS_JSON_NAME)
+        SM = Simulation_manager.Simulation_manager('TLV', 3 * DAY, TRAFFIC_LIGHTS, Rain_intensity, start_time, SIMULATION_SPEEDS_JSON_NAME)
         CM = SM.car_manager
         RN = SM.road_network
         RN.block_road(534)
@@ -68,10 +67,10 @@ while True:
         # AS.car_times_bar_chart(SM, 3)
 
         # Manage and display simulation results
-        SRM = Simulation_Results_Manager(SM.graph_name)
-        SRM.save_results_to_JSON(SM.simulation_results)
-        SM.simulation_results = SRM.read_results_from_JSON()
-        ASS.print_simulation_results(SM)
+        # SRM = Simulation_Results_Manager(SM.graph_name)
+        # SRM.save_results_to_JSON(SM.simulation_results)
+        # SM.simulation_results = SRM.read_results_from_JSON()
+        # ASS.print_simulation_results(SM)
 
 # Close the window when the event loop exits
 window.close()

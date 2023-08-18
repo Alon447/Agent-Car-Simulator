@@ -1,8 +1,5 @@
 import datetime
 import json
-import random
-
-import networkx as nx
 import pandas as pd
 from matplotlib import pyplot as plt
 
@@ -46,7 +43,7 @@ class Simulation_manager:
 
 
 
-    def __init__(self, graph_name, time_limit: int, activate_traffic_lights = False, rain_intensity = 0, traffic_white_noise = True,
+    def __init__(self, graph_name, time_limit: int, activate_traffic_lights = False, rain_intensity = 0, traffic_white_noise = True, is_plot_results = True,
                  start_time = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0,second=0)):
         """
         Initialize the Simulation_manager.
@@ -77,8 +74,12 @@ class Simulation_manager:
 
         # DATA
         self.speeds_file_path = None
+
         # FUNCTIONS - read speeds
         self.read_road_speeds(self.simulation_datetime_start)
+
+        # Flags
+        self.is_plot_results = is_plot_results
 
     def run_full_simulation(self, cars, number_of_simulations=1, num_episodes=1000, max_steps_per_episode=150):
         """
@@ -117,13 +118,22 @@ class Simulation_manager:
         return
 
     def start_q_learning_simulation(self, copy_cars, num_episodes, max_steps_per_episode):
+        """
+        Start the Q-Learning simulation by training the cars that use Q-Learning.
+
+        :param copy_cars (list): List of Car objects for the simulation.
+        :param num_episodes (int): will determine the number of episodes to train the cars.
+        :param max_steps_per_episode (int): will determine the maximum number of steps per episode.
+
+        :return:  None
+        """
         q_learning_cars = []
 
         for car in copy_cars:
             if car.route_algorithm_name == "q" and car.route.q_table is None:
                 q_learning_cars.append(car)
         q_learn = Q_Learning.Q_Learning(self.road_network, cars = q_learning_cars, num_episodes= num_episodes, max_steps_per_episode = max_steps_per_episode, learning_rate=0.1, discount_factor=0.9, epsilon=0.1)
-        q_learn.train_cars(self.simulation_datetime_start,is_plot_results=False)
+        q_learn.train(self.simulation_datetime_start, is_plot_results = self.is_plot_results)
         return
 
 
@@ -378,9 +388,9 @@ class Simulation_manager:
                 Distance_travelled: int(car.distance_traveled),  # in meters, int
             }
 
-        plt.pie([reached_destination.count(True), reached_destination.count(False)], labels = ['True', 'False'], autopct = '%1.1f%%')
-        plt.title('Proportion of Simulation Results')
-        plt.show()
+        # plt.pie([reached_destination.count(True), reached_destination.count(False)], labels = ['True', 'False'], autopct = '%1.1f%%')
+        # plt.title('Proportion of Simulation Results')
+        # plt.show()
         self.simulation_results.append({
             Simulation_number: i + 1,
             **simulation_results
@@ -408,14 +418,14 @@ class Simulation_manager:
 
 
 
-    def get_fixed_node_id(self, node_id: int):
+    def get_fixed_node_id(self, osm_id: int):
         """
         Get the fixed node id of a node.
 
         Args:
-        node_id (int): Node id.
+        node_id (int): osm_id.
 
         Returns:
-        int: Fixed node id.
+        int: node id.
         """
-        return self.road_network.get_node_from_osm_id(node_id)
+        return self.road_network.get_node_from_osm_id(osm_id)

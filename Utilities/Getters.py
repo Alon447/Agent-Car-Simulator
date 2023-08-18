@@ -47,8 +47,6 @@ def get_graph(graph_name: str):
 
     :param graph_name: the name of the graph file, without the extension
 
-
-
     :returns:
     osmnx multiDiGraph
     """
@@ -63,6 +61,18 @@ def get_graph(graph_name: str):
 
     return ox.load_graphml(path),path
 
+def get_q_tables_directory():
+    """
+    get the directory of the q tables
+
+    :return:
+    (str): the updated path
+    """
+    tables_directory = "Q Tables Data"
+    cur = os.getcwd()
+    parent = os.path.dirname(cur)
+    path = os.path.join(parent, tables_directory)
+    return path
 def get_simulation_speeds_file_path(graph, graph_name):
     """
     Load a dictionary of speeds for each road in the graph.
@@ -125,23 +135,6 @@ def get_random_src_dst(RN):
         dst = RN.nodes_array[random.randint(0, len(RN.nodes_array) - 1)]
 
     return src.id, dst.id
-
-def get_far_src_dst(RN):
-    """
-    get a random source and destination from the road network that have a path between them
-    :param RN: the road network
-    :return: a random source and destination
-    """
-    src = RN.nodes_array[random.randint(0, len(RN.nodes_array) - 1)]
-    dst = RN.nodes_array[random.randint(0, len(RN.nodes_array) - 1)]
-    while True:
-        if nx.has_path(RN.nx_graph, src.id, dst.id):
-            if nx.shortest_path_length(RN.nx_graph, src.id, dst.id, weight="length") < 1000:
-                src = RN.nodes_array[random.randint(0, len(RN.nodes_array) - 1)]
-                dst = RN.nodes_array[random.randint(0, len(RN.nodes_array) - 1)]
-                # print("src: ", src.id, "dst: ", dst.id)
-            else:
-                return src.id, dst.id
 
 
 

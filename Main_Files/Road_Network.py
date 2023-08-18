@@ -1,7 +1,5 @@
 import datetime
-
 import networkx as nx
-
 from Main_Files import Road
 import Utilities.Getters as Getters
 from Main_Files import Node

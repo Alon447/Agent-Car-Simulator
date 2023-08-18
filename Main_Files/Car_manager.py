@@ -174,7 +174,7 @@ class CarManager:
             car = cars[key]
             current_travel_time = car.update_travel_time(timeStamp)
 
-            # if the car travel time is longer than 3 hours, then force finish the car
+            # if the car travel time is longer than 2 hours, then force finish the car
             if current_travel_time > datetime.timedelta(hours=2):
                 car.force_finish()
                 self.cars_stuck.append(car)
