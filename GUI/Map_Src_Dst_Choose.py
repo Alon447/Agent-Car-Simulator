@@ -120,7 +120,8 @@ class Map_Src_Dst_Choose:
 
     def clear(self):
         # self.fig.clear()
-        self.ax.clear()
+
+        # self.ax.clear()
         self.osmid = None
         self.mouse_pressed = False
         self.curr_x = None

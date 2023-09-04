@@ -79,3 +79,22 @@ class Insert_Car_Window(tk.Toplevel):
     # TODO: add more error functions as needed
     def no_map_loaded_error(self):
         tk.messagebox.showerror("Error", "No map loaded!")
+
+    def no_source_selected_error(self):
+        tk.messagebox.showerror("Error", "No source selected!")
+
+    def no_destination_selected_error(self):
+        tk.messagebox.showerror("Error", "No destination selected!")
+
+    def get_day_of_the_week(self):
+        return self.drop_days.get()
+
+    def get_hour(self):
+        return int(self.drop_hours.get())
+
+    def get_minute(self):
+        return int(self.drop_minutes.get())
+
+    def get_second(self):
+        return int(self.drop_seconds.get())
+
