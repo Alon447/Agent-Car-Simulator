@@ -276,6 +276,20 @@ class Car:
         """
         return self.road_network.get_xy_from_node_id(self.current_road.source_node.id)
 
+    def set_new_routing_algorithm(self, new_routing_algorithm: str):
+        """
+        Set a new routing algorithm for the car.
+
+        Args:
+        new_routing_algorithm (str): The new routing algorithm name.
+
+        Returns:
+        None
+        """
+        self.route_algorithm_name = new_routing_algorithm
+        self.route = self.decide_route_algorithm(new_routing_algorithm, self.source_node, self.destination_node)
+        return
+
     def __str__(self) -> str:
         """
         Return a string representation of the Car object.

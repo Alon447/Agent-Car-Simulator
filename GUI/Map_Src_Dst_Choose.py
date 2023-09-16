@@ -2,11 +2,13 @@ import matplotlib.pyplot as plt
 import osmnx as ox
 
 import Utilities.Getters as Getters
-#TODO: maybe change it so it will immidiateley show the changes on the map
+
+
+# TODO: maybe change it so it will immidiateley show the changes on the map
 #   also maybe add somewhere else explaination for the functionality: a - src, z - dst, r - reset, q - quit
 
 class Map_Src_Dst_Choose:
-    def __init__(self, G, controller = None):
+    def __init__(self, G, controller=None):
         self.fig = None
         self.ax = None
         self.src_osmid = None
@@ -25,7 +27,6 @@ class Map_Src_Dst_Choose:
         self.have_src = False
         self.have_dst = False
 
-
     def onclick(self, event):
         if event.xdata is not None and event.ydata is not None:
             # Get the limits of the plot
@@ -41,35 +42,38 @@ class Map_Src_Dst_Choose:
             self.curr_x = self.G.nodes[self.osmid]['x']
             self.curr_y = self.G.nodes[self.osmid]['y']
 
-
             if self.is_temp is True:
                 self.scatter.remove()
-            self.scatter = self.ax.scatter(self.curr_x, self.curr_y, color='gray', s=50, label='temporary')
+            fixed_osmid = self.controller.get_node_id_from_osm_id(self.osmid)
+            self.scatter = self.ax.scatter(self.curr_x, self.curr_y, color='gray', s=50, label=f'temporary (node id: {fixed_osmid})')
             self.is_temp = True
             plt.legend()
 
             print("Clicked Junction OSMID:", self.osmid)
 
-
-
     def onpress(self, event):
-        if event.key in ['a','z','r','q']:
-            self.scatter.remove()
-        if event.key == 'a':
-            self.key_pressed = True
-            print("pressed a")
-            self.create_src()
-        elif event.key == 'z':
-            self.key_pressed = True
-            print("pressed z")
-            self.create_dst()
-        elif event.key == 'r':
-            self.key_pressed = True
-            print("pressed r")
-            self.reset_src_dst()
-        elif event.key == 'q':
-            print("pressed q")
-            plt.close()
+        if event.key is None:
+            return
+        try:
+            if event.key in ['a', 'z', 'r', 'q']:
+                self.scatter.remove()
+            if event.key == 'a':
+                self.key_pressed = True
+                print("pressed a")
+                self.create_src()
+            elif event.key == 'z':
+                self.key_pressed = True
+                print("pressed z")
+                self.create_dst()
+            elif event.key == 'r':
+                self.key_pressed = True
+                print("pressed r")
+                self.reset_src_dst()
+            elif event.key == 'q':
+                print("pressed q")
+                plt.close()
+        except:
+            pass
 
     def create_src(self):
         if self.src_scatter is not None:
@@ -105,10 +109,7 @@ class Map_Src_Dst_Choose:
             self.dst_scatter.remove()
             self.dst_scatter = None
 
-
     def create_show_map(self):
-
-
 
         self.fig, self.ax = ox.plot_graph(self.G, bgcolor='white', node_color='black', show=False, close=False)
         self.fig.canvas.mpl_connect('button_press_event', self.onclick)
@@ -116,7 +117,7 @@ class Map_Src_Dst_Choose:
         plt.show()
 
     def get_nodes_id(self):
-        return self.src_osmid,self.dst_osmid
+        return self.src_osmid, self.dst_osmid
 
     def clear(self):
         # self.fig.clear()

@@ -1,3 +1,5 @@
+import traceback
+
 from GUI.Main_Window import Main_Window
 from GUI.New_Simulation_Window import New_Simulation_Window
 import GUI.Animate_Simulation as AS
@@ -27,10 +29,12 @@ class Controller:
         self.G_name = None
         self.view = None
         self.model = None
+        self.temporary_road_network = None
 
         # Simulation parameters
         self.simulation_speed = simulation_speed
         self.repeat = repeat
+        self.cars_init = []
         self.cars = []
         self.simulation_duration = None
         self.add_traffic_white_noise = False
@@ -63,6 +67,12 @@ class Controller:
                                                    self.add_traffic_white_noise, self.simulation_starting_time)
         self.model = SM
 
+    def add_car_init(self, temp_src_id, temp_dst_id, start_time, routing_alg, use_existing_q_table):
+        self.cars_init.append([int(temp_src_id), int(temp_dst_id), start_time, routing_alg, use_existing_q_table])
+
+    def remove_car_init(self):
+        #TODO: add feature to remove car from the list
+        pass
     def add_car(self, car_id, temp_src_id, temp_dst_id, start_time, speed, routing_alg, use_existing_q_table):
         # TODO: make sure that we have all of the parameters for the car
         start_node = self.model.get_fixed_node_id(temp_src_id)
@@ -72,12 +82,17 @@ class Controller:
 
     def load_city_map(self, city_map):
         try:
-            self.G, self.G_name = Getters.get_graph(city_map)
+            # self.G, self.G_name = Getters.get_graph(city_map)
             self.graph_loaded = True
+            self.temporary_road_network = Road_Network.Road_Network(city_map)
+            self.G = self.temporary_road_network.graph
+            self.G_name = self.temporary_road_network.graph_name
             return True
-        except:
+        except Exception as e:
             self.graph_loaded = False
             print("Error loading graph")
+            print(e)
+            traceback.print_exc()
             return False
 
     def get_graph(self):
@@ -147,6 +162,9 @@ class Controller:
         ASS = AS.Animate_Simulation(animation_speed=self.simulation_speed, repeat=self.repeat)
         ASS.plotting_custom_route(SM, routes, cars)
         return ASS.prepare_animation()
+
+    def get_node_id_from_osm_id(self,osm_id):
+        return self.temporary_road_network.get_node_from_osm_id(int(osm_id))
 
 
 if __name__ == "__main__":

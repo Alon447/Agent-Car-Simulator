@@ -23,7 +23,7 @@ TRAFFIC_WHITE_NOISE = False
 Rain_intensity = 0 # 0-3 (0 = no rain, 1 = light rain, 2 = moderate rain, 3 = heavy rain)
 
 # Q-Learning parameters
-USE_ALREADY_GENERATED_Q_TABLE = False
+USE_ALREADY_GENERATED_Q_TABLE = True
 NUM_EPISODES = 2000
 
 # Animation parameters
@@ -31,7 +31,7 @@ ANIMATE_SIMULATION = True
 REPEAT = True
 SIMULATION_SPEED = 10  # X30 faster than one second interval
 
-PLOT_RESULTS = True
+PLOT_RESULTS = False
 
 # Initialize Simulation Manager
 PLACE_NAME = 'TLV'
