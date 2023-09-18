@@ -1,4 +1,5 @@
 import datetime
+import json
 import random
 import time
 
@@ -44,7 +45,7 @@ SIMULATION_SPEED = 10  # X30 faster than one second interval
 
 PLOT_RESULTS = False
 
-NUM_OF_RUNS = 2
+NUM_OF_RUNS = 100
 PLACE_NAME = 'TLV'
 NUM_OF_CARS = 5
 
@@ -97,11 +98,41 @@ def generate_cars(existing_settings, algorithm_ind, RN):
                             use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
     return cars
 
+def print_algorithms_success_rate(SM_results):
+    total_q = NUM_OF_CARS*NUM_OF_RUNS
+    total_sp = NUM_OF_CARS*NUM_OF_RUNS
+    q_success = 0
+    sp_success = 0
+    for i in range(NUM_OF_RUNS):
+        for j in range(NUM_OF_CARS):
+            if SM_results[i][j][ALGORITHMS[Q_IND]][Getters.Reached_destination]:
+                q_success += 1
+            if SM_results[i][j][ALGORITHMS[SP_IND]][Getters.Reached_destination]:
+                sp_success += 1
+    print("q success rate: ", q_success/total_q)
+    print("sp success rate: ", sp_success/total_sp)
+
 
 def change_route_algorithm(cars, algorithm_ind):
     for car in cars:
         car.set_new_routing_algorithm(ALGORITHMS[algorithm_ind])
 
+def get_cars_times(SM):
+    times = {} # format: key = simulation index, value = list of times of cars in the simulation and algorithm
+    for i, result in enumerate(SM.simulation_results):
+        times[i] = []
+        for array_index, result_dict in result.items():
+            if array_index != Simulation_manager.Simulation_number:
+                times[i].append(result_dict[Getters.Time_taken])
+
+def organize_simulation_times(times):
+    organized_times = {} # key = simulation index, value = list of times of cars in the simulation and algorithm
+    # exery even index is shortest path, every odd index is q learning
+    for i in range (0, int(len(times)/NUM_OF_CARS)):
+        organized_times[i] = []
+        for j in range(0,NUM_OF_CARS):
+            organized_times[i].append(times[i*NUM_OF_CARS+j])
+    return organized_times
 
 if __name__ == "__main__":
     out_times_data = []  # format: key= run number and algorithm, value = time for full simulation
@@ -110,22 +141,27 @@ if __name__ == "__main__":
     RN = SM.road_network
     used_settings = []
     run_time_data = {}  # format: key= run number  value = time for full simulation in seconds and algorithm
+
     # main loop
     for i in range(NUM_OF_RUNS):
+        run_time_data[i] = {}
         cur_cars = generate_cars(used_settings, SP_IND, RN)
         start_sp = time.time()
         SM.run_full_simulation(cur_cars, NUMBER_OF_SIMULATIONS, num_episodes=NUM_EPISODES, max_steps_per_episode=100)
         end_sp = time.time()
-        run_time_data[i, ALGORITHMS[SP_IND]] = end_sp - start_sp
+        run_time_data[i][ALGORITHMS[SP_IND]] = end_sp - start_sp
         change_route_algorithm(cur_cars, Q_IND)
         start_q = time.time()
         SM.run_full_simulation(cur_cars, NUMBER_OF_SIMULATIONS, num_episodes=NUM_EPISODES, max_steps_per_episode=100)
         end_q = time.time()
-        run_time_data[i, ALGORITHMS[Q_IND]] = end_q - start_q
-        json_name = save_results_to_JSON(SM.graph_name, SM.simulation_results)
+        run_time_data[i][ALGORITHMS[Q_IND]] = end_q - start_q
         # SM.simulation_results = read_results_from_JSON(SM.graph_name)
-        times = get_simulation_times(SM)
-        print(run_time_data)
-        print_simulation_results(SM)
-
+        # times = get_simulation_times(SM)
+    json_name = save_results_to_JSON(SM.graph_name, SM.simulation_results)
+    print(organize_simulation_times(get_simulation_times(SM)))
+    print(run_time_data)
+    json.dump(run_time_data, open("run_time_data.json", 'w')
+                , indent=4)
+    json.dump(organize_simulation_times(get_simulation_times(SM)), open("times_data.json", 'w'), indent=4)
+    print_algorithms_success_rate(SM.simulation_results)
     pass
