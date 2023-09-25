@@ -104,14 +104,6 @@ class Animate_Simulation:
         :param chosen_cars_ids:
         :return:
         """
-        num_updates = len(SM.simulation_update_times)  # Get the number of simulation update times
-        temp_dict = {id:j for j,id in enumerate(chosen_cars_ids)}
-        self.last_speed_update_time = SM.simulation_update_times[0]
-
-        # Create a flag to control animation pause/resume
-        self.is_paused = False
-        self.running = True
-
         def on_key(event):
             if event.key == ' ':
                 self.is_paused = not self.is_paused
@@ -122,6 +114,8 @@ class Animate_Simulation:
                     self.running = True
                     self.animation.resume()  # Resume the animation if is_paused is False
             elif event.key == 'escape':
+                self.animation.pause()
+                self.running = False
                 self.animation = None
                 plt.close()
 
@@ -129,8 +123,26 @@ class Animate_Simulation:
                 # plt.close()
                 return
 
+        def on_close(event):
+            self.animation.pause()
+            self.running = False
+            self.animation = None
+            plt.close()
+            return
+
+        num_updates = len(SM.simulation_update_times)
+        # Get the number of simulation update times
+        temp_dict = {id:j for j,id in enumerate(chosen_cars_ids)}
+
+        self.last_speed_update_time = SM.simulation_update_times[0]
+        # Create a flag to control animation pause/resume
+        self.is_paused = False
+
+        self.running = True
+
         # Connect the key press event to the on_key function
         fig.canvas.mpl_connect('key_press_event', on_key)
+        fig.canvas.mpl_connect('close_event', on_close)
 
         def animate(i):
             if i >= num_updates:

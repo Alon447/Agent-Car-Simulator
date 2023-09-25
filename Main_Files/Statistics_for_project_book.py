@@ -144,6 +144,7 @@ if __name__ == "__main__":
 
     # main loop
     for i in range(NUM_OF_RUNS):
+        print("*****run number: ", i,"*****")
         run_time_data[i] = {}
         cur_cars = generate_cars(used_settings, SP_IND, RN)
         start_sp = time.time()
@@ -152,16 +153,18 @@ if __name__ == "__main__":
         run_time_data[i][ALGORITHMS[SP_IND]] = end_sp - start_sp
         change_route_algorithm(cur_cars, Q_IND)
         start_q = time.time()
-        SM.run_full_simulation(cur_cars, NUMBER_OF_SIMULATIONS, num_episodes=NUM_EPISODES, max_steps_per_episode=100)
+        cur_learning_time = SM.run_full_simulation(cur_cars, NUMBER_OF_SIMULATIONS, num_episodes=NUM_EPISODES, max_steps_per_episode=100)
         end_q = time.time()
-        run_time_data[i][ALGORITHMS[Q_IND]] = end_q - start_q
+        run_time_data[i][ALGORITHMS[Q_IND]] = end_q - start_q - cur_learning_time
+        run_time_data[i]["learning_time"] = cur_learning_time
         # SM.simulation_results = read_results_from_JSON(SM.graph_name)
         # times = get_simulation_times(SM)
+
     json_name = save_results_to_JSON(SM.graph_name, SM.simulation_results)
     print(organize_simulation_times(get_simulation_times(SM)))
     print(run_time_data)
     json.dump(run_time_data, open("run_time_data.json", 'w')
                 , indent=4)
     json.dump(organize_simulation_times(get_simulation_times(SM)), open("times_data.json", 'w'), indent=4)
-    print_algorithms_success_rate(SM.simulation_results)
+    # print_algorithms_success_rate(SM.simulation_results)
     pass

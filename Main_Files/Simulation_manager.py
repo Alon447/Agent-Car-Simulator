@@ -1,5 +1,7 @@
 import datetime
 import json
+import time
+
 import pandas as pd
 from matplotlib import pyplot as plt
 
@@ -108,14 +110,17 @@ class Simulation_manager:
                 copy_cars = cars
 
             # set up the simulation
+            start_learning_time = time.time()
             self.start_q_learning_simulation(copy_cars, num_episodes, max_steps_per_episode)
+            end_learning_time = time.time()
+            learning_time = end_learning_time - start_learning_time
             self.set_up_simulation(copy_cars)
             self.start_simulation()
             self.end_simulation(i)
             # self.road_network.unblock_all_roads()
             self.write_simulation_results(copy_cars, i)
 
-        return
+        return learning_time
 
     def start_q_learning_simulation(self, copy_cars, num_episodes, max_steps_per_episode):
         """

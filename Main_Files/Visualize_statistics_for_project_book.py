@@ -11,17 +11,22 @@ if __name__=="__main__":
         new_simulation_results = json.load(infile)
     sp_run_times = []
     q_run_times = []
+    q_learning_times = []
     for run in new_simulation_results:
         sp_run_times.append(new_simulation_results[run]["sp"])
         q_run_times.append(new_simulation_results[run]["q"])
+        q_learning_times.append(new_simulation_results[run]["learning_time"])
 
     # avarage run times and standard deviation
     sp_avg = sum(sp_run_times)/len(sp_run_times)
     q_avg = sum(q_run_times)/len(q_run_times)
+    q_learning_times_avg = sum(q_learning_times)/len(q_learning_times)
     sp_std = statistics.stdev(sp_run_times)
     q_std = statistics.stdev(q_run_times)
-    print("sp run times in seconds is ", sp_avg,"+-",sp_std)
-    print("q run times in seconds is ", q_avg,"+-",q_std)
+    q_learning_times_std = statistics.stdev(q_learning_times)
+    print("sp run times in seconds is ", sp_avg,"+-",sp_std, " standard deviation")
+    print("q run times in seconds is ", q_avg,"+-",q_std, " standard deviation")
+    print("q learning times in seconds is ", q_learning_times_avg,"+-",q_learning_times_std, " standard deviation")
 
     # plot run times with sp as x axis and q as y axis
     plt.plot(sp_run_times, q_run_times, 'o')
@@ -56,6 +61,8 @@ if __name__=="__main__":
     q_std_drive_time = statistics.stdev(q_times)
     print("sp drive times in seconds is ", sp_avg_drive_time,"+-",sp_std_drive_time)
     print("q drive times in seconds is ", q_avg_drive_time,"+-",q_std_drive_time)
+    print("*"*50)
+
 
     #   calculate how many times Q learning was faster than SP
     q_faster_count = 0
@@ -68,9 +75,10 @@ if __name__=="__main__":
             q_equal_count += 1
         else:
             sp_fast_count += 1
-    print("q was faster than sp ", q_faster_count, " times")
-    print("q was equal to sp ", q_equal_count, " times")
-    print("sp was faster than q ", sp_fast_count, " times")
+    print("q navigation was faster than sp navigation", q_faster_count, " times")
+    print("q navigation was equal to sp navigation", q_equal_count, " times")
+    print("sp navigation was faster than q navigation", sp_fast_count, " times")
+    print("*"*50)
 
     # scatter q times vs sp times
     x_values = []
@@ -78,7 +86,7 @@ if __name__=="__main__":
         x_values.append(i)
     plt.plot(x_values, sp_times, 'o', label="sp")
     plt.plot(x_values, q_times, 'o', label="q")
-    plt.xlabel("simulation number")
+    plt.xlabel("agent time index in the times array")
     plt.ylabel("time in seconds")
     plt.title("sp vs q learning times")
     plt.legend()
@@ -87,11 +95,60 @@ if __name__=="__main__":
     plt.cla()
     plt.clf()
     plt.close()
+
+    q_to_sp_time_ratio = []
+    for i in range(len(sp_times)):
+        q_to_sp_time_ratio.append(sp_times[i]/q_times[i])
+
+    plt.hist(q_to_sp_time_ratio, bins=20,edgecolor='black', linewidth=1.2)
+    plt.xlabel("sp time / q time")
+    plt.ylabel("number of cars")
+    plt.title("sp time / q time histogram")
+    plt.show()
+
+
+
+
+    plt.cla()
+    plt.clf()
+    plt.close()
+
+
+    sp_run_faster_count = 0
+    q_run_faster_count = 0
+    same_time_count = 0
+
+    sp_to_q_run_time_ratio = []
+    for i in range(len(sp_run_times)):
+        sp_to_q_run_time_ratio.append(sp_run_times[i]/q_run_times[i])
+        if sp_run_times[i] > q_run_times[i]:
+            q_run_faster_count += 1
+        elif sp_run_times[i] < q_run_times[i]:
+            sp_run_faster_count += 1
+        else:
+            same_time_count += 1
+    plt.hist(sp_to_q_run_time_ratio, bins=20,edgecolor='black', linewidth=1.2)
+    plt.xlabel("sp run time / q run time")
+    plt.ylabel("number of runs")
+    plt.title("sp run time / q run time histogram")
+    plt.show()
+
+
+
+    plt.cla()
+    plt.clf()
+    plt.close()
+
+    print("sp ran faster than q run", sp_run_faster_count, " times")
+    print("q ran faster than sp run", q_run_faster_count, " times")
+    print("sp ran equal to q run", same_time_count, " times")
+
     # scatter the nodes used in the simulation
     RN = Road_Network.Road_Network("TLV")
     fig,ax = ox.plot_graph(RN.graph, bgcolor='white', node_color='black', show=False, close=False)
     plt.title("Nodes used in the simulation")
     # plt.show()
+
     all_nodes = ["blue"]+Getters.top_right_nodes +["purple"]+ Getters.bottom_right_nodes +["red"]+ Getters.bottom_left_nodes +["green"]+ Getters.top_left_nodes
     cur_color = "blue"
     for node in all_nodes:
