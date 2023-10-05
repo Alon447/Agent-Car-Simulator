@@ -42,7 +42,7 @@ class NSW_Controller:
 
     def start_simulation(self):
         # Code for starting the simulation
-        #needed parameters:
+        # needed parameters:
         #   simulation duration
         #   simulation starting time
         #   rain intensity
@@ -64,10 +64,12 @@ class NSW_Controller:
         # Destroy the current simulation window if it exists
 
         self.view.destroy()
+
         # Unhide the main window
         # self.view.deiconify()
         self.controller.start_main_window()
 
+    # TODO: check if the two function below are needed
     def load_simulation(self):
         # Code to load a simulation
         print("Loading simulation")
