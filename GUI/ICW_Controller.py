@@ -14,6 +14,7 @@ class ICW_Controller:
         self.cars_vaules = {}
         self.cur_car_id = 0
 
+
     def confirm_choice(self):
         # needed car parameters:
         #   starting time
@@ -42,22 +43,33 @@ class ICW_Controller:
             print("use existing q table: ", self.view.get_use_existing_q_tables())
             # self.view.destroy()
             self.cur_car_id += 1
-            car_to_add = (self.cur_car_id,src, dst,starting_time, routing_algorithm,
+            fixed_src = self.controller.get_fixed_node_id(src)
+            fixed_dst = self.controller.get_fixed_node_id(dst)
+
+            car_to_add = (self.cur_car_id,fixed_src,fixed_dst,starting_time, routing_algorithm,
                                          self.view.get_use_existing_q_tables())
             self.cars_vaules[self.cur_car_id] = car_to_add
             self.view.add_car(car_to_add)
+            self.controller.add_car_values(car_to_add, self.cur_car_id)
             #maybe add cars only when simulation is about to start
             # self.controller.add_car_init(starting_time, src, dst, routing_algorithm,
             #                              self.view.get_use_existing_q_tables())
 
-        except:
+        except Exception as e:
             if self.msdc is None:
                 self.view.no_source_selected_error()
             else:
                 self.view.general_error()
+            print(e)
 
 
 
+    def load_existing_cars(self):
+        cur_car_values_dict = self.controller.get_cars_values_dict()
+        for id in cur_car_values_dict.keys():
+            self.cur_car_id = max(self.cur_car_id, cur_car_values_dict[id][0])
+            self.cars_vaules[id] = cur_car_values_dict[id]
+            self.view.add_car(cur_car_values_dict[id])
 
     def choose_src_dst(self):
         G, self.G_name = self.controller.get_graph()
@@ -81,6 +93,7 @@ class ICW_Controller:
                 item_id = self.view.car_id_from_treeview(item)
                 del self.cars_vaules[item_id]
                 self.treeview_delete_cars(item)
+                self.controller.remove_car_values(item_id)
         else:
             del self.cars_vaules[selected]
             self.treeview_delete_cars(selected)

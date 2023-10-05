@@ -20,6 +20,13 @@ Route = 'Route'
 Roads_used = 'Roads_used'
 Distance_travelled = 'Distance_travelled'
 
+minute_in_seconds = 60
+hour_in_seconds = 60 * minute_in_seconds
+day_in_seconds = 24 * hour_in_seconds
+week_in_seconds = 7 * day_in_seconds
+
+rain_intensity_values = [i for i in range(0, 4)]
+
 hours = [i for i in range(0, 24)]
 minutes = [i for i in range(0, 60)]
 seconds = [i for i in range(0, 60)]
@@ -67,7 +74,7 @@ def get_graph(graph_name: str):
     data = os.path.join(parent, "Graphs")
     path = data + "\\" + graph_name + ".graphml"
     if not os.path.exists(path):
-        graph = ox.graph_from_address(graph_name, network_type='drive', dist = 1500, simplify = True)
+        graph = ox.graph_from_address(graph_name, network_type='drive', dist = 3000, simplify = True)
         modified_graph = Speeds.add_max_speed_to_graph(graph) # add max speed to the graph
         ox.save_graphml(modified_graph, filepath=path)
 

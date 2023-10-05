@@ -6,10 +6,11 @@ import geopandas as gpd
 import numpy as np
 from Utilities.Speeds import color_edges_by_speed
 
+
 class Animate_Simulation:
-    def __init__(self, animation_speed = 1, repeat = True):
+    def __init__(self, animation_speed=1, repeat=True):
         self.animation = None
-        self.animation_speed = 1000/animation_speed
+        self.animation_speed = 1000 / animation_speed
         self.repeat = repeat
         self.last_speed_update_time = None
 
@@ -40,8 +41,8 @@ class Animate_Simulation:
 
         # color the edges by speed
         self.edge_colors = color_edges_by_speed(SM, SM.simulation_update_times[0], blocked_roads)
-        self.origins=[]
-        self.destinations=[]
+        self.origins = []
+        self.destinations = []
         # color the nodes by traffic lights
         self.node_colors = [
             plt.cm.RdYlGn(node.traffic_lights) if node.traffic_lights else
@@ -51,7 +52,7 @@ class Animate_Simulation:
         # Plot the graph
         fig, ax = ox.plot_graph(graph, figsize=(10, 10), show=False, close=False, edge_color=self.edge_colors,
                                 node_color=self.node_colors, bgcolor='white', node_size=5)
-        colors = ['purple','blue','red']  # Add more colors as needed
+        colors = ['purple', 'blue', 'red']  # Add more colors as needed
 
         for j, route in enumerate(custom_routes):
             origin_x, origin_y = RN.get_xy_from_node_id(route[0])
@@ -61,8 +62,8 @@ class Animate_Simulation:
             elif cars[j].route_algorithm_name == "sp":
                 color = colors[1]
             else:
-                color=colors[0]
-            label = f'Car {j + 1} ({cars[j].route_algorithm_name})'  # Create a label for the scatter plot
+                color = colors[0]
+            label = f'Car {cars_ids[j]} ({cars[j].route_algorithm_name})'  # Create a label for the scatter plot
 
             scatter_list.append(ax.scatter(origin_x,  # x coordiante of the first node of the j route
                                            origin_y,  # y coordiante of the first node of the j route
@@ -82,8 +83,8 @@ class Animate_Simulation:
 
         # plot origins and destinations
         for i in range(len(self.origins)):
-            self.origins[i].plot(ax=ax, color='black')
-            self.destinations[i].plot(ax=ax, color='yellow')
+            self.origins[i].plot(ax=ax, color='black', label='car ' + str(cars_ids[i]) + ' origin')
+            self.destinations[i].plot(ax=ax, color='yellow', label='car ' + str(cars_ids[i]) + ' destination')
         # Add a legend with labels from scatter plots
         plt.legend(frameon=False)
         self.handles, self.labels = ax.get_legend_handles_labels()
@@ -92,8 +93,8 @@ class Animate_Simulation:
         self.animate_route(SM, ax, fig, scatter_list, cars_ids)
         return
 
-
     def animate_route(self, SM, ax, fig, scatter_list, chosen_cars_ids):
+        print("animate route")
         """
         This function animates the route of the car on the map.
 
@@ -104,6 +105,15 @@ class Animate_Simulation:
         :param chosen_cars_ids:
         :return:
         """
+
+        def on_repeat():
+            if self.repeat:
+                self.animation.event_source.stop()
+                self.animation = FuncAnimation(fig, animate, frames=num_updates + 1, interval=self.animation_speed,
+                                               repeat=False, repeat_delay=100)
+            else:
+                self.animation.event_source.stop()
+
         def on_key(event):
             if event.key == ' ':
                 self.is_paused = not self.is_paused
@@ -119,12 +129,12 @@ class Animate_Simulation:
                 self.animation = None
                 plt.close()
 
-
                 # plt.close()
                 return
 
         def on_close(event):
-            self.animation.pause()
+            if self.animation is not None:
+                self.animation.pause()
             self.running = False
             self.animation = None
             plt.close()
@@ -132,7 +142,7 @@ class Animate_Simulation:
 
         num_updates = len(SM.simulation_update_times)
         # Get the number of simulation update times
-        temp_dict = {id:j for j,id in enumerate(chosen_cars_ids)}
+        temp_dict = {id: j for j, id in enumerate(chosen_cars_ids)}
 
         self.last_speed_update_time = SM.simulation_update_times[0]
         # Create a flag to control animation pause/resume
@@ -146,6 +156,8 @@ class Animate_Simulation:
 
         def animate(i):
             if i >= num_updates:
+                # ax.clear()
+                on_repeat()
                 self.animation.event_source.stop()  # Stop the animation when it's complete
                 return
             update_idx = i
@@ -162,8 +174,9 @@ class Animate_Simulation:
                         # handles, labels = ax.get_legend_handles_labels()
 
                         ax.clear()
-                        ox.plot_graph(SM.road_network.graph, figsize=(10, 10), show=False, close=False, edge_color=self.edge_colors,
-                                      node_color=self.node_colors, bgcolor='white', node_size=5,ax=ax)
+                        ox.plot_graph(SM.road_network.graph, figsize=(10, 10), show=False, close=False,
+                                      edge_color=self.edge_colors,
+                                      node_color=self.node_colors, bgcolor='white', node_size=5, ax=ax)
 
                         # plot origins and destinations
                         for i in range(len(self.origins)):
@@ -171,18 +184,15 @@ class Animate_Simulation:
                             self.destinations[i].plot(ax=ax, color='yellow')
                         # plt.legend(frameon=False)
                         ax.legend(
-                            handles=self.handles + scatter_list, labels=self.labels ,
+                            handles=self.handles + scatter_list, labels=self.labels,
                             frameon=False
-                            )
+                        )
                         for sc in scatter_list:
                             ax.add_artist(sc)
 
                     x_j, y_j = updates[1][0], updates[1][1]
                     scatter_list[temp_dict[updates[0]]].set_offsets(np.c_[x_j, y_j])
-                    # plot
-                    for i in range(len(self.origins)):
-                        self.origins[i].plot(ax=ax, color='black')
-                        self.destinations[i].plot(ax=ax, color='yellow')
+
 
                 except:
                     print("Error in animate function")
@@ -210,7 +220,7 @@ class Animate_Simulation:
             date_text.set_y(text_vertical_positions[0])
             time_text.set_y(text_vertical_positions[1])
 
-        self.animation = FuncAnimation(fig, animate, frames = num_updates, interval = self.animation_speed, repeat = self.repeat, repeat_delay=100)
+        self.animation = FuncAnimation(fig, animate, frames=num_updates, interval=self.animation_speed,
+                                       repeat=self.repeat, repeat_delay=100)
         plt.show(block=True)
         return
-

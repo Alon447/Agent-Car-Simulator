@@ -2,6 +2,7 @@ import datetime
 import networkx as nx
 from Main_Files import Road
 import Utilities.Getters as Getters
+import Utilities.Speeds as Speeds
 from Main_Files import Node
 
 
@@ -96,9 +97,13 @@ class Road_Network:
             length = round(self.graph.edges[edge]['length'],2) # round to 2 decimal places
             max_speed = (self.graph.edges[edge]['maxspeed'])
             if isinstance(max_speed, list):
-                max_speed = int(max_speed[0])  # Use the first element of the list
-            else:
+                max_speed = max_speed[0]  # Use the first element of the list
+            try:
                 max_speed = int(max_speed)
+            except Exception as e:
+                print("Error casting max_speed to int")
+                print(e)
+                max_speed = Speeds.fix_speed(max_speed)
             type = self.graph.edges[edge]['highway']
 
             new_road = Road.Road(id, start_node ,end_node, length, max_speed,type, activate_traffic_lights, rain_intensity)

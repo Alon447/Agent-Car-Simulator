@@ -198,3 +198,27 @@ def color_edges_by_speed(SM, current_time, blocked_roads):
         else:
             edge_colors.append('green')
     return edge_colors
+
+def fix_speed(speed_str):
+    """
+    Converts a speed string to an integer
+
+    :param speed_str: (str) speed string
+
+    :return: speed (int)
+    """
+    fixed_speed_kmph = 0
+    if 'knots' in speed_str:
+        speed_str = speed_str.replace('knots', '')
+        fixed_speed_kmph = float(speed_str) * 1.852
+    elif 'mph' in speed_str:
+        speed_str = speed_str.replace('mph', '')
+        fixed_speed_kmph = float(speed_str) * 1.60934
+    elif 'RO:urban' in speed_str:
+        fixed_speed_kmph = 50
+    elif 'RO:rural' in speed_str:
+        fixed_speed_kmph = 90
+    elif 'RO:trunk' in speed_str:
+        fixed_speed_kmph = 110
+
+    return fixed_speed_kmph

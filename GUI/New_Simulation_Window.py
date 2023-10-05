@@ -7,7 +7,7 @@ from GUI import Animate_Simulation as asim
 import GUI.NSW_Controller as nswc
 from matplotlib.figure import Figure
 from tkinter import messagebox
-from Utilities.Getters import hours, minutes, seconds, days, weeks, months
+from Utilities.Getters import hours, minutes, seconds, days, weeks, months,rain_intensity_values
 
 # TODO: add the functionality to insert every parameter for the simulation (that isn't already already here- all the optional parameters)
 
@@ -30,10 +30,10 @@ class New_Simulation_Window(tk.Tk):
 
         # Add a spacer frame above the title label
         spacer_frame = ttk.Frame(self.main_frame)
-        spacer_frame.pack(pady=50)
+        spacer_frame.pack()
 
         self.title_label = ttk.Label(self.main_frame, text="Car Navigation System", font=("Helvetica", 20))
-        self.title_label.pack(pady=20)
+        self.title_label.pack()
 
         ##########################################
         # prepare the simulation parameters
@@ -69,26 +69,54 @@ class New_Simulation_Window(tk.Tk):
         self.min_menu_label = ttk.Label(self.main_frame, text="Days")
         self.min_menu_label.pack()
 
-        self.drop_minutes = ttk.Combobox(self.main_frame, values=days)
-        self.drop_minutes.current(0)
-        self.drop_minutes.pack()
+        self.drop_days = ttk.Combobox(self.main_frame, values=days)
+        self.drop_days.current(0)
+        self.drop_days.pack()
 
         self.sec_menu_label = ttk.Label(self.main_frame, text="Weeks")
         self.sec_menu_label.pack()
 
-        self.drop_seconds = ttk.Combobox(self.main_frame, values=weeks)
-        self.drop_seconds.current(0)
-        self.drop_seconds.pack()
+        self.drop_weeks = ttk.Combobox(self.main_frame, values=weeks)
+        self.drop_weeks.current(0)
+        self.drop_weeks.pack()
+
+        self.traffic_white_noise = tk.BooleanVar()
+        self.check_traffic_white_noise = ttk.Checkbutton(self.main_frame, text="add traffic white noise",
+
+                                                           variable=self.traffic_white_noise,
+                                                           onvalue=True, offvalue=False)
+        self.check_traffic_white_noise.pack(pady=10)
+
+        self.plot_results = tk.BooleanVar()
+        self.check_plot_results = ttk.Checkbutton(self.main_frame, text="plot results",
+
+                                                           variable=self.plot_results,
+                                                           onvalue=True, offvalue=False)
+        self.check_plot_results.pack(pady=10)
+
+        self.traffic_lights = tk.BooleanVar()
+        self.check_traffic_lights = ttk.Checkbutton(self.main_frame, text="activate traffic lights",
+
+                                                           variable=self.traffic_lights,
+                                                           onvalue=True, offvalue=False)
+        self.check_traffic_lights.pack(pady=10)
 
 
         # block and unblock roads
 
-        self.block_road_button = ttk.Button(self.main_frame, text="Block Road", command=self.nswc.block_road)
-        self.block_road_button.pack(pady=10)
+        # self.block_road_button = ttk.Button(self.main_frame, text="Block Road", command=self.nswc.block_road)
+        # self.block_road_button.pack(pady=10)
+        #
+        # self.unblock_all_roads_button = ttk.Button(self.main_frame, text="Unblock All Roads",
+        #                                            command=self.nswc.unblock_all_roads)
+        # self.unblock_all_roads_button.pack(pady=10)
 
-        self.unblock_all_roads_button = ttk.Button(self.main_frame, text="Unblock All Roads",
-                                                   command=self.nswc.unblock_all_roads)
-        self.unblock_all_roads_button.pack(pady=10)
+        self.rain_intensity_label = ttk.Label(self.main_frame, text="rain intensity")
+        self.rain_intensity_label.pack()
+
+        self.drop_rain_intensity = ttk.Combobox(self.main_frame, values=rain_intensity_values)
+        self.drop_rain_intensity.current(0)
+        self.drop_rain_intensity.pack()
 
         # car parameters
 
@@ -138,5 +166,20 @@ class New_Simulation_Window(tk.Tk):
     def main(self):
         self.mainloop()
 
+    def get_simulation_duration_parameters(self):
+        return int(self.drop_hours.get()), int(self.drop_days.get()), int(self.drop_weeks.get())
 
+    def cant_run_simulation_error(self, *args):
+        messagebox.showerror("Error", "Can't run simulation, please check that all parameters are set correctly")
 
+    def get_rain_intensity(self):
+        self.drop_rain_intensity.get()
+
+    def get_plot_results(self):
+        return self.plot_results.get()
+
+    def get_traffic_white_noise(self):
+        return self.traffic_white_noise.get()
+
+    def get_traffic_lights(self):
+        return self.traffic_lights.get()

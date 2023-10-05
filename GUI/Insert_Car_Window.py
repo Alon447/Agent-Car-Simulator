@@ -66,15 +66,6 @@ class Insert_Car_Window(tk.Toplevel):
         # car's source and destination
         ###############################
 
-        self.source_title_label = ttk.Label(self, text="Car's Source:")
-        self.source_title_label.pack()
-        self.source_lable = ttk.Label(self, text="(no source selected)")
-        self.source_lable.pack()
-
-        self.destination_title_label = ttk.Label(self, text="Car's Destination:")
-        self.destination_title_label.pack()
-        self.destination_lable = ttk.Label(self, text="(no destination selected)")
-        self.destination_lable.pack()
 
         self.choose_source_button = ttk.Button(self, text="Choose Source and destination",
                                                command=self.icwc.choose_src_dst)
@@ -128,13 +119,15 @@ class Insert_Car_Window(tk.Toplevel):
         self.existing_cars_treeview.column("#4",width=150, anchor=tk.CENTER)
         self.existing_cars_treeview.heading("#4", text="Starting Time")
 
-        self.existing_cars_treeview.column("#5",width=100, anchor=tk.CENTER)
+        self.existing_cars_treeview.column("#5",width=120, anchor=tk.CENTER)
         self.existing_cars_treeview.heading("#5", text="Routing Algorithm")
 
-        self.existing_cars_treeview.column("#6",width=100, anchor=tk.CENTER)
+        self.existing_cars_treeview.column("#6",width=130, anchor=tk.CENTER)
         self.existing_cars_treeview.heading("#6", text="Use Existing Q Tables")
 
         self.existing_cars_treeview.pack()
+
+        self.icwc.load_existing_cars()
 
         self.delete_cars_button = ttk.Button(self, text="Delete Cars", command=lambda: self.icwc.delete_cars(
             self.existing_cars_treeview.selection()))
