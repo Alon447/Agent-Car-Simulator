@@ -15,18 +15,18 @@ class Map_Src_Dst_Choose:
         self.src_osmid = None
         self.dst_osmid = None
         self.G = G
-        self.mouse_pressed = False
+        self.mouse_pressed = False #
         self.key_pressed = False
         self.curr_x = None
         self.curr_y = None
-        self.count = 0
+        self.count = 0 #
         self.scatter = None
-        self.src_scatter = None
-        self.dst_scatter = None
+        self.src_scatter = None #
+        self.dst_scatter = None #
         self.controller = controller
         self.is_temp = False
-        self.have_src = False
-        self.have_dst = False
+        self.have_src = False #
+        self.have_dst = False #
         self.cur_gdf = None
 
     def onclick(self, event):
@@ -37,9 +37,9 @@ class Map_Src_Dst_Choose:
             ylim = self.ax.get_ylim()
 
             # Transform the clicked point to lon, lat
-            lat, lon = event.xdata, event.ydata
+            x, y = event.xdata, event.ydata
             # Find the nearest node (junction) to the clicked point
-            self.osmid = ox.distance.nearest_nodes(self.G, lat, lon)
+            self.osmid = ox.distance.nearest_nodes(self.G, x, y)
 
             self.curr_x = self.G.nodes[self.osmid]['x']
             self.curr_y = self.G.nodes[self.osmid]['y']

@@ -25,7 +25,7 @@ hour_in_seconds = 60 * minute_in_seconds
 day_in_seconds = 24 * hour_in_seconds
 week_in_seconds = 7 * day_in_seconds
 
-rain_intensity_values = [i for i in range(0, 4)] # TODO: change to none, light, medium, heavy
+rain_intensity_values = ["None", "Light", "Moderate", "Heavy"] # TODO: change to none, light, medium, heavy
 
 hours = [i for i in range(0, 24)]
 minutes = [i for i in range(0, 60)]
