@@ -14,16 +14,16 @@ class Main_Window(tk.Tk):
         super().__init__()
         self.controller = controller
         self.title("Car Navigation")
-        # self.make
         self.main_frame = ttk.Frame(self, padding=20)
         self.main_frame.grid(row=0, column=0, padx=100, pady=100)
 
-        self.title_label = ttk.Label(self.main_frame, text="Car Navigation System", font=("Helvetica", 20))
+        self.title_label = ttk.Label(self.main_frame, text="Car Navigation System", font=("Ariel", 20))
         self.title_label.pack(pady=20)
 
         button_style = ttk.Style()
-        button_style.configure("TButton", font=("Helvetica", 14))
+        button_style.configure("TButton", font=("Ariel", 14))
 
+        # start new simulation button
         self.new_simulation_button = ttk.Button(self.main_frame, text="Start New Simulation",
                                                 command=self.mwc.start_new_simulation, width=20)
         self.new_simulation_button.pack(pady=10)
@@ -34,7 +34,7 @@ class Main_Window(tk.Tk):
         #
         # self.settings_button = ttk.Button(self.main_frame, text="Settings", command=self.mwc.open_settings, width=20)
         # self.settings_button.pack(pady=10)
-
+        # exit button
         self.exit_button = ttk.Button(self.main_frame, text="Exit", command=self.mwc.quit, width=20)
         self.exit_button.pack(pady=10)
 

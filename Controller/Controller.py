@@ -41,8 +41,9 @@ class Controller:
         self.add_traffic_white_noise = False
         self.simulation_starting_time = None
         self.plot_results = False
-        self.blocked_roads = []
-        self.planned_blockages = []
+        self.blocked_roads_array = []
+        self.blocked_roads_dict = {}  # key: road id, value: list of blocked times
+
         # helper variables
 
     # view control
@@ -55,7 +56,6 @@ class Controller:
         self.view.main()
 
     # model control
-
     def start_simulation(self, simulation_duration, traffic_lights, rain_intensity, add_traffic_white_noise,
                          plot_results, num_episodes=2000, max_steps_per_episode=100,simulation_speed=5, repeat=True):
         # TODO: insert the cars to the simulation, also option to show statistics
@@ -88,6 +88,8 @@ class Controller:
                                                    traffic_white_noise=add_traffic_white_noise,
                                                    is_plot_results=plot_results, start_time=simulation_starting_time)
         self.model = SM
+        for road_id in self.blocked_roads_array:
+            self.model.update_road_blockage(road_id, self.blocked_roads_dict[road_id][3], self.blocked_roads_dict[road_id][4])
 
     # def add_car_values(self, temp_src_id, temp_dst_id, start_time, routing_alg, use_existing_q_table):
     #     self.cars_values.append([int(temp_src_id), int(temp_dst_id), start_time, routing_alg, use_existing_q_table])
@@ -95,8 +97,17 @@ class Controller:
     def add_car_values(self, car_values, car_id):
         self.cars_values_dict[car_id] = car_values
 
+    def add_blockage_values(self, blockage_values, blockage_id, start_time, end_time):
+        self.blocked_roads_dict[blockage_id] = blockage_values
+        self.blocked_roads_array.append(blockage_id)
+
     def remove_car_values(self, car_id):
         self.cars_values_dict.pop(car_id)
+        pass
+
+    def remove_blockage_values(self, blockage_id):
+        self.blocked_roads_dict.pop(blockage_id)
+        self.blocked_roads_array.remove(blockage_id)
         pass
 
     def add_car(self, car_id, start_node, end_node, start_time, speed, routing_alg, use_existing_q_table):
@@ -140,9 +151,13 @@ class Controller:
 
     # get resources
 
-    def get_fixed_node_id(self, node_id):
-        return self.road_network.get_node_from_osm_id(node_id)
+    def get_fixed_node_id(self, osm_id):
+        return self.road_network.get_node_from_osm_id(osm_id)
 
+    def get_fixed_road_id(self, src_osm_id, dst_osm_id):
+        src_node_id = self.get_fixed_node_id(src_osm_id)
+        dst_node_id = self.get_fixed_node_id(dst_osm_id)
+        return self.road_network.get_road_from_src_dst(src_node_id, dst_node_id).id
     def calculate_starting_time(self):
         cur_time = self.cars_values_dict[next(iter(self.cars_values_dict))][3]#car's starting datetime
         for car in self.cars_values_dict:

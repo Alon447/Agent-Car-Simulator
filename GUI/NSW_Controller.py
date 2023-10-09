@@ -1,4 +1,5 @@
 from GUI import Insert_Car_Window as icw
+from GUI import Insert_Block_Road as ibr
 from Utilities import Getters as gtrs
 
 #TODO: add functionality of sending simulation parameters to the controller
@@ -34,6 +35,10 @@ class NSW_Controller:
     def block_road(self):
         # Code for blocking a road
         print("Blocking road")
+        if not self.map_loaded:
+            self.view.no_map_loaded_error()
+        else:
+            self.block_road = ibr.Insert_Block_Road(self.view,self.controller)
 
     def unblock_all_roads(self):
         # Code for unblocking all roads
@@ -42,7 +47,7 @@ class NSW_Controller:
 
     def start_simulation(self):
         # Code for starting the simulation
-        #needed parameters:
+        # needed parameters:
         #   simulation duration
         #   simulation starting time
         #   rain intensity
@@ -64,10 +69,12 @@ class NSW_Controller:
         # Destroy the current simulation window if it exists
 
         self.view.destroy()
+
         # Unhide the main window
         # self.view.deiconify()
         self.controller.start_main_window()
 
+    # TODO: check if the two function below are needed
     def load_simulation(self):
         # Code to load a simulation
         print("Loading simulation")

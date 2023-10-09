@@ -25,7 +25,7 @@ hour_in_seconds = 60 * minute_in_seconds
 day_in_seconds = 24 * hour_in_seconds
 week_in_seconds = 7 * day_in_seconds
 
-rain_intensity_values = [i for i in range(0, 4)]
+rain_intensity_values = ["None", "Light", "Moderate", "Heavy"] # TODO: change to none, light, medium, heavy
 
 hours = [i for i in range(0, 24)]
 minutes = [i for i in range(0, 60)]
@@ -36,11 +36,13 @@ weeks = [i for i in range(0, 4)]
 months = [i for i in range(0, 12)]
 
 # for testing and statistics in TLV map:
+# TODO: check if neccessary
 top_right_nodes = [714,428,963,720,242,969,677,319,206,653,404,970,964,406,684,870]
 bottom_left_nodes = [650,604,651,652,135,602,647,803,480,637,644,640,872,884,497,166]
 
 top_left_nodes = [991,989,749,115,113,107,731,730,0,1,9,877,992,704,762]
 bottom_right_nodes = [866,443,912,898,960,819,829,506,203,865,505,508,627,658,99,597]
+#
 
 days_of_the_week = [
     "Monday",

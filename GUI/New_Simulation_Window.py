@@ -48,6 +48,8 @@ class New_Simulation_Window(tk.Tk):
         self.city_map_entry = tk.Text(self.main_frame, width=15, height=1)
         self.city_map_entry.pack(pady=10)
 
+        self.city_map_entry.insert(tk.END, "TLV") # TODO: remove this line after testing
+
         self.load_status_label = ttk.Label(self.main_frame, text="City map not loaded")
         self.load_status_label.pack(pady=10)
 
@@ -82,48 +84,42 @@ class New_Simulation_Window(tk.Tk):
 
         self.traffic_white_noise = tk.BooleanVar()
         self.check_traffic_white_noise = ttk.Checkbutton(self.main_frame, text="add traffic white noise",
-
                                                            variable=self.traffic_white_noise,
                                                            onvalue=True, offvalue=False)
         self.check_traffic_white_noise.pack(pady=10)
 
         self.plot_results = tk.BooleanVar()
         self.check_plot_results = ttk.Checkbutton(self.main_frame, text="plot results",
-
                                                            variable=self.plot_results,
                                                            onvalue=True, offvalue=False)
         self.check_plot_results.pack(pady=10)
 
         self.traffic_lights = tk.BooleanVar()
         self.check_traffic_lights = ttk.Checkbutton(self.main_frame, text="activate traffic lights",
-
                                                            variable=self.traffic_lights,
                                                            onvalue=True, offvalue=False)
         self.check_traffic_lights.pack(pady=10)
 
-
-        # block and unblock roads
-
-        # self.block_road_button = ttk.Button(self.main_frame, text="Block Road", command=self.nswc.block_road)
-        # self.block_road_button.pack(pady=10)
-        #
-        # self.unblock_all_roads_button = ttk.Button(self.main_frame, text="Unblock All Roads",
-        #                                            command=self.nswc.unblock_all_roads)
-        # self.unblock_all_roads_button.pack(pady=10)
-
-        self.rain_intensity_label = ttk.Label(self.main_frame, text="rain intensity")
+        self.rain_intensity_label = ttk.Label(self.main_frame, text = "rain intensity")
         self.rain_intensity_label.pack()
 
-        self.drop_rain_intensity = ttk.Combobox(self.main_frame, values=rain_intensity_values)
+        self.drop_rain_intensity = ttk.Combobox(self.main_frame, values = rain_intensity_values)
         self.drop_rain_intensity.current(0)
         self.drop_rain_intensity.pack()
 
-        # car parameters
-
-
+        # add car button
 
         self.add_car_button = ttk.Button(self.main_frame, text="Add New Car", command=self.nswc.add_new_car)
         self.add_car_button.pack(pady=10)
+
+        # block and unblock roads
+
+        self.block_road_button = ttk.Button(self.main_frame, text="Block Road", command=self.nswc.block_road)
+        self.block_road_button.pack(pady=10)
+
+        self.unblock_all_roads_button = ttk.Button(self.main_frame, text="Unblock All Roads",
+                                                   command=self.nswc.unblock_all_roads)
+        self.unblock_all_roads_button.pack(pady=10)
 
         ##########################################
         # all set and done

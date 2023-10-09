@@ -84,7 +84,6 @@ class Insert_Car_Window(tk.Toplevel):
 
         self.use_existing_q_tables = tk.BooleanVar()
         self.check_use_existing_q_tables = ttk.Checkbutton(self, text="Use Existing Tables",
-                                                           command=self.icwc.toggle_use_existing_tables,
                                                            variable=self.use_existing_q_tables,
                                                            onvalue=True, offvalue=False)
         self.check_use_existing_q_tables.pack()
@@ -133,6 +132,7 @@ class Insert_Car_Window(tk.Toplevel):
             self.existing_cars_treeview.selection()))
         self.delete_cars_button.pack()
 
+    # Exception handling
     # TODO: add more error functions as needed
     def no_map_loaded_error(self):
         tk.messagebox.showerror("Error", "No map loaded!")
