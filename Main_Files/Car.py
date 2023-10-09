@@ -145,6 +145,8 @@ class Car:
         # print("next road: ", next_road)
 
         if next_road is None or next_road.is_blocked:
+            print("Car " + str(self.id) + " is blocked"
+                    + " on road " + str(self.current_road.id) + " at time " + str(self.total_travel_time))
             next_road = self.route.get_alt_road()
             if next_road is None:  # all roads are blocked
                 self.is_blocked = True

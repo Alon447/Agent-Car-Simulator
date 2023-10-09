@@ -56,12 +56,12 @@ class Controller:
         self.view.main()
 
     # model control
-    def start_simulation(self, simulation_duration, traffic_lights, rain_intensity, add_traffic_white_noise,
+    def start_simulation(self, traffic_lights, rain_intensity, add_traffic_white_noise,
                          plot_results, num_episodes=2000, max_steps_per_episode=100,simulation_speed=5, repeat=True):
         # TODO: insert the cars to the simulation, also option to show statistics
         #  also add option to load existing simulation
         simulation_starting_time = self.calculate_starting_time()
-        self.set_simulation_manager(simulation_duration, traffic_lights, rain_intensity, add_traffic_white_noise,
+        self.set_simulation_manager(traffic_lights, rain_intensity, add_traffic_white_noise,
                                     plot_results, simulation_starting_time)
         self.set_cars()
         self.model.run_full_simulation(self.cars, num_episodes=num_episodes, max_steps_per_episode=max_steps_per_episode)
@@ -76,18 +76,18 @@ class Controller:
         self.cars = []
         for car_id in self.cars_values_dict:
             car = self.cars_values_dict[car_id]
-            self.add_car(car[0], car[1], car[2], car[3],self.road_network, car[4], car[5])
+            self.add_car(car[0], car[1], car[2], car[3], self.road_network, car[4], car[5])
         pass
 
-    def set_simulation_manager(self, simulation_duration, traffic_lights, rain_intensity, add_traffic_white_noise,
+    def set_simulation_manager(self, traffic_lights, rain_intensity, add_traffic_white_noise,
                                plot_results, simulation_starting_time):
         # TODO: add checks for values (check if they exist and are valid)
-        SM = Simulation_manager.Simulation_manager(graph_name=self.G_name, time_limit=simulation_duration,
+        self.model = Simulation_manager.Simulation_manager(graph_name=self.G_name,
                                                    activate_traffic_lights=traffic_lights,
                                                    rain_intensity=rain_intensity,
                                                    traffic_white_noise=add_traffic_white_noise,
                                                    is_plot_results=plot_results, start_time=simulation_starting_time)
-        self.model = SM
+        self.road_network = self.model.road_network
         for road_id in self.blocked_roads_array:
             self.model.update_road_blockage(road_id, self.blocked_roads_dict[road_id][3], self.blocked_roads_dict[road_id][4])
 
@@ -112,14 +112,15 @@ class Controller:
 
     def add_car(self, car_id, start_node, end_node, start_time, speed, routing_alg, use_existing_q_table):
         # TODO: make sure that we have all of the parameters for the car
-        # start_node = self.model.get_fixed_node_id(temp_src_id)
-        # end_node = self.model.get_fixed_node_id(temp_dst_id)
+
         new_car = Car.Car(car_id, start_node, end_node, start_time, speed, routing_alg, use_existing_q_table)
         self.cars.append(new_car)
 
     def get_cars_values_dict(self):
         return self.cars_values_dict
 
+    def get_blocked_roads_dict(self):
+        return self.blocked_roads_dict
     def load_city_map(self, city_map):
         try:
             # self.G, self.G_name = Getters.get_graph(city_map)

@@ -53,16 +53,17 @@ class NSW_Controller:
         #   rain intensity
         #   traffic lights
         #   add traffic white noise
+
         if not self.controller.check_can_run_simulation():
             self.view.cant_run_simulation_error()
             return
-        duration = self.get_simulation_duration()
+        # duration = self.get_simulation_duration()
         rain_intensity = self.view.get_rain_intensity()
         traffic_lights = self.view.get_traffic_lights()
         add_traffic_white_noise = self.view.get_traffic_white_noise()
         plot_results = self.view.get_plot_results()
 
-        self.controller.start_simulation(duration, traffic_lights, rain_intensity, add_traffic_white_noise,plot_results)
+        self.controller.start_simulation(traffic_lights, rain_intensity, add_traffic_white_noise,plot_results)
         print("Starting simulation")
 
     def back_to_main_menu(self):
@@ -101,9 +102,9 @@ class NSW_Controller:
             return False
         return True
 
-    def get_simulation_duration(self):
-        hours,days,weeks =  self.view.get_simulation_duration_parameters()
-        return hours*gtrs.hour_in_seconds + days*gtrs.day_in_seconds + weeks*gtrs.week_in_seconds
+    # def get_simulation_duration(self):
+    #     hours,days,weeks =  self.view.get_simulation_duration_parameters()
+    #     return hours*gtrs.hour_in_seconds + days*gtrs.day_in_seconds + weeks*gtrs.week_in_seconds
 
 
     def toggle_traffic_white_noise(self):

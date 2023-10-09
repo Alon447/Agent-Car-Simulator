@@ -11,7 +11,7 @@ from Main_Files import Road_Network
 from Main_Files import Car
 from Utilities.Getters import time_delta_to_seconds, get_simulation_speeds_file_path, Source, Destination, \
     Reached_destination, Routing_algorithm, Time_taken, Day_of_week, Start_time, End_time, Route, Roads_used, \
-    Distance_travelled, Simulation_number
+    Distance_travelled, Simulation_number, Blocked_roads
 
 
 class Simulation_manager:
@@ -45,7 +45,7 @@ class Simulation_manager:
 
 
 
-    def __init__(self, graph_name, time_limit: int, activate_traffic_lights = False, rain_intensity = 0, traffic_white_noise = True, is_plot_results = True,
+    def __init__(self, graph_name, activate_traffic_lights = False, rain_intensity = 0, traffic_white_noise = True, is_plot_results = True,
                  start_time = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0,second=0)):
         """
         Initialize the Simulation_manager.
@@ -67,7 +67,7 @@ class Simulation_manager:
         self.simulation_time = datetime.timedelta(seconds=0)  # in seconds
         self.last_current_speed_update_time = start_time # for updating the current speed of the roads
         self.last_speed_dict_update_time = start_time # for updating the speed dict of the roads
-        self.time_limit = time_limit  # the maximum time the simulation will run in seconds
+        # self.time_limit = time_limit  # the maximum time the simulation will run in seconds
         self.day_int = start_time.weekday() # 0-6, 0 - monday, 1 - tuesday, 2 - wednesday, 3 - thursday, 4 - friday, 5 - saturday, 6 - sunday
 
         # RESULTS
@@ -170,7 +170,8 @@ class Simulation_manager:
         None
         """
         # while the time limit is not reached and there are cars in the simulation or cars waiting to enter the simulation
-        while int(self.simulation_time.total_seconds()) < self.time_limit and (self.car_manager.cars_in_simulation or self.car_manager.cars_waiting_to_enter):
+        # while int(self.simulation_time.total_seconds()) < self.time_limit and (self.car_manager.cars_in_simulation or self.car_manager.cars_waiting_to_enter):
+        while self.car_manager.cars_in_simulation or self.car_manager.cars_waiting_to_enter:
 
             time = self.car_manager.calc_nearest_update_time(self.simulation_datetime)
             self.update_simulation_clocks(time)
@@ -346,7 +347,7 @@ class Simulation_manager:
         if start_time is None:
             start_time = self.simulation_datetime_start
         if end_time is None:
-            end_time = self.simulation_datetime_start + datetime.timedelta(seconds = self.time_limit)
+            end_time = self.simulation_datetime_start + datetime.timedelta(weeks = 52)
         self.road_network.plan_road_blockage(road_id, start_time, end_time)
         return
 
@@ -377,6 +378,7 @@ class Simulation_manager:
             car_route = car.past_nodes
             car_key = car.id
             day_of_week_str = car.starting_time.strftime('%A')
+            blocked_roads = list(self.road_network.blocked_roads_dict.keys())
             # save the important Graphs
 
             simulation_results[car_key] = {
@@ -390,6 +392,7 @@ class Simulation_manager:
                 End_time: car_ending_time,  # datetime object string
                 Route: car_route,
                 Roads_used: car.past_roads,
+                Blocked_roads: blocked_roads,
                 Distance_travelled: int(car.distance_traveled),  # in meters, int
             }
 
