@@ -41,6 +41,9 @@ class IBR_Controller:
             if edge is None:
                 self.view.no_road_selected_error()
             fixed_id = self.controller.get_fixed_road_id(edge[0], edge[1])
+            if fixed_id in self.road_values.keys():
+                self.view.road_already_blocked_error()
+
             fixed_src = self.controller.get_fixed_node_id(edge[0])
             fixed_dst = self.controller.get_fixed_node_id(edge[1])
             print("chosen road id:", fixed_id)
@@ -61,13 +64,18 @@ class IBR_Controller:
             print(e)
 
     def load_existing_blockages(self):
-        # cur_car_values_dict = self.controller.get_cars_values_dict()
-        # for id in cur_car_values_dict.keys():
-        #     self.cur_car_id = max(self.cur_car_id, cur_car_values_dict[id][0])
-        #     self.cars_vaules[id] = cur_car_values_dict[id]
-        #     self.view.add_car(cur_car_values_dict[id])
-        pass
+        blocked_values_dict = self.controller.get_blocked_roads_dict()
+        for id in blocked_values_dict.keys():
+            self.road_values[id] = blocked_values_dict[id]
+            self.view.add_road(blocked_values_dict[id])
+        return
+
     def delete_blockage(self, selected):
+        """
+        deletes the selected blockage from the treeview and from the controller
+        :param selected:
+        :return:
+        """
         if type(selected) is tuple:
             for item in selected:
                 item_id, item_start_time, item_end_time = self.view.road_id_from_treeview(item)
@@ -78,8 +86,24 @@ class IBR_Controller:
             del self.road_values[selected]
             self.treeview_delete_blockage(selected)
 
+    # def delete_all_blockages(self):
+    #     """
+    #     deletes all blockages from the treeview and from the controller
+    #     :return:
+    #     """
+    #     if len(self.road_values) == 0:
+    #         self.view.no_roads_to_remove_error()
+    #         return
+    #
+    #     for item in self.road_values.keys():
+    #         self.treeview_delete_blockage(item)
+    #         self.controller.remove_blockage_values(item)
+    #     self.road_values = {}
+    #     self.view.treeview_delete_all_blockages()
+
     def treeview_delete_blockage(self,selected):
         tree = self.view.get_existing_blockages_treeview()
+        print(tree.get_children())
         if type(selected) is tuple:
             for item in selected:
                 tree.delete(item)

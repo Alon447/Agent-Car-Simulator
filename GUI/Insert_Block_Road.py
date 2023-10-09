@@ -22,9 +22,6 @@ class Insert_Block_Road(tk.Toplevel):
         # road's blockage starting time
         ###############################
 
-        self.settings_label = ttk.Label(self, text = "Insert Car Settings")
-        self.settings_label.pack()
-
         self.time_title_label = ttk.Label(self, text = "Road's blockage Starting Time")
         self.time_title_label.pack()
 
@@ -42,12 +39,12 @@ class Insert_Block_Road(tk.Toplevel):
         self.start_minute.current(0)
         self.start_minute.pack()
 
-        self.sec_menu_label1 = ttk.Label(self, text = "Second")
-        self.sec_menu_label1.pack()
-
-        self.start_second = ttk.Combobox(self, values = seconds)
-        self.start_second.current(0)
-        self.start_second.pack()
+        # self.sec_menu_label1 = ttk.Label(self, text = "Second")
+        # self.sec_menu_label1.pack()
+        #
+        # self.start_second = ttk.Combobox(self, values = seconds)
+        # self.start_second.current(0)
+        # self.start_second.pack()
 
         ###############################
         # Road's blockage starting day using calendar
@@ -65,9 +62,6 @@ class Insert_Block_Road(tk.Toplevel):
         # road's blockage ending time
         ###############################
 
-        self.settings_label = ttk.Label(self, text = "Insert Car Settings")
-        self.settings_label.pack()
-
         self.time_title_label = ttk.Label(self, text = "Road's blockage Ending Time")
         self.time_title_label.pack()
 
@@ -75,7 +69,7 @@ class Insert_Block_Road(tk.Toplevel):
         self.hour_menu_label2.pack()
 
         self.end_hour = ttk.Combobox(self, values = hours)
-        self.end_hour.current(8)
+        self.end_hour.current(22)
         self.end_hour.pack()
 
         self.min_menu_label2 = ttk.Label(self, text = "Minute")
@@ -85,12 +79,12 @@ class Insert_Block_Road(tk.Toplevel):
         self.end_minute.current(0)
         self.end_minute.pack()
 
-        self.sec_menu_label2 = ttk.Label(self, text = "Second")
-        self.sec_menu_label2.pack()
-
-        self.end_second = ttk.Combobox(self, values = seconds)
-        self.end_second.current(0)
-        self.end_second.pack()
+        # self.sec_menu_label2 = ttk.Label(self, text = "Second")
+        # self.sec_menu_label2.pack()
+        #
+        # self.end_second = ttk.Combobox(self, values = seconds)
+        # self.end_second.current(0)
+        # self.end_second.pack()
 
         ###############################
         # Road's blockage ending day using calendar
@@ -108,7 +102,7 @@ class Insert_Block_Road(tk.Toplevel):
         # choose which road to block
         ###############################
 
-        self.choose_road_button = ttk.Button(self, text = "Choose Source and destination",
+        self.choose_road_button = ttk.Button(self, text = "Choose Road To Block",
                                                command = self.ibrc.choose_road)
         self.choose_road_button.pack()
 
@@ -117,7 +111,7 @@ class Insert_Block_Road(tk.Toplevel):
         # confirm choice button
         ###############################
 
-        self.confirm_button = ttk.Button(self, text = "Confirm", command = self.ibrc.confirm_choice)
+        self.confirm_button = ttk.Button(self, text = "Confirm Your Choice", command = self.ibrc.confirm_choice)
         self.confirm_button.pack()
 
         ###############################
@@ -147,9 +141,14 @@ class Insert_Block_Road(tk.Toplevel):
 
         self.ibrc.load_existing_blockages()
 
+        # delete road blockage button
         self.delete_blockage_button = ttk.Button(self, text = "Delete Road Blockage", command = lambda: self.ibrc.delete_blockage(
             self.existing_blockages_treeview.selection()))
         self.delete_blockage_button.pack()
+
+        # # delete all roads blockages button
+        # self.delete_blockage_button = ttk.Button(self, text = "Delete All Road Blockages", command = lambda: self.ibrc.delete_all_blockages())
+        # self.delete_blockage_button.pack()
 
     def get_start_date(self):
         raw_date = self.cal_start.get_date()
@@ -166,8 +165,8 @@ class Insert_Block_Road(tk.Toplevel):
         return int(self.start_minute.get())
 
     def get_start_second(self):
-        return int(self.start_second.get())
-
+        # return int(self.start_second.get())
+        return 0
     def get_end_date(self):
         raw_date = self.cal_end.get_date()
         date = raw_date.split('/')
@@ -182,8 +181,8 @@ class Insert_Block_Road(tk.Toplevel):
         return int(self.end_minute.get())
 
     def get_end_second(self):
-        return int(self.end_second.get())
-
+        # return int(self.end_second.get())
+        return 0
     def add_road(self, road):
         self.existing_blockages_treeview.insert("", tk.END, values=road)
     # Gets
@@ -200,5 +199,9 @@ class Insert_Block_Road(tk.Toplevel):
         tk.messagebox.showerror("Error", "No map loaded!")
     def no_road_selected_error(self):
         tk.messagebox.showerror("Error", "No road selected!")
+    def already_blocked_error(self):
+        tk.messagebox.showerror("Error", "Road already blocked!")
+    def no_roads_to_remove_error(self):
+        tk.messagebox.showerror("Error", "No roads to remove!")
     def general_error(self):
         tk.messagebox.showerror("Error", "Something went wrong!")

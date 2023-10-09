@@ -56,31 +56,31 @@ class New_Simulation_Window(tk.Tk):
         self.city_map_button = ttk.Button(self.main_frame, text="Load City Map", command=self.nswc.load_city_map)
         self.city_map_button.pack(pady=10)
 
-        # choose simulation time
-
-        self.simulation_duration_label = ttk.Label(self.main_frame, text="Enter simulation duration:")
-        self.simulation_duration_label.pack(pady=10)
-
-        self.hour_menu_label = ttk.Label(self.main_frame, text="Hours")
-        self.hour_menu_label.pack()
-
-        self.drop_hours = ttk.Combobox(self.main_frame, values=hours)
-        self.drop_hours.current(8)
-        self.drop_hours.pack()
-
-        self.min_menu_label = ttk.Label(self.main_frame, text="Days")
-        self.min_menu_label.pack()
-
-        self.drop_days = ttk.Combobox(self.main_frame, values=days)
-        self.drop_days.current(0)
-        self.drop_days.pack()
-
-        self.sec_menu_label = ttk.Label(self.main_frame, text="Weeks")
-        self.sec_menu_label.pack()
-
-        self.drop_weeks = ttk.Combobox(self.main_frame, values=weeks)
-        self.drop_weeks.current(0)
-        self.drop_weeks.pack()
+        # # choose simulation time
+        #
+        # self.simulation_duration_label = ttk.Label(self.main_frame, text="Enter simulation duration:")
+        # self.simulation_duration_label.pack(pady=10)
+        #
+        # self.hour_menu_label = ttk.Label(self.main_frame, text="Hours")
+        # self.hour_menu_label.pack()
+        #
+        # self.drop_hours = ttk.Combobox(self.main_frame, values=hours)
+        # self.drop_hours.current(8)
+        # self.drop_hours.pack()
+        #
+        # self.min_menu_label = ttk.Label(self.main_frame, text="Days")
+        # self.min_menu_label.pack()
+        #
+        # self.drop_days = ttk.Combobox(self.main_frame, values=days)
+        # self.drop_days.current(0)
+        # self.drop_days.pack()
+        #
+        # self.sec_menu_label = ttk.Label(self.main_frame, text="Weeks")
+        # self.sec_menu_label.pack()
+        #
+        # self.drop_weeks = ttk.Combobox(self.main_frame, values=weeks)
+        # self.drop_weeks.current(0)
+        # self.drop_weeks.pack()
 
         self.traffic_white_noise = tk.BooleanVar()
         self.check_traffic_white_noise = ttk.Checkbutton(self.main_frame, text="add traffic white noise",
@@ -114,12 +114,12 @@ class New_Simulation_Window(tk.Tk):
 
         # block and unblock roads
 
-        self.block_road_button = ttk.Button(self.main_frame, text="Block Road", command=self.nswc.block_road)
+        self.block_road_button = ttk.Button(self.main_frame, text="Block/Unblock Road", command=self.nswc.block_road)
         self.block_road_button.pack(pady=10)
 
-        self.unblock_all_roads_button = ttk.Button(self.main_frame, text="Unblock All Roads",
-                                                   command=self.nswc.unblock_all_roads)
-        self.unblock_all_roads_button.pack(pady=10)
+        # self.unblock_all_roads_button = ttk.Button(self.main_frame, text="Unblock All Roads",
+        #                                            command=self.nswc.unblock_all_roads)
+        # self.unblock_all_roads_button.pack(pady=10)
 
         ##########################################
         # all set and done
@@ -162,8 +162,8 @@ class New_Simulation_Window(tk.Tk):
     def main(self):
         self.mainloop()
 
-    def get_simulation_duration_parameters(self):
-        return int(self.drop_hours.get()), int(self.drop_days.get()), int(self.drop_weeks.get())
+    # def get_simulation_duration_parameters(self):
+    #     return int(self.drop_hours.get()), int(self.drop_days.get()), int(self.drop_weeks.get())
 
     def cant_run_simulation_error(self, *args):
         messagebox.showerror("Error", "Can't run simulation, please check that all parameters are set correctly")

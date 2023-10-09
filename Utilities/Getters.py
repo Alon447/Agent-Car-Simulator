@@ -18,6 +18,7 @@ Start_time = 'Start_time'
 End_time = 'End_time'
 Route = 'Route'
 Roads_used = 'Roads_used'
+Blocked_roads = 'Blocked_roads'
 Distance_travelled = 'Distance_travelled'
 
 minute_in_seconds = 60
