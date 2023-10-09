@@ -7,7 +7,7 @@ from Utilities.Getters import routing_algorithms, hours, minutes, seconds, days_
 
 import GUI.Main_Window_Controller as mwc
 
-class Main_Window(tk.Tk):
+class Routing_Comparisons_Window(tk.Tk):
     def __init__(self, controller):
         row = 0
         super().__init__()
@@ -157,7 +157,8 @@ class Main_Window(tk.Tk):
             row += 1
             self.cal.grid(row=row, column=1, padx=1, pady=10)
 
-        # Add more buttons as needed
+        # general settings
+
 
         # Bind the canvas to configure it to update its scroll region when the frame size changes
         self.main_frame.bind("<Configure>", self.on_frame_configure)
@@ -176,5 +177,5 @@ class Main_Window(tk.Tk):
         self.mainloop()
 
 if __name__ == "__main__":
-    app = Main_Window(None)
+    app = Routing_Comparisons_Window(None)
     app.main()
