@@ -172,3 +172,15 @@ def get_key_from_value(dictionary, value):
         if int(val) == value:
             return key
     return None
+
+def calaulate_starting_ending_times(datetimes_list):
+    """
+    :param datetimes_list: list of datetimes
+    :return: starting and ending times of the datetimes
+    """
+    starting_time = datetimes_list[0]
+    ending_time = datetimes_list[0]
+    for time in datetimes_list:
+        starting_time = min(starting_time, time)
+        ending_time = max(ending_time, time)
+    return starting_time, ending_time

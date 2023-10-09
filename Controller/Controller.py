@@ -15,7 +15,7 @@ from Utilities import Getters
 #  - add option for custom speeds generating (choose algorithm) and load custom speeds from file (optional?) - add
 #  - functionality of blocking roads with interactive map (principle similar to choosing src and dst) (i think we
 #    should have it)
-#  - maybe polish the user interface a bit more (add some more options, maybe add some more windows, idk)
+
 #
 
 class Controller:
@@ -144,7 +144,7 @@ class Controller:
         return self.road_network.get_node_from_osm_id(node_id)
 
     def calculate_starting_time(self):
-        cur_time = self.cars_values_dict[next(iter(self.cars_values_dict))][3]
+        cur_time = self.cars_values_dict[next(iter(self.cars_values_dict))][3]#car's starting datetime
         for car in self.cars_values_dict:
             cur_time = min(cur_time, self.cars_values_dict[car][3])
         return cur_time
@@ -161,6 +161,8 @@ class Controller:
             return False
         return True
 
+    def run_multiple_simulations(self):
+        pass
 
 if __name__ == "__main__":
     controller = Controller()

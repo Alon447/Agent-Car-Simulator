@@ -62,7 +62,8 @@ class Map_Src_Dst_Choose:
             return
         try:
             if event.key in ['a', 'z', 'r', 'q']:
-                self.scatter.remove()
+                if self.is_temp is True:
+                    self.scatter.remove()
             if event.key == 'a':
                 self.key_pressed = True
                 print("pressed a")
@@ -74,18 +75,11 @@ class Map_Src_Dst_Choose:
             elif event.key == 'r':
                 self.key_pressed = True
                 print("pressed r")
-                self.reset_src_dst()
-        except:
-            pass
+                self.reset_src_dst(True)
+        except Exception as e:
+            print("Error in onpress")
+            print(e)
 
-    def create_non_temp_point(self,cur_scatter,color,label):
-        if cur_scatter is not None:
-            cur_scatter.remove()
-        self.is_temp = False
-        cur_scatter = self.ax.scatter(self.curr_x, self.curr_y, color=color, s=50, label=label)
-        plt.legend()
-        # self.fig.canvas.draw()
-        return self.osmid
 
     def create_src(self):
         if self.src_scatter is not None:
@@ -95,6 +89,7 @@ class Map_Src_Dst_Choose:
         self.src_osmid = self.osmid
         # self.have_src = True
         plt.legend()
+        self.fig.canvas.draw()
 
     def create_dst(self):
         if self.dst_scatter is not None:
@@ -104,8 +99,9 @@ class Map_Src_Dst_Choose:
         self.dst_osmid = self.osmid
         # self.have_dst = True
         plt.legend()
+        self.fig.canvas.draw()
 
-    def reset_src_dst(self):
+    def reset_src_dst(self,is_pressed_r=False):
 
         self.scatter = None
         self.is_temp = False
@@ -117,9 +113,15 @@ class Map_Src_Dst_Choose:
         if self.src_scatter is not None:
             self.src_scatter.remove()
             self.src_scatter = None
+            self.fig.canvas.draw()
         if self.dst_scatter is not None:
             self.dst_scatter.remove()
             self.dst_scatter = None
+            self.fig.canvas.draw()
+
+        if is_pressed_r is True:
+            plt.legend()
+            self.fig.canvas.draw()
 
     def create_show_map(self):
 
