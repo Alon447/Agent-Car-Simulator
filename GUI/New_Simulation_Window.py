@@ -7,7 +7,8 @@ from GUI import Animate_Simulation as asim
 import GUI.NSW_Controller as nswc
 from matplotlib.figure import Figure
 from tkinter import messagebox
-from Utilities.Getters import hours, minutes, seconds, days, weeks, months,rain_intensity_values
+from Utilities.Getters import hours, minutes, seconds, days, weeks, months, rain_intensity_values, rain_intensity_dict
+
 
 # TODO: add the functionality to insert every parameter for the simulation (that isn't already already here- all the optional parameters)
 
@@ -169,7 +170,8 @@ class New_Simulation_Window(tk.Tk):
         messagebox.showerror("Error", "Can't run simulation, please check that all parameters are set correctly")
 
     def get_rain_intensity(self):
-        self.drop_rain_intensity.get()
+        rain_val = self.drop_rain_intensity.get()
+        return rain_intensity_dict[rain_val]
 
     def get_plot_results(self):
         return self.plot_results.get()

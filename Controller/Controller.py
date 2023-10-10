@@ -1,6 +1,8 @@
+import os
 import traceback
 
 from GUI.Main_Window import Main_Window
+from GUI.New_Load_Simulation_Window import New_Load_Simulation_Window
 from GUI.New_Simulation_Window import New_Simulation_Window
 import GUI.Animate_Simulation as AS
 from Main_Files import Car, Simulation_manager, Road_Network
@@ -29,7 +31,7 @@ class Controller:
         self.G = None
         self.G_name = None
         self.view = None
-        self.model = None
+        self.model = None # simulation manager
         self.road_network = None
 
         # Simulation parameters
@@ -44,8 +46,6 @@ class Controller:
         self.blocked_roads_array = []
         self.blocked_roads_dict = {}  # key: road id, value: list of blocked times
 
-        # helper variables
-
     # view control
     def start_main_window(self):
         self.view = Main_Window(self)
@@ -53,6 +53,10 @@ class Controller:
 
     def start_new_simulation_window(self):
         self.view = New_Simulation_Window(self)
+        self.view.main()
+
+    def load_simulation_window(self):
+        self.view = New_Load_Simulation_Window(self)
         self.view.main()
 
     # model control
@@ -70,14 +74,14 @@ class Controller:
         json_name = save_results_to_JSON(self.model.graph_name, self.model.simulation_results)
         plot_past_result(json_name, self.model)
         ASS.plotting_custom_route(self.model, routes, self.cars)
-    # gather settings
 
+    # gather settings
     def set_cars(self):
         self.cars = []
         for car_id in self.cars_values_dict:
             car = self.cars_values_dict[car_id]
             self.add_car(car[0], car[1], car[2], car[3], self.road_network, car[4], car[5])
-        pass
+        return
 
     def set_simulation_manager(self, traffic_lights, rain_intensity, add_traffic_white_noise,
                                plot_results, simulation_starting_time):
@@ -91,9 +95,6 @@ class Controller:
         for road_id in self.blocked_roads_array:
             self.model.update_road_blockage(road_id, self.blocked_roads_dict[road_id][3], self.blocked_roads_dict[road_id][4])
 
-    # def add_car_values(self, temp_src_id, temp_dst_id, start_time, routing_alg, use_existing_q_table):
-    #     self.cars_values.append([int(temp_src_id), int(temp_dst_id), start_time, routing_alg, use_existing_q_table])
-
     def add_car_values(self, car_values, car_id):
         self.cars_values_dict[car_id] = car_values
 
@@ -103,12 +104,12 @@ class Controller:
 
     def remove_car_values(self, car_id):
         self.cars_values_dict.pop(car_id)
-        pass
+        return
 
     def remove_blockage_values(self, blockage_id):
         self.blocked_roads_dict.pop(blockage_id)
         self.blocked_roads_array.remove(blockage_id)
-        pass
+        return
 
     def add_car(self, car_id, start_node, end_node, start_time, speed, routing_alg, use_existing_q_table):
         # TODO: make sure that we have all of the parameters for the car
@@ -119,8 +120,17 @@ class Controller:
     def get_cars_values_dict(self):
         return self.cars_values_dict
 
+    def get_past_simulations(self):
+        current_directory = os.getcwd()
+        current_directory = os.path.dirname(current_directory)
+        directory_path = os.path.join(current_directory, "Results")
+        print(directory_path)
+        json_files = [file for file in os.listdir(directory_path)]
+        return json_files, directory_path
+
     def get_blocked_roads_dict(self):
         return self.blocked_roads_dict
+
     def load_city_map(self, city_map):
         try:
             # self.G, self.G_name = Getters.get_graph(city_map)
@@ -129,8 +139,8 @@ class Controller:
             self.G = self.road_network.graph
             self.G_name = self.road_network.graph_name
             self.cars_values_dict = {}
-
             return True
+
         except Exception as e:
             self.graph_loaded = False
             print("Error loading graph")

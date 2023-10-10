@@ -42,10 +42,15 @@ class Road_Network:
         self.blocked_roads_array = []
         self.blocked_roads_dict = {}  # key: road id, value: list of blocked times
 
+        # Flags
+        self.traffic_white_noise = traffic_white_noise
+        self.rain_intensity = rain_intensity
+        self.activate_traffic_lights = activate_traffic_lights
+
 
         # Initialize functions
         self.set_nodes_array()
-        self.set_roads_array(activate_traffic_lights, rain_intensity)
+        self.set_roads_array()
         self.set_adjacency_roads()
         self.create_graph()
 
@@ -53,8 +58,7 @@ class Road_Network:
         self.next_node_matrix = [[-1] * len(self.nodes_array) for _ in range(len(self.nodes_array))] # cache for the distance matrix, saves the next node in the shortest path
         self.distances_matrix = [[-1] * len(self.nodes_array) for _ in range(len(self.nodes_array))] # cache for the distance matrix, saves the shortest distance between two nodes
 
-        # Flags
-        self.traffic_white_noise = traffic_white_noise
+
 
     def set_nodes_array(self):
         """
@@ -77,12 +81,10 @@ class Road_Network:
             new_node = Node.Node(id, osm_id, x, y, traffic_lights, street_count)
             self.nodes_array.append(new_node)
         return
-    def set_roads_array(self, activate_traffic_lights, rain_intensity):
+
+    def set_roads_array(self):
         """
         Initialize and populate the roads_array attribute with Road objects.
-
-        Args:
-        activate_traffic_lights (bool): Whether to activate traffic lights for roads.
 
         Returns:
         None
@@ -104,9 +106,9 @@ class Road_Network:
                 print("Error casting max_speed to int")
                 print(e)
                 max_speed = Speeds.fix_speed(max_speed)
-            type = self.graph.edges[edge]['highway']
 
-            new_road = Road.Road(id, start_node ,end_node, length, max_speed,type, activate_traffic_lights, rain_intensity)
+            type = self.graph.edges[edge]['highway']
+            new_road = Road.Road(id, start_node ,end_node, length, max_speed,type, self.activate_traffic_lights, self.rain_intensity)
             self.roads_array.append(new_road)
 
             # update node_connectivity_dict
@@ -132,7 +134,7 @@ class Road_Network:
 
         # Add directed edges with attributes
         for road in self.roads_array:
-            G.add_edge(road.source_node.id, road.destination_node.id, id = road.id,  eta=road.estimated_time, current_speed = road.current_speed,
+            G.add_edge(road.source_node.id, road.destination_node.id, id = road.id,  eta = road.estimated_time, current_speed = road.current_speed,
                        length = road.length, blocked = road.is_blocked, max_speed = road.max_speed)
 
         self.nx_graph = G
@@ -239,7 +241,6 @@ class Road_Network:
         Args:
         roads_speeds (dict): Dictionary of road_id: speed for different times of the day.
         current_time (datetime): Current time in the simulation.
-        activate_traffic_lights (bool): Whether to activate traffic lights for roads.
 
         Returns:
         None
@@ -419,6 +420,11 @@ class Road_Network:
             if self.get_road_from_src_dst(node, path[i + 1]).is_blocked:
                 return True
         return False
+
+    # def activate_traffic_lights(self):
+
+
+
     def __str__(self):
         """
         Return a string representation of the Road_Network class.

@@ -45,7 +45,7 @@ SIMULATION_SPEED = 10  # X30 faster than one second interval
 
 PLOT_RESULTS = False
 
-NUM_OF_RUNS = 100
+NUM_OF_RUNS = 3
 PLACE_NAME = 'TLV'
 NUM_OF_CARS = 5
 
@@ -136,7 +136,7 @@ def organize_simulation_times(times):
 
 if __name__ == "__main__":
     out_times_data = []  # format: key= run number and algorithm, value = time for full simulation
-    SM = Simulation_manager.Simulation_manager(PLACE_NAME, 7 * DAY, TRAFFIC_LIGHTS, Rain_intensity, TRAFFIC_WHITE_NOISE,
+    SM = Simulation_manager.Simulation_manager(PLACE_NAME, TRAFFIC_LIGHTS, Rain_intensity, TRAFFIC_WHITE_NOISE,
                                                PLOT_RESULTS, START_TIME1)
     RN = SM.road_network
     used_settings = []

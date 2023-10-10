@@ -378,7 +378,13 @@ class Simulation_manager:
             car_route = car.past_nodes
             car_key = car.id
             day_of_week_str = car.starting_time.strftime('%A')
-            blocked_roads = list(self.road_network.blocked_roads_dict.keys())
+            # blocked_roads = list(self.road_network.blocked_roads_dict.keys())
+            blocked_roads = []
+            for key, (start_datetime, end_datetime) in self.road_network.blocked_roads_dict.items():
+                start_datetime_str = start_datetime.strftime("%Y-%m-%d %H:%M:%S")
+                end_datetime_str = end_datetime.strftime("%Y-%m-%d %H:%M:%S")
+                block_road = [key,[start_datetime_str, end_datetime_str]]
+                blocked_roads.append(block_road)
             # save the important Graphs
 
             simulation_results[car_key] = {

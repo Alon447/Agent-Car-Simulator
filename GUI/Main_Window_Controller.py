@@ -20,16 +20,8 @@ class Main_Window_Controller:
         # Code for starting the simulation
         print("Starting simulation")
 
-    def back_to_main_menu(self):
-        # Destroy the current simulation window if it exists
-        if hasattr(self.view, "new_window"):
-            self.view.new_window.destroy()
-        # Unhide the main window
-        self.view.deiconify()
 
-    def load_simulation(self):
-        # Code to load a simulation
-        print("Loading simulation")
+
 
     def open_settings(self):
         # Code to open settings
@@ -39,6 +31,20 @@ class Main_Window_Controller:
         # self.quit()
         self.view.destroy()
         self.controller.start_new_simulation_window()
+
+    def load_simulation(self):
+        # Code to load a simulation
+        print("Loading simulation")
+        self.view.destroy()
+        self.controller.load_simulation_window()
+
+    def back_to_main_menu(self):
+        # Destroy the current simulation window if it exists
+        if hasattr(self.view, "new_window"):
+            self.view.new_window.destroy()
+        # Unhide the main window
+        self.view.deiconify()
+
 
     def quit(self):
         self.view.destroy()

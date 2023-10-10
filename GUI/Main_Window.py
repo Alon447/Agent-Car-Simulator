@@ -28,10 +28,10 @@ class Main_Window(tk.Tk):
                                                 command=self.mwc.start_new_simulation, width=20)
         self.new_simulation_button.pack(pady=10)
 
-        # self.load_simulation_button = ttk.Button(self.main_frame, text="Load Simulation",
-        #                                          command=self.mwc.load_simulation, width=20)
-        # self.load_simulation_button.pack(pady=10)
-        #
+        self.load_simulation_button = ttk.Button(self.main_frame, text="Load Simulation",
+                                                 command=self.mwc.load_simulation, width=20)
+        self.load_simulation_button.pack(pady=10)
+
         # self.settings_button = ttk.Button(self.main_frame, text="Settings", command=self.mwc.open_settings, width=20)
         # self.settings_button.pack(pady=10)
         # exit button

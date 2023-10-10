@@ -9,15 +9,21 @@ class NSW_Controller:
         self.ready_to_start = False
         self.view = view
         self.controller = controller
+        self.block_road = None
         self.blocked_roads = []
         self.simulation_manager_ready = False
         self.simulation_params_dict = {}
+        self.initialize_simulation_params_dict()
+
+
+    def initialize_simulation_params_dict(self):
         self.simulation_params_dict["map loaded"] = None
         self.simulation_params_dict["simulation duration"] = None
         self.simulation_params_dict["simulation starting_time"] = False
         self.simulation_params_dict["rain intensity"] = False
         self.simulation_params_dict["traffic lights"] = False
         self.simulation_params_dict["add traffic white noise"] = False
+        return
 
     def add_new_car(self):
 
@@ -58,7 +64,7 @@ class NSW_Controller:
             self.view.cant_run_simulation_error()
             return
         # duration = self.get_simulation_duration()
-        rain_intensity = self.view.get_rain_intensity()
+        rain_intensity = int(self.view.get_rain_intensity())
         traffic_lights = self.view.get_traffic_lights()
         add_traffic_white_noise = self.view.get_traffic_white_noise()
         plot_results = self.view.get_plot_results()
@@ -76,13 +82,13 @@ class NSW_Controller:
         self.controller.start_main_window()
 
     # TODO: check if the two function below are needed
-    def load_simulation(self):
-        # Code to load a simulation
-        print("Loading simulation")
-
-    def open_settings(self):
-        # Code to open settings
-        print("Opening settings")
+    # def load_simulation(self):
+    #     # Code to load a simulation
+    #     print("Loading simulation")
+    #
+    # def open_settings(self):
+    #     # Code to open settings
+    #     print("Opening settings")
 
     def load_city_map(self):
         city_name = self.view.get_city_name()
@@ -96,17 +102,17 @@ class NSW_Controller:
             self.view.set_load_status_label("Failed to load city map")
             self.map_loaded = False
 
-    def check_simulation_requirements(self):
-        if self.simulation_params_dict["map loaded"] is None or self.simulation_params_dict[
-            "simulation duration"] is None:
-            return False
-        return True
+    # def check_simulation_requirements(self):
+    #     if self.simulation_params_dict["map loaded"] is None or self.simulation_params_dict[
+    #         "simulation duration"] is None:
+    #         return False
+    #     return True
 
     # def get_simulation_duration(self):
     #     hours,days,weeks =  self.view.get_simulation_duration_parameters()
     #     return hours*gtrs.hour_in_seconds + days*gtrs.day_in_seconds + weeks*gtrs.week_in_seconds
 
 
-    def toggle_traffic_white_noise(self):
-        self.simulation_params_dict["add traffic white noise"] = not self.simulation_params_dict["add traffic white noise"]
-        print("toggle traffic white noise")
+    # def toggle_traffic_white_noise(self):
+    #     self.simulation_params_dict["add traffic white noise"] = not self.simulation_params_dict["add traffic white noise"]
+    #     print("toggle traffic white noise")
