@@ -1,14 +1,17 @@
 import datetime
-
+import Utilities.Errors as errors
 import GUI.Map_Road_Choose as mrc
 class IBR_Controller:
+    """
+    This class is used to control the Insert Blocked Road window
+    IBR stands for Insert Blocked Road
+    """
     def __init__(self, view, view_master, controller):
         self.view = view
         self.controller = controller
         self.G_name = None
         self.mrc = None
         self.road_values = {}
-
 
     def choose_road(self):
         G, self.G_name = self.controller.get_graph()
@@ -39,10 +42,10 @@ class IBR_Controller:
         try:
             edge = self.mrc.get_road()
             if edge is None:
-                self.view.no_road_selected_error()
+                errors.no_road_selected_error()
             fixed_id = self.controller.get_fixed_road_id(edge[0], edge[1])
             if fixed_id in self.road_values.keys():
-                self.view.road_already_blocked_error()
+                errors.already_blocked_error()
 
             fixed_src = self.controller.get_fixed_node_id(edge[0])
             fixed_dst = self.controller.get_fixed_node_id(edge[1])
@@ -56,11 +59,9 @@ class IBR_Controller:
             self.view.add_road(road = road_to_add)
             self.road_values[fixed_id] = road_to_add
             self.controller.add_blockage_values(road_to_add, fixed_id, starting_time, ending_time)
-            # self.controller.add_car_values(car_to_add,
-            #                                self.cur_car_id)  # maybe add cars only when simulation is about to start  # self.controller.add_car_init(starting_time, src, dst, routing_algorithm,  #                              self.view.get_use_existing_q_tables())
 
         except Exception as e:
-            self.view.general_error()
+            errors.general_error()
             print(e)
 
     def load_existing_blockages(self):
@@ -86,20 +87,6 @@ class IBR_Controller:
             del self.road_values[selected]
             self.treeview_delete_blockage(selected)
 
-    # def delete_all_blockages(self):
-    #     """
-    #     deletes all blockages from the treeview and from the controller
-    #     :return:
-    #     """
-    #     if len(self.road_values) == 0:
-    #         self.view.no_roads_to_remove_error()
-    #         return
-    #
-    #     for item in self.road_values.keys():
-    #         self.treeview_delete_blockage(item)
-    #         self.controller.remove_blockage_values(item)
-    #     self.road_values = {}
-    #     self.view.treeview_delete_all_blockages()
 
     def treeview_delete_blockage(self,selected):
         tree = self.view.get_existing_blockages_treeview()

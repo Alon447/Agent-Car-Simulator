@@ -1,31 +1,13 @@
 
 #TODO: add functions to support loading existin simulation from file
 class Main_Window_Controller:
+    """
+    This class is used to control the main window (first menu) of the program
+    implements methods for all the buttons in the main window
+    """
     def __init__(self, view, controller):
         self.view = view
         self.controller = controller
-
-    def add_new_car(self):
-        print("Adding new car")
-
-    def block_road(self):
-        # Code for blocking a road
-        print("Blocking road")
-
-    def unblock_all_roads(self):
-        # Code for unblocking all roads
-        print("Unblocking all roads")
-
-    def start_simulation(self):
-        # Code for starting the simulation
-        print("Starting simulation")
-
-
-
-
-    def open_settings(self):
-        # Code to open settings
-        print("Opening settings")
 
     def start_new_simulation(self):
         # self.quit()
@@ -45,6 +27,9 @@ class Main_Window_Controller:
         # Unhide the main window
         self.view.deiconify()
 
-
     def quit(self):
         self.view.destroy()
+
+    def open_settings(self):
+        # Code to open settings
+        print("Opening settings")

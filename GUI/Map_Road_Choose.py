@@ -64,19 +64,7 @@ class Map_Road_Choose:
     #     if event.key is None:
     #         return
     #     try:
-    #         if event.key in ['a', 'z', 'r', 'q']:
-    #             self.scatter.remove()
-    #         if event.key == 'a':
-    #             self.key_pressed = True
-    #             print("pressed a")
-    #             self.create_src()
-    #         elif event.key == 'z':
-    #             self.key_pressed = True
-    #             print("pressed z")
-    #             self.create_dst()
-    #         elif event.key == 'r':
-    #             self.key_pressed = True
-    #             print("pressed r")
-    #             self.reset_src_dst()
+    #         if event.key in [""]:
+    #
     #     except:
     #         pass

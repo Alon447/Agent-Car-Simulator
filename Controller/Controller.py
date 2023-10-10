@@ -10,39 +10,37 @@ from Utilities.Results import save_results_to_JSON,plot_past_result
 import datetime
 from Utilities import Getters
 
-
-# TODO-s:
-#  - document the code
-#  - add functionality of showing the cars animation for chosen run when done running the simulations -
-#  - add option for custom speeds generating (choose algorithm) and load custom speeds from file (optional?) - add
-#  - functionality of blocking roads with interactive map (principle similar to choosing src and dst) (i think we
-#    should have it)
-
-#
-
 class Controller:
+    """
+    This is the main class of the project, it runs the GUI and the simulation
+    This class is used to control the simulation and connect between it and the GUI
+    """
 
     def __init__(self, simulation_speed=30, repeat=False):
-        # TODO: remove default values after testing (if needed)
-        #  also add number of simulations to run
-        self.traffic_lights = None
-        self.rain_intensity = None
-        self.graph_loaded = False
-        self.G = None
-        self.G_name = None
+
+        # GUI and Simulation managers
         self.view = None
         self.model = None # simulation manager
-        self.road_network = None
+        self.road_network = None # the simulation's road network
 
         # Simulation parameters
+        self.G = None # graph
+        self.G_name = None # graph name
+        self.traffic_lights = None
+        self.rain_intensity = 0
+        self.add_traffic_white_noise = False
+        self.graph_loaded = False
         self.simulation_speed = simulation_speed
         self.repeat = repeat
-        self.cars_values_dict = {}
-        self.cars = []
         self.simulation_duration = None
-        self.add_traffic_white_noise = False
         self.simulation_starting_time = None
         self.plot_results = False
+
+        # Insert Car parameters
+        self.cars = []
+        self.cars_values_dict = {}
+
+        # Insert Block Road parameters
         self.blocked_roads_array = []
         self.blocked_roads_dict = {}  # key: road id, value: list of blocked times
 
@@ -62,8 +60,7 @@ class Controller:
     # model control
     def start_simulation(self, traffic_lights, rain_intensity, add_traffic_white_noise,
                          plot_results, num_episodes=2000, max_steps_per_episode=100,simulation_speed=5, repeat=True):
-        # TODO: insert the cars to the simulation, also option to show statistics
-        #  also add option to load existing simulation
+
         simulation_starting_time = self.calculate_starting_time()
         self.set_simulation_manager(traffic_lights, rain_intensity, add_traffic_white_noise,
                                     plot_results, simulation_starting_time)
@@ -124,7 +121,6 @@ class Controller:
         current_directory = os.getcwd()
         current_directory = os.path.dirname(current_directory)
         directory_path = os.path.join(current_directory, "Results")
-        print(directory_path)
         json_files = [file for file in os.listdir(directory_path)]
         return json_files, directory_path
 
@@ -154,14 +150,8 @@ class Controller:
         else:
             return None, None
 
-    def unblock_road(self, road_id):
-        self.blocked_roads.remove(road_id)
-
-    def unblock_all_roads(self):
-        self.blocked_roads = []
 
     # get resources
-
     def get_fixed_node_id(self, osm_id):
         return self.road_network.get_node_from_osm_id(osm_id)
 
@@ -169,6 +159,7 @@ class Controller:
         src_node_id = self.get_fixed_node_id(src_osm_id)
         dst_node_id = self.get_fixed_node_id(dst_osm_id)
         return self.road_network.get_road_from_src_dst(src_node_id, dst_node_id).id
+
     def calculate_starting_time(self):
         cur_time = self.cars_values_dict[next(iter(self.cars_values_dict))][3]#car's starting datetime
         for car in self.cars_values_dict:
@@ -178,17 +169,10 @@ class Controller:
     def check_can_run_simulation(self):
         if not self.graph_loaded:
             return False
-        # elif self.simulation_duration is None:
-        #     return False
-        # elif self.simulation_starting_time is None:
-        #     return False
         elif len(self.cars_values_dict) == 0:
             print("No cars to run simulation with")
             return False
         return True
-
-    def run_multiple_simulations(self):
-        pass
 
 if __name__ == "__main__":
     controller = Controller()

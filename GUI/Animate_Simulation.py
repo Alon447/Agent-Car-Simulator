@@ -36,7 +36,6 @@ class Animate_Simulation:
         graph = SM.road_network.graph
         scatter_list = []
         cars_ids = [car.id for car in cars]
-        start_time = SM.simulation_datetime_start
         blocked_roads = SM.road_network.blocked_roads_dict
 
         # color the edges by speed

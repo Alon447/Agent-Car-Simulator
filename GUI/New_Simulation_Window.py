@@ -20,15 +20,6 @@ class New_Simulation_Window(tk.Tk):
         self.main_frame = ttk.Frame(self, padding=20)
         self.main_frame.grid(row=0, column=0, padx=100, pady=100)  # Set the dimensions of the new window (width x height)
 
-        # self.figure = fig
-        # self.canvas = FigureCanvasTkAgg(self.figure, master=self)
-        # self.canvas.get_tk_widget().pack()
-
-        # self.animation = animation
-        # self.canvas,self.animation,self.ax,self.fig = controller.get_canvas_test(self)
-        # self.toolbar = NavigationToolbar2Tk(self.canvas, self, pack_toolbar=False)
-        # self.toolbar.update()
-
         # Add a spacer frame above the title label
         spacer_frame = ttk.Frame(self.main_frame)
         spacer_frame.pack()
@@ -40,9 +31,7 @@ class New_Simulation_Window(tk.Tk):
         # prepare the simulation parameters
         ##########################################
 
-
         # load city map
-
         self.city_map_label = tk.Label(self.main_frame, text="Enter city map:")
         self.city_map_label.pack(pady=10)
 
@@ -57,50 +46,28 @@ class New_Simulation_Window(tk.Tk):
         self.city_map_button = ttk.Button(self.main_frame, text="Load City Map", command=self.nswc.load_city_map)
         self.city_map_button.pack(pady=10)
 
-        # # choose simulation time
-        #
-        # self.simulation_duration_label = ttk.Label(self.main_frame, text="Enter simulation duration:")
-        # self.simulation_duration_label.pack(pady=10)
-        #
-        # self.hour_menu_label = ttk.Label(self.main_frame, text="Hours")
-        # self.hour_menu_label.pack()
-        #
-        # self.drop_hours = ttk.Combobox(self.main_frame, values=hours)
-        # self.drop_hours.current(8)
-        # self.drop_hours.pack()
-        #
-        # self.min_menu_label = ttk.Label(self.main_frame, text="Days")
-        # self.min_menu_label.pack()
-        #
-        # self.drop_days = ttk.Combobox(self.main_frame, values=days)
-        # self.drop_days.current(0)
-        # self.drop_days.pack()
-        #
-        # self.sec_menu_label = ttk.Label(self.main_frame, text="Weeks")
-        # self.sec_menu_label.pack()
-        #
-        # self.drop_weeks = ttk.Combobox(self.main_frame, values=weeks)
-        # self.drop_weeks.current(0)
-        # self.drop_weeks.pack()
-
+        # indicate weather to add traffic white noise
         self.traffic_white_noise = tk.BooleanVar()
         self.check_traffic_white_noise = ttk.Checkbutton(self.main_frame, text="add traffic white noise",
                                                            variable=self.traffic_white_noise,
                                                            onvalue=True, offvalue=False)
         self.check_traffic_white_noise.pack(pady=10)
 
+        # indicate weather to plot results
         self.plot_results = tk.BooleanVar()
         self.check_plot_results = ttk.Checkbutton(self.main_frame, text="plot results",
                                                            variable=self.plot_results,
                                                            onvalue=True, offvalue=False)
         self.check_plot_results.pack(pady=10)
 
+        # indicate weather to activate traffic lights
         self.traffic_lights = tk.BooleanVar()
         self.check_traffic_lights = ttk.Checkbutton(self.main_frame, text="activate traffic lights",
                                                            variable=self.traffic_lights,
                                                            onvalue=True, offvalue=False)
         self.check_traffic_lights.pack(pady=10)
 
+        # choose rain intensity
         self.rain_intensity_label = ttk.Label(self.main_frame, text = "rain intensity")
         self.rain_intensity_label.pack()
 
@@ -109,31 +76,19 @@ class New_Simulation_Window(tk.Tk):
         self.drop_rain_intensity.pack()
 
         # add car button
-
         self.add_car_button = ttk.Button(self.main_frame, text="Add New Car", command=self.nswc.add_new_car)
         self.add_car_button.pack(pady=10)
 
         # block and unblock roads
-
         self.block_road_button = ttk.Button(self.main_frame, text="Block/Unblock Road", command=self.nswc.block_road)
         self.block_road_button.pack(pady=10)
 
-        # self.unblock_all_roads_button = ttk.Button(self.main_frame, text="Unblock All Roads",
-        #                                            command=self.nswc.unblock_all_roads)
-        # self.unblock_all_roads_button.pack(pady=10)
-
-        ##########################################
-        # all set and done
-        ##########################################
-
         # start simulation
-
         self.start_simulation_button = ttk.Button(self.main_frame, text="Start Simulation",
                                                   command=self.nswc.start_simulation)
         self.start_simulation_button.pack(pady=10)
 
         # back to main menu
-
         self.back_to_main_menu_button = ttk.Button(self.main_frame, text="Back to Main Menu",
                                                    command=self.nswc.back_to_main_menu)
         self.back_to_main_menu_button.pack(pady=10)
@@ -141,7 +96,6 @@ class New_Simulation_Window(tk.Tk):
     def add_canvas(self,canvas):
         self.canvas = canvas
         self.canvas.draw()
-
         self.toolbar = NavigationToolbar2Tk(self.canvas, self, pack_toolbar=False)
         self.toolbar.update()
 
@@ -151,24 +105,7 @@ class New_Simulation_Window(tk.Tk):
     def get_city_name(self):
         return self.city_map_entry.get("1.0", 'end').replace('\n', '')
 
-    # errors
-    def no_map_loaded_error(self):
-        messagebox.showerror("Error", "Please load a map before adding cars or starting the simulation")
-
-    def add_cars_error(self):
-        messagebox.showerror("Error", "Please add cars before starting the simulation")
-
-    # main loop
-
-    def main(self):
-        self.mainloop()
-
-    # def get_simulation_duration_parameters(self):
-    #     return int(self.drop_hours.get()), int(self.drop_days.get()), int(self.drop_weeks.get())
-
-    def cant_run_simulation_error(self, *args):
-        messagebox.showerror("Error", "Can't run simulation, please check that all parameters are set correctly")
-
+    # getters for NSW Controller
     def get_rain_intensity(self):
         rain_val = self.drop_rain_intensity.get()
         return rain_intensity_dict[rain_val]
@@ -181,3 +118,7 @@ class New_Simulation_Window(tk.Tk):
 
     def get_traffic_lights(self):
         return self.traffic_lights.get()
+
+    # main loop
+    def main(self):
+        self.mainloop()

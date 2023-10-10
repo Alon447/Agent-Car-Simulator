@@ -138,7 +138,6 @@ class Insert_Block_Road(tk.Toplevel):
         self.existing_blockages_treeview.heading("#5", text = "Ending Time")
 
         self.existing_blockages_treeview.pack()
-
         self.ibrc.load_existing_blockages()
 
         # delete road blockage button
@@ -150,6 +149,7 @@ class Insert_Block_Road(tk.Toplevel):
         # self.delete_blockage_button = ttk.Button(self, text = "Delete All Road Blockages", command = lambda: self.ibrc.delete_all_blockages())
         # self.delete_blockage_button.pack()
 
+    # Gets for IBR_Controller
     def get_start_date(self):
         raw_date = self.cal_start.get_date()
         date = raw_date.split('/')
@@ -167,6 +167,7 @@ class Insert_Block_Road(tk.Toplevel):
     def get_start_second(self):
         # return int(self.start_second.get())
         return 0
+
     def get_end_date(self):
         raw_date = self.cal_end.get_date()
         date = raw_date.split('/')
@@ -183,9 +184,11 @@ class Insert_Block_Road(tk.Toplevel):
     def get_end_second(self):
         # return int(self.end_second.get())
         return 0
+
+    # functions for the treeview
     def add_road(self, road):
         self.existing_blockages_treeview.insert("", tk.END, values=road)
-    # Gets
+
     def road_id_from_treeview(self, road_id):
         id = self.existing_blockages_treeview.item(road_id)['values'][0]
         start_time = self.existing_blockages_treeview.item(road_id)['values'][3]
@@ -194,14 +197,3 @@ class Insert_Block_Road(tk.Toplevel):
 
     def get_existing_blockages_treeview(self):
         return self.existing_blockages_treeview
-    # Exception handling
-    def no_map_loaded_error(self):
-        tk.messagebox.showerror("Error", "No map loaded!")
-    def no_road_selected_error(self):
-        tk.messagebox.showerror("Error", "No road selected!")
-    def already_blocked_error(self):
-        tk.messagebox.showerror("Error", "Road already blocked!")
-    def no_roads_to_remove_error(self):
-        tk.messagebox.showerror("Error", "No roads to remove!")
-    def general_error(self):
-        tk.messagebox.showerror("Error", "Something went wrong!")

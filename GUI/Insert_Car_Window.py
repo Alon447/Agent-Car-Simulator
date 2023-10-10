@@ -10,22 +10,28 @@ from Utilities.Getters import hours, minutes, seconds, days_of_the_week, routing
 #   also display current list of cars and their parameters
 #   and most importantly fill in on inputting the rest of the car parameters
 class Insert_Car_Window(tk.Toplevel):
+    """
+    This class is used to create the insert a new car into the simulation window
+    """
     def __init__(self, master=None, controller=None):
         super().__init__(master=master)
+        self.existing_cars_treeview = None
         self.icwc = icwc.ICW_Controller(self, master, controller)
         self.title("Insert Car")
         self.geometry("1000x1000")
 
-        ###############################
-        # car's starting time
-        ###############################
 
+        # titles
         self.settings_label = ttk.Label(self, text="Insert Car Settings")
         self.settings_label.pack()
 
         self.time_title_label = ttk.Label(self, text="Car's Starting Time")
         self.time_title_label.pack()
 
+
+        # car's starting time
+
+        # choose hour
         self.hour_menu_label = ttk.Label(self, text="Hour")
         self.hour_menu_label.pack()
 
@@ -33,6 +39,7 @@ class Insert_Car_Window(tk.Toplevel):
         self.drop_hours.current(8)
         self.drop_hours.pack()
 
+        # choose minute
         self.min_menu_label = ttk.Label(self, text="Minute")
         self.min_menu_label.pack()
 
@@ -40,6 +47,7 @@ class Insert_Car_Window(tk.Toplevel):
         self.drop_minutes.current(0)
         self.drop_minutes.pack()
 
+        # choose second
         self.sec_menu_label = ttk.Label(self, text="Second")
         self.sec_menu_label.pack()
 
@@ -47,9 +55,9 @@ class Insert_Car_Window(tk.Toplevel):
         self.drop_seconds.current(0)
         self.drop_seconds.pack()
 
-        ###############################
+        ####################################
         # car's starting day using calendar
-        ###############################
+        ####################################
         cur_year = int(datetime.datetime.now().year)
         cur_month = int(datetime.datetime.now().month)
         cur_day = int(datetime.datetime.now().day)
@@ -59,8 +67,6 @@ class Insert_Car_Window(tk.Toplevel):
                             day=cur_day, date_pattern='dd/mm/yyyy')
 
         self.cal.pack(pady=20)
-
-        # self.cal_button = ttk.Button(self, text="Choose Date", command=self.icwc.choose_date)
 
         ###############################
         # car's source and destination
@@ -82,15 +88,18 @@ class Insert_Car_Window(tk.Toplevel):
         self.routing_algorithm_menu.current(0)
         self.routing_algorithm_menu.pack()
 
+        ###############################
+        # car's use existing q tables
+        ###############################
         self.use_existing_q_tables = tk.BooleanVar()
         self.check_use_existing_q_tables = ttk.Checkbutton(self, text="Use Existing Tables",
                                                            variable=self.use_existing_q_tables,
                                                            onvalue=True, offvalue=False)
         self.check_use_existing_q_tables.pack()
+
         ###############################
         # confirm choice button
         ###############################
-
         self.confirm_button = ttk.Button(self, text="Confirm", command=self.icwc.confirm_choice)
         self.confirm_button.pack()
 
@@ -100,58 +109,42 @@ class Insert_Car_Window(tk.Toplevel):
         self.existing_cars_label = ttk.Label(self, text="Existing Cars:")
         self.existing_cars_label.pack()
 
-        # self.existing_cars_listbox = tk.Listbox(self)
-        # self.existing_cars_listbox.pack(listvariable = None)
-
-        self.existing_cars_treeview = ttk.Treeview(self, column=("c1", "c2", "c3", "c4", "c5", "c6"), show='headings',
-                                                   height=5, selectmode="extended")
-
-        self.existing_cars_treeview.column("#1",width=50, anchor=tk.CENTER)
-        self.existing_cars_treeview.heading("#1", text="ID")
-
-        self.existing_cars_treeview.column("#2",width=100, anchor=tk.CENTER)
-        self.existing_cars_treeview.heading("#2", text="Source")
-
-        self.existing_cars_treeview.column("#3",width=100, anchor=tk.CENTER)
-        self.existing_cars_treeview.heading("#3", text="Destination")
-
-        self.existing_cars_treeview.column("#4",width=150, anchor=tk.CENTER)
-        self.existing_cars_treeview.heading("#4", text="Starting Time")
-
-        self.existing_cars_treeview.column("#5",width=120, anchor=tk.CENTER)
-        self.existing_cars_treeview.heading("#5", text="Routing Algorithm")
-
-        self.existing_cars_treeview.column("#6",width=130, anchor=tk.CENTER)
-        self.existing_cars_treeview.heading("#6", text="Use Existing Q Tables")
-
-        self.existing_cars_treeview.pack()
-
+        # create the treeview and load existing cars
+        self.create_treeview()
         self.icwc.load_existing_cars()
 
+        ###############################
+        #   delete cars button
+        ###############################
         self.delete_cars_button = ttk.Button(self, text="Delete Cars", command=lambda: self.icwc.delete_cars(
             self.existing_cars_treeview.selection()))
         self.delete_cars_button.pack()
 
-    # Exception handling
-    # TODO: add more error functions as needed
-    def no_map_loaded_error(self):
-        tk.messagebox.showerror("Error", "No map loaded!")
+    def create_treeview(self):
+        self.existing_cars_treeview = ttk.Treeview(self, column = ("c1", "c2", "c3", "c4", "c5", "c6"),
+                                                   show = 'headings', height = 5, selectmode = "extended")
 
-    def no_source_selected_error(self):
-        tk.messagebox.showerror("Error", "No source selected!")
+        self.existing_cars_treeview.column("#1", width = 50, anchor = tk.CENTER)
+        self.existing_cars_treeview.heading("#1", text = "ID")
 
-    def no_destination_selected_error(self):
-        tk.messagebox.showerror("Error", "No destination selected!")
+        self.existing_cars_treeview.column("#2", width = 100, anchor = tk.CENTER)
+        self.existing_cars_treeview.heading("#2", text = "Source")
 
-    def general_error(self):
-        tk.messagebox.showerror("Error", "Something went wrong!")
+        self.existing_cars_treeview.column("#3", width = 100, anchor = tk.CENTER)
+        self.existing_cars_treeview.heading("#3", text = "Destination")
 
-    # def get_day_of_the_week(self):
-    #     return self.drop_days.get()
+        self.existing_cars_treeview.column("#4", width = 150, anchor = tk.CENTER)
+        self.existing_cars_treeview.heading("#4", text = "Starting Time")
 
-    def get_cars_listbox(self):
-        return self.existing_cars_listbox
+        self.existing_cars_treeview.column("#5", width = 120, anchor = tk.CENTER)
+        self.existing_cars_treeview.heading("#5", text = "Routing Algorithm")
 
+        self.existing_cars_treeview.column("#6", width = 130, anchor = tk.CENTER)
+        self.existing_cars_treeview.heading("#6", text = "Use Existing Q Tables")
+
+        self.existing_cars_treeview.pack()
+
+    # get functions to be used in ICW_Controller
     def get_hour(self):
         return int(self.drop_hours.get())
 
@@ -181,13 +174,9 @@ class Insert_Car_Window(tk.Toplevel):
     def get_existing_cars_treeview(self):
         return self.existing_cars_treeview
 
+    # functions for the treeview
     def add_car(self, car):
         self.existing_cars_treeview.insert("", tk.END, values=car)
 
     def car_id_from_treeview(self, car_id):
         return self.existing_cars_treeview.item(car_id)['values'][0]
-    def delete_car(self, car_id):
-        self.existing_cars_treeview.delete(car_id)
-
-    def get_all_cars_values(self):
-        return self.existing_cars_treeview.get_children()

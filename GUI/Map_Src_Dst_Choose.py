@@ -31,10 +31,6 @@ class Map_Src_Dst_Choose:
 
     def onclick(self, event):
         if event.xdata is not None and event.ydata is not None:
-            # Get the limits of the plot
-
-            xlim = self.ax.get_xlim()
-            ylim = self.ax.get_ylim()
 
             # Transform the clicked point to lon, lat
             x, y = event.xdata, event.ydata
@@ -50,8 +46,6 @@ class Map_Src_Dst_Choose:
             fixed_osmid = self.controller.get_fixed_node_id(self.osmid)
             self.scatter = self.ax.scatter(self.curr_x, self.curr_y, color='gray', s=50, label=f'temporary (node id: {fixed_osmid})')
             self.is_temp = True
-            # self.cur_gdf = gpd.GeoDataFrame(geometry=[Point(lon, lat)],crs='epsg:4326')
-            # self.cur_gdf.plot(ax=self.ax, color='black', label='clicked point')
 
             plt.legend()
             self.fig.canvas.draw()
@@ -61,21 +55,24 @@ class Map_Src_Dst_Choose:
         if event.key is None:
             return
         try:
-            if event.key in ['a', 'z', 'r', 'q']:
+            if event.key in ['a', 'z', 'r']:
                 if self.is_temp is True:
                     self.scatter.remove()
             if event.key == 'a':
                 self.key_pressed = True
                 print("pressed a")
                 self.create_src()
+
             elif event.key == 'z':
                 self.key_pressed = True
                 print("pressed z")
                 self.create_dst()
+
             elif event.key == 'r':
                 self.key_pressed = True
                 print("pressed r")
                 self.reset_src_dst(True)
+
         except Exception as e:
             print("Error in onpress")
             print(e)

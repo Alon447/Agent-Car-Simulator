@@ -97,6 +97,16 @@ from matplotlib import pyplot as plt
 #             print(f"Latitude: {lat}, Longitude: {lng}")
 
 if __name__ == "__main__":
-    aa = ox.graph_from_address("tel aviv", network_type = 'drive', dist = 1800, simplify = True)
-    print(aa)
-    ox.plot_graph(aa)
+    x = [1, 2, 3, 4, 5]
+    y = [10, 14, 8, 12, 6]
+
+    # Create a line plot
+    plt.plot(x, y)
+
+    # Add labels and a title
+    plt.xlabel('X-axis')
+    plt.ylabel('Y-axis')
+    plt.title('Simple Line Plot')
+
+    # Show the plot
+    plt.show()
