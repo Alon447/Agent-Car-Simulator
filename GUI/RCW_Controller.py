@@ -29,3 +29,4 @@ class RCW_Controller:
             self.map_loaded = False
 
 
+    # def choose

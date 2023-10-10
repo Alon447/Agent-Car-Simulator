@@ -39,6 +39,19 @@ days = [i for i in range(0, 7)]
 weeks = [i for i in range(0, 4)]
 months = [i for i in range(0, 12)]
 
+Hours_key = "Hours"
+Minutes_key = "Minutes"
+Seconds_key = "Seconds"
+Days_lable_text = "Days"
+
+# for statistics and for general use
+
+Starting_time_title_key = "Start_title"
+Ending_time_title_key = "End_title"
+Starting_time_title = "Enter simulation starting time:"
+Ending_time_title = "Enter simulation ending time:"
+
+
 # for testing and statistics in TLV map:
 # TODO: check if neccessary
 top_right_nodes = [714,428,963,720,242,969,677,319,206,653,404,970,964,406,684,870]
