@@ -229,3 +229,7 @@ def plot_results(src, dst, all_training_paths_nodes, all_training_times, mean_re
     # plt.pause(5)
     # plt.close()
     return
+
+def save_multiple_simulations_results(SM, run_time_data, cars_times_data):
+    json.dump(run_time_data, open(f'run_time_data_{SM.graph_name}.json', 'w'), indent=4)
+    pass

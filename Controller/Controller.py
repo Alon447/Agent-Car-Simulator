@@ -1,4 +1,5 @@
 import os
+import random
 import traceback
 
 from GUI.Main_Window import Main_Window
@@ -6,9 +7,12 @@ from GUI.New_Load_Simulation_Window import New_Load_Simulation_Window
 from GUI.New_Simulation_Window import New_Simulation_Window
 import GUI.Animate_Simulation as AS
 from Main_Files import Car, Simulation_manager, Road_Network
-from Utilities.Results import save_results_to_JSON,plot_past_result
+from Utilities.Results import save_results_to_JSON, plot_past_result
 import datetime
 from Utilities import Getters
+
+
+
 
 class Controller:
     """
@@ -44,6 +48,15 @@ class Controller:
         self.blocked_roads_array = []
         self.blocked_roads_dict = {}  # key: road id, value: list of blocked times
 
+        # multiple runs parameters
+        self.simulation_ending_time = None
+        self.src_list = []
+        self.dst_list = []
+        self.num_of_runs = 0
+        self.num_of_cars = 0
+        self.algorithms = []
+        self.use_existing_q_tables = False
+
     # view control
     def start_main_window(self):
         self.view = Main_Window(self)
@@ -65,7 +78,8 @@ class Controller:
         self.set_simulation_manager(traffic_lights, rain_intensity, add_traffic_white_noise,
                                     plot_results, simulation_starting_time)
         self.set_cars()
-        self.model.run_full_simulation(self.cars, num_episodes=num_episodes, max_steps_per_episode=max_steps_per_episode)
+        self.model.run_full_simulation(self.cars, num_episodes=num_episodes,
+                                       max_steps_per_episode=max_steps_per_episode)
         ASS = AS.Animate_Simulation(animation_speed=simulation_speed, repeat=repeat)
         routes = self.model.get_simulation_routes(self.cars, 0)
         json_name = save_results_to_JSON(self.model.graph_name, self.model.simulation_results)
@@ -84,13 +98,15 @@ class Controller:
                                plot_results, simulation_starting_time):
         # TODO: add checks for values (check if they exist and are valid)
         self.model = Simulation_manager.Simulation_manager(graph_name=self.G_name,
-                                                   activate_traffic_lights=traffic_lights,
-                                                   rain_intensity=rain_intensity,
-                                                   traffic_white_noise=add_traffic_white_noise,
-                                                   is_plot_results=plot_results, start_time=simulation_starting_time)
+                                                           activate_traffic_lights=traffic_lights,
+                                                           rain_intensity=rain_intensity,
+                                                           traffic_white_noise=add_traffic_white_noise,
+                                                           is_plot_results=plot_results,
+                                                           start_time=simulation_starting_time)
         self.road_network = self.model.road_network
         for road_id in self.blocked_roads_array:
-            self.model.update_road_blockage(road_id, self.blocked_roads_dict[road_id][3], self.blocked_roads_dict[road_id][4])
+            self.model.update_road_blockage(road_id, self.blocked_roads_dict[road_id][3],
+                                            self.blocked_roads_dict[road_id][4])
 
     def add_car_values(self, car_values, car_id):
         self.cars_values_dict[car_id] = car_values
@@ -150,6 +166,11 @@ class Controller:
         else:
             return None, None
 
+    def unblock_road(self, road_id):
+        self.blocked_roads.remove(road_id)
+
+    def unblock_all_roads(self):
+        self.blocked_roads = []
 
     # get resources
     def get_fixed_node_id(self, osm_id):
@@ -161,7 +182,7 @@ class Controller:
         return self.road_network.get_road_from_src_dst(src_node_id, dst_node_id).id
 
     def calculate_starting_time(self):
-        cur_time = self.cars_values_dict[next(iter(self.cars_values_dict))][3]#car's starting datetime
+        cur_time = self.cars_values_dict[next(iter(self.cars_values_dict))][3]  # car's starting datetime
         for car in self.cars_values_dict:
             cur_time = min(cur_time, self.cars_values_dict[car][3])
         return cur_time
@@ -169,10 +190,84 @@ class Controller:
     def check_can_run_simulation(self):
         if not self.graph_loaded:
             return False
+        # elif self.simulation_duration is None:
+        #     return False
+        # elif self.simulation_starting_time is None:
+        #     return False
         elif len(self.cars_values_dict) == 0:
             print("No cars to run simulation with")
             return False
         return True
+
+    ##########################################
+    #   controller for the multiple runs     #
+    ##########################################
+
+    def run_multiple_simulations(self):
+        self.model = Simulation_manager.Simulation_manager(graph_name=self.G_name,
+                                                           activate_traffic_lights=self.traffic_lights,
+                                                           rain_intensity=self.rain_intensity,
+                                                           traffic_white_noise=self.add_traffic_white_noise,
+                                                           is_plot_results=self.plot_results,
+                                                           start_time=self.simulation_starting_time)
+        RN = self.model.road_network
+        run_time_data = {}
+        for i in range(self.num_of_runs):
+            run_time_data[i] = {}
+            for j in range(len(self.algorithms)):
+                cur_cars = self.generate_random_cars(j, RN)
+                cur_alg_start_time = time.time()
+        pass
+
+
+
+    def choose_random_src_dst(self):
+        src = random.choice(self.src_list)
+        dst = random.choice(self.dst_list)
+        return src, dst
+
+
+
+    def check_if_path_is_exist(src, dst, RN):
+        try:
+            path = RN.get_shortest_path(src, dst)
+            return True
+        except:
+            return False
+
+    def generate_random_starting_time(self):
+        time_difference_seconds = (self.simulation_ending_time - self.simulation_starting_time).total_seconds()
+        random_seconds = random.randint(0, time_difference_seconds)
+        random_timedelta = datetime.timedelta(seconds=random_seconds)
+        return self.simulation_starting_time + random_timedelta
+
+    def generate_random_cars(self, algorithm_ind, RN):
+        # cars are in the same road network, same day, different starting times, different src and dst
+        cars = []
+        for i in range(self.num_of_cars):
+
+            # time_delta = create_time_delta(day)
+            src, dst = self.choose_random_src_dst()
+            while not self.check_if_path_is_exist(src, dst, RN):
+                src, dst = self.choose_random_src_dst()
+            cur_starting_time = self.generate_random_starting_time()
+            cars.append(Car.Car(i, src, dst, cur_starting_time, RN, route_algorithm=self.algorithms[algorithm_ind],
+                                use_existing_q_table=self.use_existing_q_tables))
+        return cars
+    def organize_simulation_times(self, times):
+        organized_times = {}  # key = simulation index, value = dictionary of times of cars in the simulation grouped
+        # by algorithm
+        # every even index is the shortest path, every odd index is q learning
+        for i in range(0, self.num_of_runs):
+            organized_times[i] = {}
+            for k in range(0, len(self.algorithms)):
+                for j in range(0, self.num_of_cars):
+                    # the times are organized in the following way:
+                    # every self.num_of_cars times are for the same simulation number and same algorithm.
+                    # so the first car of the i-th simulation and k-th algorithm is in index i*k
+                    organized_times[i][self.algorithms[k]].append(times[i * k + j])
+        return organized_times
+
 
 if __name__ == "__main__":
     controller = Controller()
