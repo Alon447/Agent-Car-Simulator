@@ -23,14 +23,17 @@ Distance_travelled = 'Distance_travelled'
 Number_of_episodes = 'Number_of_episodes'
 Max_steps_per_episode = 'Max_steps_per_episode'
 
+Hours_key = "Hours"
+Minutes_key = "Minutes"
+Seconds_key = "Seconds"
+Days_lable_text = "Days"
+
+# times
 minute_in_seconds = 60
 hour_in_seconds = 60 * minute_in_seconds
 day_in_seconds = 24 * hour_in_seconds
 week_in_seconds = 7 * day_in_seconds
 
-rain_intensity_values = ["None", "Light", "Moderate", "Heavy"] # TODO: change to none, light, medium, heavy
-rain_intensity_dict= {"None":0, "Light":1, "Moderate":2, "Heavy":3} # TODO: change to none, light, medium, heavy
-# rain_intensity_values = [i for i in range(0, 4)]
 hours = [i for i in range(0, 24)]
 minutes = [i for i in range(0, 60)]
 seconds = [i for i in range(0, 60)]
@@ -39,10 +42,12 @@ days = [i for i in range(0, 7)]
 weeks = [i for i in range(0, 4)]
 months = [i for i in range(0, 12)]
 
-Hours_key = "Hours"
-Minutes_key = "Minutes"
-Seconds_key = "Seconds"
-Days_lable_text = "Days"
+
+# for simulation
+rain_intensity_values = ["None", "Light", "Moderate", "Heavy"] # TODO: change to none, light, medium, heavy
+rain_intensity_dict= {"None":0, "Light":1, "Moderate":2, "Heavy":3} # TODO: change to none, light, medium, heavy
+
+
 
 # for statistics and for general use
 
@@ -174,6 +179,11 @@ def get_random_src_dst(RN):
 
     return src.id, dst.id
 
+def get_results_directory_path():
+    current_directory = os.getcwd()
+    current_directory = os.path.dirname(current_directory)
+    directory_path = os.path.join(current_directory, "Results")
+    return directory_path
 
 
 def get_key_from_value(dictionary, value):

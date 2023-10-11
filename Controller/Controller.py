@@ -83,7 +83,7 @@ class Controller:
         ASS = AS.Animate_Simulation(animation_speed=simulation_speed, repeat=repeat)
         routes = self.model.get_simulation_routes(self.cars, 0)
         json_name = save_results_to_JSON(self.model.graph_name, self.model.simulation_results)
-        plot_past_result(json_name, self.model)
+        plot_past_result(json_name)
         ASS.plotting_custom_route(self.model, routes, self.cars)
 
     # gather settings
@@ -134,9 +134,7 @@ class Controller:
         return self.cars_values_dict
 
     def get_past_simulations(self):
-        current_directory = os.getcwd()
-        current_directory = os.path.dirname(current_directory)
-        directory_path = os.path.join(current_directory, "Results")
+        directory_path = Getters.get_results_directory_path()
         json_files = [file for file in os.listdir(directory_path)]
         return json_files, directory_path
 
@@ -151,6 +149,8 @@ class Controller:
             self.G = self.road_network.graph
             self.G_name = self.road_network.graph_name
             self.cars_values_dict = {}
+            self.blocked_roads_array = []
+            self.blocked_roads_dict = {}
             return True
 
         except Exception as e:

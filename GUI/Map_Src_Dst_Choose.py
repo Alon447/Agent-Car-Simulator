@@ -110,11 +110,11 @@ class Map_Src_Dst_Choose:
         if self.src_scatter is not None:
             self.src_scatter.remove()
             self.src_scatter = None
-            self.fig.canvas.draw()
+            # self.fig.canvas.draw()
         if self.dst_scatter is not None:
             self.dst_scatter.remove()
             self.dst_scatter = None
-            self.fig.canvas.draw()
+            # self.fig.canvas.draw()
 
         if is_pressed_r is True:
             plt.legend()

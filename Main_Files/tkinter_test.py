@@ -46,7 +46,7 @@ while True:
         SM = Simulation_manager.Simulation_manager('TLV', 3 * DAY, TRAFFIC_LIGHTS, Rain_intensity, start_time, SIMULATION_SPEEDS_JSON_NAME)
         CM = SM.car_manager
         RN = SM.road_network
-        RN.block_road(534)
+        RN.blocked_road(534)
 
         # Initialize Animation
         ASS = AS.Animate_Simulation(animation_speed=simulation_speed, repeat=REPEAT)

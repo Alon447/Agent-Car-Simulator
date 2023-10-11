@@ -1,7 +1,8 @@
 import datetime
 import json
 import os
-
+import Utilities.Getters as Getters
+import Utilities.Results as Results
 
 class NLSW_Controller:
     """
@@ -29,14 +30,28 @@ class NLSW_Controller:
             self.view.set_load_status_label("Failed to load city map")
             self.map_loaded = False
 
-    def confirm(self):
-        pass
+    def confirm(self, selected_simulation):
+        """
+        This function is used to confirm the user's choice of simulation to load
+        :param selected_simulation:
+        :return:
+        """
+        print("selected simulation: ", selected_simulation)
+        if type(selected_simulation) is tuple:
+            for item in selected_simulation:
+                item_name = self.view.simulation_id_from_treeview(item).split(".")[0] # remove the .json from the name
+                Results.plot_past_result(item_name, self.model.model)
+        return
 
     def back_to_menu(self):
-        pass
+        # Destroy the current simulation window if it exists
+        self.view.destroy()
+
+        # Unhide the main window
+        # self.view.deiconify()
+        self.model.start_main_window()
 
     def load_existing_simulations(self):
-        # TODO- finish this function
         past_simulations_array, path = self.model.get_past_simulations()
         for simulation_name in past_simulations_array:
             file_path = path + "/" + simulation_name

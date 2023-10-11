@@ -4,7 +4,7 @@ import matplotlib.patches as mpatches
 import osmnx as ox
 from Main_Files.Road_Network import Road_Network
 from Utilities.Getters import Time_taken, Reached_destination, Simulation_number, Route, Distance_travelled, \
-    node_route_to_osm_route, Source, Destination
+    node_route_to_osm_route, Source, Destination, Blocked_roads
 
 
 def save_results_to_JSON(graph_name, results):
@@ -65,39 +65,38 @@ def print_simulation_results(SM):
 
     return
 
-def plot_past_result(past_result_json_name, SM):
+def plot_past_result(past_result_json_name):
     """
     This function plots the past result of the simulation.
 
     :param past_result_json_name: The name of the JSON file containing the past result of the simulation.
-    :param SM: Simulation_Manager object
 
     :return: None
     """
     global ax, fig, origin_x, dest_x, origin_y, dest_y
     substring_to_remove = "simulation_results_"
+    # get the city name from the json name and create a road network object of the city
     graph_name = past_result_json_name.replace(substring_to_remove, "")
     RN = Road_Network(graph_name)
     # Load the past result
     with open(f'../Results/{past_result_json_name}.json') as json_file:
         past_result = json.load(json_file)
+
     origins = []
     destinations = []
-    # Plot the past result where simulation number = 0
     route_labels = []  # List to store labels for each route
     first_simulation = past_result[0]
     routes = []
-    edge_colors = []
-    blocked_keys = SM.road_network.blocked_roads_dict.keys()
-    for edge_id in range(len(SM.road_network.roads_array)):
-        if edge_id in blocked_keys:
-            edge_colors.append('blue')
-        else:
-            edge_colors.append('grey')
+    edge_colors = ['grey' for edge_id in range(len(RN.roads_array))]
+
     for key in first_simulation.keys():
-        if key != Simulation_number:
+        if key != Simulation_number: # Ignore the simulation number
+            # get the source and destination and the route of the car
             car_results = first_simulation[key]
             car_source = car_results[Source]
+            blocked_roads = car_results[Blocked_roads]
+            for road in blocked_roads:
+                edge_colors[road[0]] = 'black'
             car_destination = car_results[Destination]
             origin_x, origin_y = RN.get_xy_from_node_id(car_source)
             origins.append((origin_x, origin_y))

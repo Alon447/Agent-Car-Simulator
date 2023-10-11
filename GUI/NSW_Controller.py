@@ -14,7 +14,7 @@ class NSW_Controller:
         self.ready_to_start = False
         self.view = view
         self.controller = controller
-        self.block_road = None
+        self.blocked_road = None
         self.blocked_roads = []
         self.simulation_manager_ready = False
         self.simulation_params_dict = {}
@@ -42,7 +42,7 @@ class NSW_Controller:
         if not self.map_loaded:
             errors.no_map_loaded_error()
         else:
-            self.block_road = ibr.Insert_Block_Road(self.view,self.controller)
+            self.blocked_road = ibr.Insert_Block_Road(self.view, self.controller)
 
     def unblock_all_roads(self):
         # Code for unblocking all roads

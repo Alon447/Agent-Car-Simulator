@@ -116,8 +116,7 @@ class Insert_Car_Window(tk.Toplevel):
         ###############################
         #   delete cars button
         ###############################
-        self.delete_cars_button = ttk.Button(self, text="Delete Cars", command=lambda: self.icwc.delete_cars(
-            self.existing_cars_treeview.selection()))
+        self.delete_cars_button = ttk.Button(self, text="Delete Cars", command=lambda: self.icwc.delete_cars(self.existing_cars_treeview.selection()))
         self.delete_cars_button.pack()
 
     def create_treeview(self):
