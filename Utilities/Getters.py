@@ -47,6 +47,9 @@ months = [i for i in range(0, 12)]
 rain_intensity_values = ["None", "Light", "Moderate", "Heavy"] # TODO: change to none, light, medium, heavy
 rain_intensity_dict= {"None":0, "Light":1, "Moderate":2, "Heavy":3} # TODO: change to none, light, medium, heavy
 
+# Json keys
+SP = "Shortest Path"
+Q = "Q Learning"
 
 
 # for statistics and for general use
@@ -66,15 +69,15 @@ top_left_nodes = [991,989,749,115,113,107,731,730,0,1,9,877,992,704,762]
 bottom_right_nodes = [866,443,912,898,960,819,829,506,203,865,505,508,627,658,99,597]
 #
 
-days_of_the_week = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday"
-]
+day_mapping = {
+    "Monday": 0,
+    "Tuesday": 1,
+    "Wednesday": 2,
+    "Thursday": 3,
+    "Friday": 4,
+    "Saturday": 5,
+    "Sunday": 6,
+}
 
 routing_algorithms = [
     "Shortest Path",

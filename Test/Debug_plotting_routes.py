@@ -6,7 +6,7 @@ from Main_Files import Simulation_manager
 import GUI.Animate_Simulation as AS
 from Utilities.Getters import get_random_src_dst
 from Utilities.Results import save_results_to_JSON, read_results_from_JSON, car_times_bar_chart, \
-    print_simulation_results, plot_past_result, get_simulation_times
+    print_simulation_results, plot_simulation_overview, get_simulation_times
 
 # initilazires
 START_TIME1 = datetime.datetime(year=2023, month=10, day=4, hour=8, minute=0, second=0)
@@ -41,4 +41,4 @@ SM = Simulation_manager.Simulation_manager(PLACE_NAME, 7 * DAY, TRAFFIC_LIGHTS, 
                                            PLOT_RESULTS, START_TIME1)
 graph_name = "TLV"
 json_name = f'simulation_results_{graph_name}'
-plot_past_result(json_name, SM)
+plot_simulation_overview(json_name, SM)

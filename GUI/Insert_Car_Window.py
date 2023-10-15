@@ -3,7 +3,7 @@ import tkinter as tk
 from tkcalendar import Calendar, DateEntry
 from tkinter import ttk
 from GUI import ICW_Controller as icwc
-from Utilities.Getters import hours, minutes, seconds, days_of_the_week, routing_algorithms
+from Utilities.Getters import hours, minutes, seconds, routing_algorithms
 
 
 # TODO: add buttons with functionality to reset choices and cars,

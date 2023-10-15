@@ -24,7 +24,7 @@ class CarManager:
 
     cars_stuck (list): List of cars stuck at the end of the simulation.
 
-    updated_dictionary (dict): Dictionary of cars that have been updated in the current time step.
+    simulation_update_times (dict): Dictionary of cars that have been updated in the current time step.
 
     Methods:
 
@@ -51,7 +51,7 @@ class CarManager:
         # End of the simulation
         self.cars_finished = []  # a list of the cars that have finished their journey and are waiting to be removed from the simulation
         self.cars_stuck = []  # a list of the cars that are stuck at the end of the simulation
-        self.updated_dictionary = {}  # a dictionary of the cars that have been updated in the current time
+        self.simulation_update_times = {}  # a dictionary of the cars that have been updated in the current time
         # step. key is time, value is a list of the cars that have been updated in that time step
         # along with current node
 
@@ -69,9 +69,9 @@ class CarManager:
         :return:
         None
         """
-        if time not in self.updated_dictionary:
-            self.updated_dictionary[time] = []
-        self.updated_dictionary[time].append((car_id, (x, y), node_id))
+        if time not in self.simulation_update_times:
+            self.simulation_update_times[time] = []
+        self.simulation_update_times[time].append((car_id, (x, y), node_id))
 
     def add_car(self, car: Car, time):
         """
@@ -184,7 +184,7 @@ class CarManager:
 
             elif car.get_time_until_next_road() == 0:
                 # car is ready to move to the next road
-                result = car.move_next_road(timeStamp)  # result is the next road the car is on
+                result = car.move_next_road()  # result is the next road the car is on
 
                 # add update to list
                 x, y = car.get_xy_current()

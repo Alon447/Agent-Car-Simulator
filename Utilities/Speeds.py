@@ -165,18 +165,19 @@ def generate_day_data(graph, graph_name):
     return
 
 
-def color_edges_by_speed(SM, current_time, blocked_roads):
+def color_edges_by_speed(RN, current_time, blocked_roads):
     """
     Colors the edges of the graph according to the speed of the road at the current time
+    uses the roads past speeds dictionary
+    used to animate the simulation after it happened
 
-    :param SM: (SimulationManager)
+    :param RN: (RoadNetwork)
     :param current_time: (datetime)
     :param blocked_roads: (dict) {road_id: [start_time, end_time]}
 
     :return: edge_colors (list)
     """
     edge_colors = []
-    RN = SM.road_network
 
     # we need to make sure that the minutes are rounded to the nearest 10
     rounded_minutes = current_time.minute - (current_time.minute % 10)
@@ -194,6 +195,52 @@ def color_edges_by_speed(SM, current_time, blocked_roads):
         if road.past_speeds[current_time] < 25:
             edge_colors.append('red')
         elif road.past_speeds[current_time] < 37:
+            edge_colors.append('orange')
+        else:
+            edge_colors.append('green')
+    return edge_colors
+
+def color_edges_by_speed_json(graph_name, day_int ,RN, current_time, blocked_roads):
+    """
+    Colors the edges of the graph according to the speed of the road at the current time
+    uses the json speed file
+    used when loading a simulation from a json file
+
+    :param graph_name: (str) name of the city
+    :param day_int: (int) day of the week
+    :param RN: (RoadNetwork)
+    :param current_time: (datetime)
+    :param blocked_roads: (dict) {road_id: [start_time, end_time]}
+
+    :return: edge_colors (list)
+    """
+    file_name = "../Speeds_Data/" + graph_name + "_speeds.json"
+    with open(file_name) as json_file:
+        data = json.load(json_file)
+    speeds = data[str(day_int)]
+    edge_colors = []
+
+    # we need to make sure that the minutes are rounded to the nearest 10
+    rounded_minutes = current_time.minute - (current_time.minute % 10)
+    current_time = current_time.replace(minute=rounded_minutes, second=0, microsecond=0)
+    for road in RN.roads_array:
+
+        if road.id in blocked_roads.keys():
+            blocking_start_time = blocked_roads[road.id][0]
+            blocking_end_time = blocked_roads[road.id][1]
+            date_format = "%Y-%m-%d %H:%M:%S"  # Year, Month, Day, Hour, Minute, Second
+
+            # Use datetime.strptime to parse the string into a datetime object
+            blocking_start_time = datetime.datetime.strptime(blocking_start_time, date_format)
+            blocking_end_time = datetime.datetime.strptime(blocking_end_time, date_format)
+            if blocking_start_time <= current_time <= blocking_end_time:
+                # if the road is blocked at the start time of the simulation, color it black
+                edge_colors.append('black')
+                continue
+
+        if speeds[str(road.id)][str(current_time.strftime("%H:%M"))] < 25:
+            edge_colors.append('red')
+        elif speeds[str(road.id)][str(current_time.strftime("%H:%M"))] < 37:
             edge_colors.append('orange')
         else:
             edge_colors.append('green')

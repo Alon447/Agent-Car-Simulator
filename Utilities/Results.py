@@ -65,7 +65,7 @@ def print_simulation_results(SM):
 
     return
 
-def plot_past_result(past_result_json_name):
+def plot_simulation_overview(past_result_json_name):
     """
     This function plots the past result of the simulation.
 

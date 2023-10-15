@@ -39,7 +39,7 @@ class Animate_Simulation:
         blocked_roads = SM.road_network.blocked_roads_dict
 
         # color the edges by speed
-        self.edge_colors = color_edges_by_speed(SM, SM.simulation_update_times[0], blocked_roads)
+        self.edge_colors = color_edges_by_speed(RN, SM.simulation_update_times[0], blocked_roads)
         self.origins = []
         self.destinations = []
         # color the nodes by traffic lights
@@ -51,17 +51,14 @@ class Animate_Simulation:
         # Plot the graph
         fig, ax = ox.plot_graph(graph, figsize=(10, 10), show=False, close=False, edge_color=self.edge_colors,
                                 node_color=self.node_colors, bgcolor='white', node_size=5)
-        colors = ['purple', 'blue', 'red']  # Add more colors as needed
+        # colors = ['purple', 'blue', 'red']  # Add more colors as needed
 
         for j, route in enumerate(custom_routes):
             origin_x, origin_y = RN.get_xy_from_node_id(route[0])
 
-            if cars[j].route_algorithm_name == "q":
-                color = colors[2]
-            elif cars[j].route_algorithm_name == "sp":
-                color = colors[1]
-            else:
-                color = colors[0]
+            color_mapping = {"q": 'red', "sp": 'blue'}
+            color = color_mapping.get(cars[j].route_algorithm_name, 'purple')
+
             label = f'Car {cars_ids[j]} ({cars[j].route_algorithm_name})'  # Create a label for the scatter plot
 
             scatter_list.append(ax.scatter(origin_x,  # x coordiante of the first node of the j route
@@ -93,7 +90,6 @@ class Animate_Simulation:
         return
 
     def animate_route(self, SM, ax, fig, scatter_list, chosen_cars_ids):
-        print("animate route")
         """
         This function animates the route of the car on the map.
 
@@ -146,7 +142,6 @@ class Animate_Simulation:
         self.last_speed_update_time = SM.simulation_update_times[0]
         # Create a flag to control animation pause/resume
         self.is_paused = False
-
         self.running = True
 
         # Connect the key press event to the on_key function
@@ -155,14 +150,13 @@ class Animate_Simulation:
 
         def animate(i):
             if i >= num_updates:
-                # ax.clear()
                 on_repeat()
                 self.animation.event_source.stop()  # Stop the animation when it's complete
                 return
             update_idx = i
             current_time = SM.simulation_update_times[update_idx]
             delta_time = (current_time - self.last_speed_update_time).total_seconds()
-            for j, updates in enumerate(SM.car_manager.updated_dictionary[current_time]):
+            for j, updates in enumerate(SM.car_manager.simulation_update_times[current_time]):
                 try:
                     blocked_roads = SM.road_network.blocked_roads_dict
 

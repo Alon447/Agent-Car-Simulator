@@ -124,7 +124,7 @@ class Car:
         self.past_nodes.append(self.source_node)
         return self.current_road
 
-    def move_next_road(self, time:float):
+    def move_next_road(self):
         """
         Move the car to the next road, based on the route's next node.
         Update car's time until the next road.
@@ -135,7 +135,6 @@ class Car:
         Returns:
         Road object or str: The next road the car will travel to, or "blocked" if the road is blocked.
         """
-        self.current_road_time += pd.Timedelta(seconds=time)  # time
         # check if car is finished
         if self.check_if_finished():
             return None
@@ -173,8 +172,7 @@ class Car:
         """
 
         if self.current_road.destination_node.id == self.destination_node:
-            self.past_roads.append(
-                {self.current_road.id: round(time_delta_to_seconds(self.current_road_time), 2)})
+            self.past_roads.append({self.current_road.id: round(time_delta_to_seconds(self.current_road_time), 2)})
             self.past_nodes.append(self.current_road.destination_node.id)
             self.is_finished = True
             self.car_in_destination = True
@@ -219,8 +217,9 @@ class Car:
         total_travel_time (datetime.timedelta): The total travel time of the car.
         """
         # used when we fast-forward the simulation
-        self.total_travel_time += datetime.timedelta(seconds=time)  # time
-        self.time_until_next_road -= datetime.timedelta(seconds=time)  # time
+        self.current_road_time += datetime.timedelta(seconds=time)  # time for json file
+        self.total_travel_time += datetime.timedelta(seconds=time)  # time for total travel time of the car
+        self.time_until_next_road -= datetime.timedelta(seconds=time)  # time until the car changes road
         return self.total_travel_time
 
     def get_routing_algorithm(self):
