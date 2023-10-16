@@ -27,6 +27,10 @@ class Main_Window_Controller:
         # Unhide the main window
         self.view.deiconify()
 
+    def start_route_comparison(self):
+        self.view.destroy()
+        self.controller.start_routing_comparisons_window()
+
     def quit(self):
         self.view.destroy()
 

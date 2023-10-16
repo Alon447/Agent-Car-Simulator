@@ -30,3 +30,12 @@ def no_roads_to_remove_error():
 
 def add_cars_error():
     tk.messagebox.showerror("Error", "Please add cars before starting the simulation")
+
+def incorrect_input_in_number_field_error(field_name):
+    tk.messagebox.showerror("Error", f'Incorrect input in  field: {field_name}. \n Please enter a valid number')
+
+def no_algorithms_to_compare_error():
+    tk.messagebox.showerror("Error", "Please choose at least one algorithm to compare")
+
+def starting_time_error():
+    tk.messagebox.showerror("Error", "Please enter a valid starting time (later than ending time")

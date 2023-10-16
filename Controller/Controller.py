@@ -1,18 +1,18 @@
 import os
 import random
+import time
 import traceback
 
 from GUI.Main_Window import Main_Window
 from GUI.New_Load_Simulation_Window import New_Load_Simulation_Window
 from GUI.New_Simulation_Window import New_Simulation_Window
 import GUI.Animate_Simulation as AS
+from GUI.Routings_Comparisons_Window import Routing_Comparisons_Window
 import GUI.Animate_Past_Simulation as APS
 from Main_Files import Car, Simulation_manager, Road_Network
 from Utilities.Results import save_results_to_JSON, plot_simulation_overview
 import datetime
 from Utilities import Getters
-
-
 
 
 class Controller:
@@ -25,12 +25,12 @@ class Controller:
 
         # GUI and Simulation managers
         self.view = None
-        self.model = None # simulation manager
-        self.road_network = None # the simulation's road network
+        self.model = None  # simulation manager
+        self.road_network = None  # the simulation's road network
 
         # Simulation parameters
-        self.G = None # graph
-        self.G_name = None # graph name
+        self.G = None  # graph
+        self.G_name = None  # graph name
         self.traffic_lights = None
         self.rain_intensity = 0
         self.add_traffic_white_noise = False
@@ -71,9 +71,13 @@ class Controller:
         self.view = New_Load_Simulation_Window(self)
         self.view.main()
 
-    # controller control
+    def start_routing_comparisons_window(self):
+        self.view = Routing_Comparisons_Window(self)
+        self.view.main()
+
+    # model control
     def start_simulation(self, traffic_lights, rain_intensity, add_traffic_white_noise,
-                         plot_results, num_episodes=2000, max_steps_per_episode=100,simulation_speed=5, repeat=True):
+                         plot_results, num_episodes=2000, max_steps_per_episode=100, simulation_speed=5, repeat=True):
 
         simulation_starting_time = self.calculate_starting_time()
         self.set_simulation_manager(traffic_lights, rain_intensity, add_traffic_white_noise,
@@ -88,10 +92,8 @@ class Controller:
         ASS.plotting_custom_route(self.model, routes, self.cars)
 
     def load_simulation(self, simulation_name, simulation_speed=5, repeat=True):
-        ASS = APS.Animate_Past_Simulation(animation_speed = simulation_speed, repeat = repeat)
+        ASS = APS.Animate_Past_Simulation(animation_speed=simulation_speed, repeat=repeat)
         ASS.plotting_custom_route(simulation_name)
-
-
 
     # gather settings
     def set_cars(self):
@@ -210,32 +212,33 @@ class Controller:
     #   controller for the multiple runs     #
     ##########################################
 
-    # def run_multiple_simulations(self):
-    #     self.model = Simulation_manager.Simulation_manager(graph_name=self.G_name,
-    #                                                        activate_traffic_lights=self.traffic_lights,
-    #                                                        rain_intensity=self.rain_intensity,
-    #                                                        traffic_white_noise=self.add_traffic_white_noise,
-    #                                                        is_plot_results=self.plot_results,
-    #                                                        start_time=self.simulation_starting_time)
-    #     RN = self.model.road_network
-    #     run_time_data = {}
-    #     for i in range(self.num_of_runs):
-    #         run_time_data[i] = {}
-    #         for j in range(len(self.algorithms)):
-    #             cur_cars = self.generate_random_cars(j, RN)
-    #             cur_alg_start_time = time.time()
-    #     pass
+    def run_multiple_simulations(self):
+        self.model = Simulation_manager.Simulation_manager(graph_name=self.G_name,
+                                                           activate_traffic_lights=self.traffic_lights,
+                                                           rain_intensity=self.rain_intensity,
+                                                           traffic_white_noise=self.add_traffic_white_noise,
+                                                           is_plot_results=self.plot_results,
+                                                           start_time=self.simulation_starting_time)
+        self.road_network = self.model.road_network
+        run_time_data = {}
+        for i in range(self.num_of_runs):
+            run_time_data[i] = {}
+            for j in range(len(self.algorithms)):
+                cur_cars = self.generate_random_cars(j, self.road_network)
+                cur_alg_start_time = time.time()
+        pass
 
-
+    def set_multiple_runs_parameters(self, num_of_cars, num_of_runs, algorithms, src_list, dst_list, rain_intesity,
+                                     traffic_light, add_trafic_white_noise, use_existing_q_tables, num_episodes, max_steps_per_episode,
+                                     earliest_time, latest_time):
+        pass
 
     def choose_random_src_dst(self):
         src = random.choice(self.src_list)
         dst = random.choice(self.dst_list)
         return src, dst
 
-
-
-    def check_if_path_is_exist(src, dst, RN):
+    def check_if_path_is_exist(self, src, dst, RN):
         try:
             path = RN.get_shortest_path(src, dst)
             return True
@@ -255,12 +258,13 @@ class Controller:
 
             # time_delta = create_time_delta(day)
             src, dst = self.choose_random_src_dst()
-            while not self.check_if_path_is_exist(src, dst, RN):
+            while not self.check_if_path_is_exist(src, dst, RN) or src==dst:
                 src, dst = self.choose_random_src_dst()
             cur_starting_time = self.generate_random_starting_time()
             cars.append(Car.Car(i, src, dst, cur_starting_time, RN, route_algorithm=self.algorithms[algorithm_ind],
                                 use_existing_q_table=self.use_existing_q_tables))
         return cars
+
     def organize_simulation_times(self, times):
         organized_times = {}  # key = simulation index, value = dictionary of times of cars in the simulation grouped
         # by algorithm

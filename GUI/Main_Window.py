@@ -44,6 +44,10 @@ class Main_Window(tk.Tk):
         # self.settings_button = ttk.Button(self.main_frame, text="Settings", command=self.mwc.open_settings, width=20)
         # self.settings_button.pack(pady=10)
 
+        self.route_comparison_button = ttk.Button(self.main_frame, text="Route Comparison",
+                                                    command=self.mwc.start_route_comparison, width=20)
+        self.route_comparison_button.pack(pady=10)
+
         # exit button
         self.exit_button = ttk.Button(self.main_frame, text="Exit", command=self.mwc.quit, width=20)
         self.exit_button.pack(pady=10)

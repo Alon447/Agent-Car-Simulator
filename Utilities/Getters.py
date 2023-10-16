@@ -54,8 +54,8 @@ Q = "Q Learning"
 
 # for statistics and for general use
 
-Starting_time_title_key = "Start_title"
-Ending_time_title_key = "End_title"
+Start_key = "Start_title"
+End_key = "End_title"
 Starting_time_title = "Enter simulation starting time:"
 Ending_time_title = "Enter simulation ending time:"
 

@@ -63,6 +63,11 @@ class Routing_Comparisons_Window(tk.Tk):
 
         # choose sources and destinations
 
+        self.choose_source_button = ttk.Button(self.main_frame, text="Choose Source and destination",
+                                               command=self.rcwc.choose_src_dst)
+        row += 1
+        self.choose_source_button.grid(row=row, column=1, padx=0, pady=10)
+
         # choose routing algorithms
 
         self.algorithms_label = tk.Label(self.main_frame, text="Choose routing algorithms:")
@@ -111,7 +116,7 @@ class Routing_Comparisons_Window(tk.Tk):
 
         # choose simulation times
 
-        self.times_titles = {Starting_time_title_key: Starting_time_title, Ending_time_title_key: Ending_time_title}
+        self.times_titles = {Start_key: Starting_time_title, End_key: Ending_time_title}
         self.time_entries = {Hours_key: hours, Minutes_key: minutes, Seconds_key: seconds}
         self.time_entries_lables = {}
         self.drop_time_entries = {}
@@ -192,15 +197,15 @@ class Routing_Comparisons_Window(tk.Tk):
         self.drop_rain_intensity.current(0)
         self.drop_rain_intensity.grid(row=row + 1, column=0, padx=0, pady=10)
 
-        self.traffic_light_label = tk.Label(self.main_frame, text="Traffic Light:")
-        self.traffic_light_label.grid(row=row, column=1, padx=0, pady=10)
+        self.traffic_lights_label = tk.Label(self.main_frame, text="Traffic Light:")
+        self.traffic_lights_label.grid(row=row, column=1, padx=0, pady=10)
 
-        self.traffic_light = tk.BooleanVar()
-        self.check_traffic_light = ttk.Checkbutton(self.main_frame, text="add traffic light",
-                                                   variable=self.traffic_light,
+        self.traffic_lights = tk.BooleanVar()
+        self.check_traffic_lights = ttk.Checkbutton(self.main_frame, text="add traffic light",
+                                                   variable=self.traffic_lights,
                                                    onvalue=True, offvalue=False)
 
-        self.check_traffic_light.grid(row=row + 1, column=1, padx=0, pady=10)
+        self.check_traffic_lights.grid(row=row + 1, column=1, padx=0, pady=10)
 
         self.traffic_white_noise_label = tk.Label(self.main_frame, text="Traffic White Noise:")
         self.traffic_white_noise_label.grid(row=row, column=2, padx=0, pady=10)
@@ -211,6 +216,16 @@ class Routing_Comparisons_Window(tk.Tk):
                                                          onvalue=True, offvalue=False)
         self.check_traffic_white_noise.grid(row=row + 1, column=2, padx=0, pady=10)
 
+        # start new simulation button
+        self.start_routing_comparisons_button = ttk.Button(self.main_frame, text="Start Routing Comparisons",
+                                                           command=self.rcwc.prepare_route_comparison)
+        row += 2
+        self.start_routing_comparisons_button.grid(row=row, column=1, padx=0, pady=10)
+
+        self.return_to_main_menu_button = ttk.Button(self.main_frame, text="Return to main menu",
+                                                        command=self.rcwc.back_to_main_menu)
+        row += 2
+        self.return_to_main_menu_button.grid(row=row, column=1, padx=0, pady=10)
         # Bind the canvas to configure it to update its scroll region when the frame size changes
         self.main_frame.bind("<Configure>", self.on_frame_configure)
 
@@ -224,13 +239,19 @@ class Routing_Comparisons_Window(tk.Tk):
         self.canvas.update_idletasks()
         self.canvas.config(scrollregion=self.canvas.bbox("all"))
 
+    def set_load_status_label(self, text):
+        self.load_status_label.config(text=text)
+
     def main(self):
         self.mainloop()
 
+    def get_city_name(self):
+        return self.city_map_entry.get("1.0", 'end').replace('\n', '')
+
     def get_starting_time(self):
-        return self.drop_time_entries[Starting_time_title_key][Hours_key].get(), \
-        self.drop_time_entries[Starting_time_title_key][Minutes_key].get(), \
-        self.drop_time_entries[Starting_time_title_key][Seconds_key].get(), self.cal[Starting_time_title_key].get_date()
+        return self.drop_time_entries[Start_key][Hours_key].get(), \
+        self.drop_time_entries[Start_key][Minutes_key].get(), \
+        self.drop_time_entries[Start_key][Seconds_key].get(), self.cal[Start_key].get_date()
 
     def get_date(self,title):
         raw_date = self.cal[title].get_date()
@@ -243,7 +264,7 @@ class Routing_Comparisons_Window(tk.Tk):
     def get_time(self,title):
         return self.drop_time_entries[title][Hours_key].get(), \
         self.drop_time_entries[title][Minutes_key].get(), \
-        self.drop_time_entries[title][Seconds_key].get(), self.cal[Ending_time_title_key].get_date()
+        self.drop_time_entries[title][Seconds_key].get(), self.cal[End_key].get_date()
     def get_algorithms(self):
         return self.algorithms_boolean_dict
 
@@ -265,7 +286,39 @@ class Routing_Comparisons_Window(tk.Tk):
         return day, month, year
 
     def get_rain_intensity(self):
-        return self.drop_rain_intensity.get()
+        rain_val = self.drop_rain_intensity.get()
+        return rain_intensity_dict[rain_val]
+
+    def get_traffic_lights(self):
+        return self.traffic_lights.get()
+
+    def get_use_existing_q_tables(self):
+        return self.use_existing_q_tables.get()
+
+    def get_number_of_episodes(self):
+        return self.q_learning_parameters_entry[Number_of_episodes].get()
+
+    def get_used_algorithms(self):
+        algorithms_list = []
+        for algorithm in self.algorithms_boolean_dict.keys():
+            if self.algorithms_boolean_dict[algorithm].get():
+                algorithms_list.append(algorithm)
+        return algorithms_list
+
+    def get_add_traffic_white_noise(self):
+        return self.traffic_white_noise.get()
+
+    def get_max_steps_per_episode(self):
+        return self.q_learning_parameters_entry[Max_steps_per_episode].get()
+
+    def get_starting_time_date(self,title_key):
+        raw_date = self.cal[title_key].get_date()
+        date = raw_date.split('/')
+        day = int(date[0])
+        month = int(date[1])
+        year = int(date[2])
+        return  year,month,day, int(self.drop_time_entries[title_key][Hours_key].get()), \
+        int(self.drop_time_entries[title_key][Minutes_key].get()), int(self.drop_time_entries[title_key][Seconds_key].get())
 
 
 if __name__ == "__main__":

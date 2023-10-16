@@ -17,6 +17,7 @@ SOURCE_AND_DESTINATION_COLOR = 'yellow'
 TEMPORARY_COLOR = 'blue'
 MARKERS_TYPES_LIST = [SOURCE, DESTINATION, TEMPORARY, SOURCE_AND_DESTINATION]
 
+
 class Map_Src_Dst_Choose:
     def __init__(self, G, controller=None):
         self.fig = None
@@ -39,7 +40,6 @@ class Map_Src_Dst_Choose:
         self.markers_dicts = {}
         for type in MARKERS_TYPES_LIST:
             self.markers_dicts[type] = {}
-
 
     def onclick(self, event):
         if event.xdata is not None and event.ydata is not None:
@@ -120,6 +120,7 @@ class Map_Src_Dst_Choose:
     def create_src_dst(self, color, type, opposite_type):
         for point in self.markers_dicts[TEMPORARY].keys():
             if point in self.markers_dicts[type].keys():
+                self.markers_dicts[TEMPORARY][point].set_color(color)
                 continue
             elif point in self.markers_dicts[opposite_type].keys():
                 self.markers_dicts[opposite_type][point].remove()
@@ -130,7 +131,7 @@ class Map_Src_Dst_Choose:
                 self.markers_dicts[TEMPORARY][point].set_color(color)
                 self.markers_dicts[type][point] = self.markers_dicts[TEMPORARY][point]
         self.markers_dicts[TEMPORARY] = {}
-        plt.legend()
+        # plt.legend()
         self.fig.canvas.draw()
 
     def remove_singular_marker(self, osmid):
@@ -138,7 +139,7 @@ class Map_Src_Dst_Choose:
             if osmid in dict.keys():
                 dict[osmid].remove()
                 del dict[osmid]
-        plt.legend()
+        # plt.legend()
         self.fig.canvas.draw()
 
     def remove_multiple_markers(self):
@@ -150,7 +151,7 @@ class Map_Src_Dst_Choose:
                     dict[point].remove()
                     del dict[point]
         # self.markers_dicts[TEMPORARY] = {}
-        plt.legend()
+        # plt.legend()
         self.fig.canvas.draw()
 
     def on_hover(self, event):  # when M is pressed, hovering over a graph will mark nearby nodes blue
@@ -171,7 +172,7 @@ class Map_Src_Dst_Choose:
             self.markers_dicts[TEMPORARY][self.osmid] = self.ax.scatter(self.curr_x, self.curr_y, color='blue', s=50)
             self.is_temp = True
 
-            plt.legend()
+            # plt.legend()
             self.fig.canvas.draw()
             print("Hovering over Junction OSMID:", self.osmid)
 
@@ -182,7 +183,7 @@ class Map_Src_Dst_Choose:
         self.reset_scatter_dicts()
 
         if is_pressed_r is True:
-            plt.legend()
+            # plt.legend()
             self.fig.canvas.draw()
 
     def reset_scatter_dicts(self):
@@ -192,22 +193,25 @@ class Map_Src_Dst_Choose:
                 scatter_dict[scatter].remove()
                 del scatter_dict[scatter]
 
-    def create_show_map(self,sources=None, destinations=None):
-        #TODO: maybe plot existing source and destination
+    def create_show_map(self, sources=None, destinations=None):
+        # TODO: maybe plot existing source and destination
         self.fig, self.ax = ox.plot_graph(self.G, bgcolor='white', node_color='black', show=False, close=False)
         self.fig.canvas.mpl_connect('button_press_event', self.onclick)
         self.fig.canvas.mpl_connect('key_press_event', self.onpress)
         self.fig.canvas.mpl_connect('motion_notify_event', self.on_hover)
-        self.fig.text(0.01, 0.01, "after left clicking or marking by pressing 'm' and hovering: Press 'a' to choose \n"
-                                  "source, 'z' to choose destination,'u' after clicking to unmark a point \n or 'x' afer "
-                                  "hovering to unmark multiple points. 'r' to reset, 'q' to quit.\n"
-                                  "blue points are temporary, green are source, red are destination, yellow are both."
-                                  "\n also, click on the arrows below to move the map")
+        self.fig.text(0.01, 0.01,
+                      f'after left clicking or marking by pressing \'m\' and hovering: Press \'a\' to choose \n '
+                      'source, \'z\' to choose destination,\'u\' after clicking to unmark a point \n or \'x\' afer '
+                      'hovering to unmark multiple points. \'r\' to reset, \'q\' to quit.\n'
+                      f'{TEMPORARY_COLOR} points are temporary, {SOURCE_COLOR} are source, {DESTINATION_COLOR} are destination, {SOURCE_AND_DESTINATION_COLOR} are both.'
+                      "\n also, click on the arrows below to move the map")
         plt.show()
 
-    def get_nodes_id(self):
-        return self.markers_dicts[SOURCE].keys(), self.markers_dicts[DESTINATION].keys(), self.markers_dicts[
-            SOURCE_AND_DESTINATION].keys()
+    def get_sources_and_destinations(self):
+        all_sources = list(self.markers_dicts[SOURCE].keys()) + list(self.markers_dicts[SOURCE_AND_DESTINATION].keys())
+        all_destinations = list(self.markers_dicts[DESTINATION].keys()) + list(
+            self.markers_dicts[SOURCE_AND_DESTINATION].keys())
+        return all_sources, all_destinations
 
     def clear(self):
         # self.fig.clear()
@@ -222,55 +226,9 @@ class Map_Src_Dst_Choose:
 
 
 if __name__ == "__main__":
-    # G, _ = Getters.get_graph("TLV")
-    # m = Map_Src_Dst_Choose(G)
-    # m.create_show_map()
-    # src, dst = m.get_nodes_id()
-    # print(src, dst)
-    print('0'.isdigit())
-
-# import osmnx as ox
-# import networkx as nx
-# from shapely.geometry import Point, Polygon
-# import matplotlib.pyplot as plt
-#
-# # Define the location and network type (e.g., drive)
-# location = 'Tel Aviv, Israel'
-# network_type = 'drive'
-#
-# # Create a graph for the specified location and network type
-# G = ox.graph_from_place(location, network_type=network_type)
-#
-# # Specify the coordinates of a known location (Dizengoff Square)
-# lat, lon = 32.075680, 34.775524
-#
-# # Define the search radius (in meters) to find nearby nodes
-# radius_meters = 300
-#
-# # Create a shapely Point representing the center of the search area
-# search_point = Point(lon, lat)
-#
-# # Create a bounding box around the search area using the radius
-# search_bbox = search_point.buffer(radius_meters / 111000)  # 1 degree is approximately 111,000 meters
-#
-# # Initialize a list to store nodes within the search area
-# nodes_within_radius = []
-#
-# # Iterate through the nodes in the graph and check if they are within the search area
-# for node in G.nodes(data=True):
-#     lon, lat = node[1]['x'], node[1]['y']
-#     node_point = Point(lon, lat)
-#     if search_bbox.contains(node_point):
-#         nodes_within_radius.append(node[0])  # Append the node ID to the list
-#
-# # Print the list of nodes within the specified radius
-# print("Nodes within a {} meter radius of the specified point:".format(radius_meters))
-# print(nodes_within_radius)
-#
-# # Optionally, you can visualize the search area and the nodes within it
-# fig, ax = ox.plot_graph(ox.project_graph(G), show=False, close=False)
-# x, y = search_bbox.exterior.xy
-# plt.plot(x, y, 'b--', label='Search Area')
-# ox.plot_graph(ox.project_graph(G.subgraph(nodes_within_radius)), ax=ax, node_color='red', show=False, close=False)
-# plt.legend()
-# plt.show()
+    G, _ = Getters.get_graph("TLV")
+    m = Map_Src_Dst_Choose(G)
+    m.create_show_map()
+    src, dst = m.get_nodes_id()
+    print(src, dst)
+    print("done")
