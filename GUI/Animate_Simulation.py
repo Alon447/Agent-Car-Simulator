@@ -20,7 +20,7 @@ class Animate_Simulation:
         self.origins = []
         self.destinations = []
 
-    def plotting_custom_route(self, SM, custom_routes: list, cars: list):
+    def plot_simulation(self, SM, custom_routes: list, cars: list):
         """
         this is the way for a car that finished its route to plot it on the map at the end
         saves the function here for future use.
@@ -163,7 +163,7 @@ class Animate_Simulation:
                     if delta_time > 600 or delta_time < 0:
                         self.last_speed_update_time = current_time
                         current_time = current_time.replace(second=0)
-                        self.edge_colors = color_edges_by_speed(SM, current_time, blocked_roads)
+                        self.edge_colors = color_edges_by_speed(SM.road_network, current_time, blocked_roads)
                         # handles, labels = ax.get_legend_handles_labels()
 
                         ax.clear()
@@ -186,9 +186,8 @@ class Animate_Simulation:
                     x_j, y_j = updates[1][0], updates[1][1]
                     scatter_list[temp_dict[updates[0]]].set_offsets(np.c_[x_j, y_j])
 
-
-                except:
-                    print("Error in animate function")
+                except Exception as e:
+                    print(f"Error in animate function {e}")
                     continue
 
             # Clear previous text annotation

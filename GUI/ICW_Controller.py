@@ -2,6 +2,7 @@ import datetime
 
 from GUI import Map_Src_Dst_Choose as msdc
 import Utilities.Errors as errors
+from Utilities.Getters import check_if_path_exist
 
 
 # TODO: add functions to send the car parameters to the controller
@@ -43,6 +44,10 @@ class ICW_Controller:
                 errors.no_source_selected_error()
             if dst is None:
                 errors.no_destination_selected_error()
+            if src == dst:
+                errors.src_equal_dst_error()
+            if check_if_path_exist(src,dst,self.controller.road_network):
+                errors.no_path_between_src_dst_error()
             routing_algorithm = self.view.get_routing_algorithm()
             print("chosen src and dst:", src, dst)
             print("chosen starting time:", starting_time)

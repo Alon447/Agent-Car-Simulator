@@ -37,3 +37,11 @@ class Main_Window_Controller:
     def open_settings(self):
         # Code to open settings
         print("Opening settings")
+        self.view.destroy()
+        self.controller.load_settings_window()
+
+    def about_the_project(self):
+        # Code to open settings
+        print("About us")
+        self.view.destroy()
+        self.controller.load_about_window()

@@ -4,7 +4,9 @@ import time
 import traceback
 
 from GUI.Main_Window import Main_Window
+from GUI.New_About_Window import New_About_Window
 from GUI.New_Load_Simulation_Window import New_Load_Simulation_Window
+from GUI.New_Settings_Window import New_Settings_Window
 from GUI.New_Simulation_Window import New_Simulation_Window
 import GUI.Animate_Simulation as AS
 from GUI.Routings_Comparisons_Window import Routing_Comparisons_Window
@@ -25,20 +27,30 @@ class Controller:
 
         # GUI and Simulation managers
         self.view = None
-        self.model = None  # simulation manager
-        self.road_network = None  # the simulation's road network
+        self.model = None # simulation manager
+        self.road_network = None # the simulation's road network
+
+        # graph parameters
+        self.G = None # graph
+        self.G_name = None # graph name
+        self.graph_loaded = False
 
         # Simulation parameters
-        self.G = None  # graph
-        self.G_name = None  # graph name
         self.traffic_lights = None
         self.rain_intensity = 0
         self.add_traffic_white_noise = False
-        self.graph_loaded = False
-        self.simulation_speed = simulation_speed
-        self.repeat = repeat
+        self.max_time_for_car = datetime.timedelta(hours=2)
+
+        # q learning parameters
+        self.episodes = 2000
+        self.steps_per_episode = 200
+
         self.simulation_duration = None
         self.simulation_starting_time = None
+
+        # animation parameters
+        self.simulation_speed = simulation_speed
+        self.repeat = repeat
         self.plot_results = False
 
         # Insert Car parameters
@@ -58,7 +70,7 @@ class Controller:
         self.algorithms = []
         self.use_existing_q_tables = False
 
-    # view control
+    # view control - load windows according to user's choice
     def start_main_window(self):
         self.view = Main_Window(self)
         self.view.main()
@@ -76,24 +88,35 @@ class Controller:
         self.view.main()
 
     # model control
+    def load_settings_window(self):
+        self.view = New_Settings_Window(self)
+        self.view.main()
+
+    def load_about_window(self):
+        self.view = New_About_Window(self)
+        self.view.main()
+
+    # controller control
     def start_simulation(self, traffic_lights, rain_intensity, add_traffic_white_noise,
-                         plot_results, num_episodes=2000, max_steps_per_episode=100, simulation_speed=5, repeat=True):
+                         plot_results, simulation_speed=5, repeat=True):
 
         simulation_starting_time = self.calculate_starting_time()
         self.set_simulation_manager(traffic_lights, rain_intensity, add_traffic_white_noise,
                                     plot_results, simulation_starting_time)
         self.set_cars()
-        self.model.run_full_simulation(self.cars, num_episodes=num_episodes,
-                                       max_steps_per_episode=max_steps_per_episode)
+
+        self.model.run_full_simulation(self.cars, num_episodes=self.episodes,
+                                       max_steps_per_episode=self.steps_per_episode)
         ASS = AS.Animate_Simulation(animation_speed=simulation_speed, repeat=repeat)
         routes = self.model.get_simulation_routes(self.cars, 0)
         json_name = save_results_to_JSON(self.model.graph_name, self.model.simulation_results)
         plot_simulation_overview(json_name)
-        ASS.plotting_custom_route(self.model, routes, self.cars)
+        ASS.plot_simulation(self.model, routes, self.cars)
 
     def load_simulation(self, simulation_name, simulation_speed=5, repeat=True):
-        ASS = APS.Animate_Past_Simulation(animation_speed=simulation_speed, repeat=repeat)
-        ASS.plotting_custom_route(simulation_name)
+        ASS = APS.Animate_Past_Simulation(animation_speed = simulation_speed, repeat = repeat)
+        ASS.plot_simulation(simulation_name)
+
 
     # gather settings
     def set_cars(self):
@@ -111,6 +134,7 @@ class Controller:
                                                            rain_intensity=rain_intensity,
                                                            traffic_white_noise=add_traffic_white_noise,
                                                            is_plot_results=plot_results,
+                                                           max_time_for_car = self.max_time_for_car,
                                                            start_time=simulation_starting_time)
         self.road_network = self.model.road_network
         for road_id in self.blocked_roads_array:
@@ -152,7 +176,6 @@ class Controller:
 
     def load_city_map(self, city_map):
         try:
-            # self.G, self.G_name = Getters.get_graph(city_map)
             self.graph_loaded = True
             self.road_network = Road_Network.Road_Network(city_map)
             self.G = self.road_network.graph
@@ -279,6 +302,19 @@ class Controller:
                     organized_times[i][self.algorithms[k]].append(times[i * k + j])
         return organized_times
 
+    def confirm_settings(self,**kwargs):
+        for key, value in kwargs.items():
+            if key == "episodes":
+                self.episodes = int(value)
+                print("episodes: ", self.episodes)
+            elif key == "steps":
+                self.steps_per_episode = int(value)
+                print("steps: ", self.steps_per_episode)
+            elif key == "car_duration":
+                self.max_time_for_car = datetime.timedelta(hours=float(value))
+                print("car_duration: ", self.max_time_for_car)
+            else:
+                print("Error in confirm_settings")
 
 if __name__ == "__main__":
     controller = Controller()

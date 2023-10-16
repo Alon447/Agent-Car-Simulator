@@ -45,7 +45,7 @@ class Simulation_manager:
 
 
 
-    def __init__(self, graph_name, activate_traffic_lights = False, rain_intensity = 0, traffic_white_noise = True, is_plot_results = True,
+    def __init__(self, graph_name, activate_traffic_lights = False, rain_intensity = 0, traffic_white_noise = True, is_plot_results = True, max_time_for_car = datetime.timedelta(hours=2),
                  start_time = datetime.datetime(year=2023, month=6, day=29, hour=8, minute=0,second=0)):
         """
         Initialize the Simulation_manager.
@@ -59,7 +59,7 @@ class Simulation_manager:
         # MANAGERS
         self.graph_name = graph_name
         self.road_network = Road_Network.Road_Network(graph_name, activate_traffic_lights, rain_intensity, traffic_white_noise)
-        self.car_manager = Car_manager.CarManager()
+        self.car_manager = Car_manager.CarManager(max_time_for_car)# the maximum time for car in the simulation
 
         # TIME
         self.simulation_datetime_start = start_time
@@ -67,7 +67,6 @@ class Simulation_manager:
         self.simulation_time = datetime.timedelta(seconds=0)  # in seconds
         self.last_current_speed_update_time = start_time # for updating the current speed of the roads
         self.last_speed_dict_update_time = start_time # for updating the speed dict of the roads
-        # self.time_limit = time_limit  # the maximum time the simulation will run in seconds
         self.day_int = start_time.weekday() # 0-6, 0 - monday, 1 - tuesday, 2 - wednesday, 3 - thursday, 4 - friday, 5 - saturday, 6 - sunday
 
         # RESULTS
@@ -83,7 +82,7 @@ class Simulation_manager:
         # Flags
         self.is_plot_results = is_plot_results
 
-    def run_full_simulation(self, cars, number_of_simulations=1, num_episodes=1000, max_steps_per_episode=150):
+    def run_full_simulation(self, cars, number_of_simulations=1, num_episodes=2000, max_steps_per_episode=150):
         """
         Run the full simulation process including setup, execution, and result printing.
 

@@ -216,3 +216,10 @@ def calaulate_starting_ending_times(datetimes_list):
         starting_time = min(starting_time, time)
         ending_time = max(ending_time, time)
     return starting_time, ending_time
+
+def check_if_path_exist(src,dst,RN):
+    try:
+        path = RN.get_shortest_path(src, dst)
+        return True
+    except:
+        return False

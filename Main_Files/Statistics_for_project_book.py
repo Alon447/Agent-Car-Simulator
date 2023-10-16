@@ -6,7 +6,7 @@ import time
 from Main_Files import Car
 import Simulation_manager
 import GUI.Animate_Simulation as AS
-from Utilities.Getters import get_random_src_dst
+from Utilities.Getters import get_random_src_dst, check_if_path_exist
 from Utilities.Results import save_results_to_JSON, read_results_from_JSON, car_times_bar_chart, \
     print_simulation_results, plot_simulation_overview, get_simulation_times
 from Utilities import Getters
@@ -57,12 +57,6 @@ Q_IND = 0
 # nodes from list in place 3-i will be the other endpoint of the route
 NODES = [Getters.bottom_left_nodes, Getters.bottom_right_nodes, Getters.top_left_nodes, Getters.top_right_nodes]
 
-def checkif_path_is_exist(src,dst,RN):
-    try:
-        path = RN.get_shortest_path(src, dst)
-        return True
-    except:
-        return False
 
 
 def choose_random_src_dst():
@@ -89,7 +83,7 @@ def generate_cars(existing_settings, algorithm_ind, RN):
 
         time_delta = create_time_delta(day)
         src, dst = choose_random_src_dst()
-        while not checkif_path_is_exist(src,dst,RN):
+        while not check_if_path_exist(src, dst, RN):
             src, dst = choose_random_src_dst()
         while (src, dst, time_delta, algorithm_ind) in existing_settings:  # make sure there are no duplicates
             time_delta = create_time_delta(day)

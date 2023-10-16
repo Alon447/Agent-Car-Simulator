@@ -41,8 +41,13 @@ class Main_Window(tk.Tk):
                                                  command=self.mwc.load_simulation, width=20)
         self.load_simulation_button.pack(pady=10)
 
-        # self.settings_button = ttk.Button(self.main_frame, text="Settings", command=self.mwc.open_settings, width=20)
-        # self.settings_button.pack(pady=10)
+        # settings button
+        self.settings_button = ttk.Button(self.main_frame, text="Settings", command=self.mwc.open_settings, width=20)
+        self.settings_button.pack(pady=10)
+
+        # about the project button
+        self.about_button = ttk.Button(self.main_frame, text="About the project", command=self.mwc.about_the_project, width=20)
+        self.about_button.pack(pady=10)
 
         self.route_comparison_button = ttk.Button(self.main_frame, text="Route Comparison",
                                                     command=self.mwc.start_route_comparison, width=20)

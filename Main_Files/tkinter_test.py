@@ -61,7 +61,7 @@ while True:
         routes = SM.get_simulation_routes(cars, 0)
 
         # Plot and display simulation results
-        ASS.plotting_custom_route(SM, routes, cars)
+        ASS.plot_simulation(SM, routes, cars)
         # AS.car_times_bar_chart(SM, 4)
         # AS.car_times_bar_chart(SM, 1)
         # AS.car_times_bar_chart(SM, 3)

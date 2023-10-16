@@ -78,5 +78,5 @@ plot_simulation_overview(json_name)
 # Manage and display simulation results
 # Plot and display simulation results
 if ANIMATE_SIMULATION:
-    ASS.plotting_custom_route(SM, routes, cars)
+    ASS.plot_simulation(SM, routes, cars)
 

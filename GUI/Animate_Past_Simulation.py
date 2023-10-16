@@ -31,8 +31,16 @@ class Animate_Past_Simulation:
         self.simulation_update_times = {}
         self.day_of_week = None
 
-    def plotting_custom_route(self, simulation_json_file):
-
+    def plot_simulation(self, simulation_json_file):
+        ############################################################
+        # helper functions
+        def create_geo_dataframe(node_id, container):
+            x, y = self.RN.get_xy_from_node_id(self.simulation_data[i][node_id])
+            geometry_data = [(y, x)]
+            gdf = gpd.GeoDataFrame(geometry = [Point(lon, lat) for lat, lon in geometry_data], crs = 'epsg:4326')
+            container.append(gdf)
+            return x, y
+        ############################################################
         scatter_list = []
         substring_to_remove = "simulation_results_"
 
@@ -81,15 +89,18 @@ class Animate_Past_Simulation:
         color_mapping = {Getters.Q: 'red', Getters.SP: 'blue'}
 
         for i in range(len(self.simulation_data)):
-            origin_x, origin_y = self.RN.get_xy_from_node_id(self.simulation_data[i][Getters.Source])
-            geometry_data = [(origin_y, origin_x)]
-            gdf = gpd.GeoDataFrame(geometry = [Point(lon, lat) for lat, lon in geometry_data], crs = 'epsg:4326')
-            self.sources.append(gdf)
+            # origin_x, origin_y = self.RN.get_xy_from_node_id(self.simulation_data[i][Getters.Source])
+            # geometry_data = [(origin_y, origin_x)]
+            # gdf = gpd.GeoDataFrame(geometry = [Point(lon, lat) for lat, lon in geometry_data], crs = 'epsg:4326')
+            # self.sources.append(gdf)
 
-            dest_x, dest_y = self.RN.get_xy_from_node_id(self.simulation_data[i][Getters.Destination])
-            geometry_data = [(dest_y, dest_x)]
-            gdf = gpd.GeoDataFrame(geometry = [Point(lon, lat) for lat, lon in geometry_data], crs = 'epsg:4326')
-            self.destinations.append(gdf)
+            # dest_x, dest_y = self.RN.get_xy_from_node_id(self.simulation_data[i][Getters.Destination])
+            # geometry_data = [(dest_y, dest_x)]
+            # gdf = gpd.GeoDataFrame(geometry = [Point(lon, lat) for lat, lon in geometry_data], crs = 'epsg:4326')
+            # self.destinations.append(gdf)
+
+            origin_x, origin_y = create_geo_dataframe(Getters.Source, self.sources)
+            create_geo_dataframe(Getters.Destination, self.destinations)
 
             route_algorithm_name = self.simulation_data[i][Getters.Routing_algorithm]
             color = color_mapping.get(route_algorithm_name, 'purple')
@@ -100,8 +111,8 @@ class Animate_Past_Simulation:
         # plot origins and destinations
         for i in range(len(self.sources)):
             self.sources[i].plot(ax = ax, color = 'black', label = 'car ' + str(i+1) + ' origin')
-            self.destinations[i].plot(ax = ax, color = 'yellow', label = 'car ' + str(
-                i+1) + ' destination')  # Add a legend with labels from scatter plots
+            self.destinations[i].plot(ax = ax, color = 'yellow', label = 'car ' + str(i+1) + ' destination')  # Add a legend with labels from scatter plots
+
         # Add a legend with labels from scatter plots
         plt.legend(frameon = False)
         self.handles, self.labels = ax.get_legend_handles_labels()
@@ -169,16 +180,13 @@ class Animate_Past_Simulation:
             delta_time = (current_time - self.last_speed_update_time).total_seconds()
             for j, updates in enumerate(self.simulation_update_times[current_time]):
                 try:
-                    # blocked_roads = self.simulation_data[0][Getters.Blocked_roads]
-                    # self.last_speed_update_time = current_time
                     if delta_time > 600 or delta_time < 0:
+                        self.edge_colors = []
                         self.last_speed_update_time = current_time
                         current_time = current_time.replace(second=0)
                         self.day_of_week = current_time.strftime("%A")
                         day_of_week_int = Getters.day_mapping[self.day_of_week]
-                        self.edge_colors = []
                         self.edge_colors = color_edges_by_speed_json(self.graph_name, day_of_week_int, self.RN, current_time, self.blocked_roads)
-                        # handles, labels = ax.get_legend_handles_labels()
                         ax.clear()
                         ox.plot_graph(self.RN.graph, figsize = (10, 10), show = False, close = False,
                                                 edge_color = self.edge_colors, node_color = self.node_colors,
@@ -224,7 +232,7 @@ class Animate_Past_Simulation:
             time_text.set_y(text_vertical_positions[1])
 
         self.animation = FuncAnimation(fig, animate, frames = num_updates, interval = self.animation_speed,
-                                       repeat = self.repeat, repeat_delay = 100)
+                                       repeat = self.repeat, repeat_delay = 0)
         plt.show(block = True)
         return
 

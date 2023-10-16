@@ -1,13 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
-
-from matplotlib.backends._backend_tk import NavigationToolbar2Tk
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from GUI import Animate_Simulation as asim
 import GUI.NLSW_Controller as nlswc
-from matplotlib.figure import Figure
-from tkinter import messagebox
-from Utilities.Getters import hours, minutes, seconds, days, weeks, months,rain_intensity_values
+
 class New_Load_Simulation_Window(tk.Tk):
     """
     This class is used to create the load simulation window

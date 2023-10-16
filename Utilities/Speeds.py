@@ -237,10 +237,11 @@ def color_edges_by_speed_json(graph_name, day_int ,RN, current_time, blocked_roa
                 # if the road is blocked at the start time of the simulation, color it black
                 edge_colors.append('black')
                 continue
-
-        if speeds[str(road.id)][str(current_time.strftime("%H:%M"))] < 25:
+        str_id = str(road.id)
+        str_time = str(current_time.strftime("%H:%M"))
+        if speeds[str_id][str_time] < 25:
             edge_colors.append('red')
-        elif speeds[str(road.id)][str(current_time.strftime("%H:%M"))] < 37:
+        elif speeds[str_id][str_time] < 37:
             edge_colors.append('orange')
         else:
             edge_colors.append('green')

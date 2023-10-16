@@ -38,16 +38,16 @@ class CarManager:
 
     """
 
-    def __init__(self):
+    def __init__(self, max_time):
         # Start of the simulation
         self.cars_waiting_to_enter = []  # a list of the cars that are waiting to enter the simulation, i.e their starting time has not arrived yet.
 
         # During the simulation
         self.cars_in_simulation = {}  # a dictionary of all the cars currently in the simulation.
-        self.cars_nearest_update = []  # a list of the cars that will determine time of the next update.
+        self.cars_nearest_update = []  # a list  of the cars that will determine time of the next update.
         self.cars_nearest_update_time = 0  # the time of the next update
         self.cars_blocked = []  # a list of the cars that are blocked in the simulation
-
+        self.max_time_for_car = max_time# the maximum time for car in the simulation
         # End of the simulation
         self.cars_finished = []  # a list of the cars that have finished their journey and are waiting to be removed from the simulation
         self.cars_stuck = []  # a list of the cars that are stuck at the end of the simulation
@@ -175,7 +175,7 @@ class CarManager:
             current_travel_time = car.update_travel_time(timeStamp)
 
             # if the car travel time is longer than 2 hours, then force finish the car
-            if current_travel_time > datetime.timedelta(hours=2):
+            if current_travel_time > self.max_time_for_car:
                 car.force_finish()
                 self.cars_stuck.append(car)
                 x, y = car.get_xy_destination()

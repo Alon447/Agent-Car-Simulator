@@ -31,6 +31,11 @@ def no_roads_to_remove_error():
 def add_cars_error():
     tk.messagebox.showerror("Error", "Please add cars before starting the simulation")
 
+def no_path_between_src_dst_error():
+    tk.messagebox.showerror("Error", "No Path Found!")
+def src_equal_dst_error():
+    tk.messagebox.showerror("Error", "Source and Destination are the same!")
+
 def incorrect_input_in_number_field_error(field_name):
     tk.messagebox.showerror("Error", f'Incorrect input in  field: {field_name}. \n Please enter a valid number')
 
