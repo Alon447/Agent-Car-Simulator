@@ -5,8 +5,6 @@ from tkcalendar import Calendar, DateEntry
 import GUI.DCR_Controller as dcrc
 from Utilities.Getters import *
 
-
-
 class Display_Comparisons_Results(tk.Tk):
 
     def __init__(self,controller):

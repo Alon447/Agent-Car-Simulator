@@ -4,7 +4,7 @@ from tkcalendar import Calendar
 from tkinter import ttk
 
 from GUI import IBR_Controller as ibrc
-from Utilities.Getters import hours, minutes, seconds
+from Utilities.Getters import hours, minutes
 
 
 class Insert_Block_Road(tk.Toplevel):

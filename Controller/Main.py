@@ -1,11 +1,8 @@
 import json
-import os
-import random
 import time
 import traceback
 
 from GUI.Main_Window import Main_Window
-from GUI.New_About_Window import New_About_Window
 from GUI.New_Load_Simulation_Window import New_Load_Simulation_Window
 from GUI.New_Settings_Window import New_Settings_Window
 from GUI.New_Simulation_Window import New_Simulation_Window
@@ -92,10 +89,6 @@ class Controller:
     # model control
     def load_settings_window(self):
         self.view = New_Settings_Window(self)
-        self.view.main()
-
-    def load_about_window(self):
-        self.view = New_About_Window(self)
         self.view.main()
 
     # controller control
@@ -223,10 +216,6 @@ class Controller:
     def check_can_run_simulation(self):
         if not self.graph_loaded:
             return False
-        # elif self.simulation_duration is None:
-        #     return False
-        # elif self.simulation_starting_time is None:
-        #     return False
         elif len(self.cars_values_dict) == 0:
             print("No cars to run simulation with")
             return False
@@ -307,8 +296,6 @@ class Controller:
         # cars are in the same road network, same day, different starting times, different src and dst
         cars = []
         for i in range(self.num_of_cars):
-
-            # time_delta = create_time_delta(day)
             src, dst = self.choose_random_src_dst()
             while not self.check_if_path_is_exist(src, dst, RN) or src == dst:
                 src, dst = self.choose_random_src_dst()
