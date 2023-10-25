@@ -128,12 +128,12 @@ class Routing_Comparisons_Window(tk.Tk):
 
             col = 0
             row += 1
+            self.drop_time_entries[title] = {}
+            self.time_entries_lables[title] = {}
             for time_entry in self.time_entries.keys():
-                self.time_entries_lables[title] = {}
                 self.time_entries_lables[title][time_entry] = ttk.Label(self.main_frame, text=time_entry)
                 self.time_entries_lables[title][time_entry].grid(row=row, column=col, padx=0, pady=10)
 
-                self.drop_time_entries[title] = {}
                 self.drop_time_entries[title][time_entry] = ttk.Combobox(self.main_frame,
                                                                          values=self.time_entries[time_entry])
                 self.drop_time_entries[title][time_entry].current(0)
@@ -269,10 +269,10 @@ class Routing_Comparisons_Window(tk.Tk):
         return self.algorithms_boolean_dict
 
     def get_cars_amount(self):
-        return self.cars_amount_entry.get()
+        return self.cars_amount_entry.get("1.0", 'end').replace('\n', '')
 
     def get_simulations_amount(self):
-        return self.simulations_amount_entry.get()
+        return self.simulations_amount_entry.get("1.0", 'end').replace('\n', '')
 
     def get_city_map(self):
         return self.city_map_entry.get("1.0", 'end').replace('\n', '')
@@ -296,7 +296,7 @@ class Routing_Comparisons_Window(tk.Tk):
         return self.use_existing_q_tables.get()
 
     def get_number_of_episodes(self):
-        return self.q_learning_parameters_entry[Number_of_episodes].get()
+        return self.q_learning_parameters_entry[Number_of_episodes].get("1.0", 'end').replace('\n', '')
 
     def get_used_algorithms(self):
         algorithms_list = []
@@ -309,9 +309,9 @@ class Routing_Comparisons_Window(tk.Tk):
         return self.traffic_white_noise.get()
 
     def get_max_steps_per_episode(self):
-        return self.q_learning_parameters_entry[Max_steps_per_episode].get()
+        return self.q_learning_parameters_entry[Max_steps_per_episode].get("1.0", 'end').replace('\n', '')
 
-    def get_starting_time_date(self,title_key):
+    def get_time_date(self,title_key):
         raw_date = self.cal[title_key].get_date()
         date = raw_date.split('/')
         day = int(date[0])

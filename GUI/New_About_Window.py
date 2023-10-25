@@ -10,7 +10,7 @@ class New_About_Window(tk.Tk):
         super().__init__()
         self.controller = controller
         self.title("About the Project")
-        self.geometry("800x600")  # Set the dimensions of the new window (width x height)
+        self.geometry("1000x600")  # Set the dimensions of the new window (width x height)
 
         self.configure(bg = "#f5f5f5")  # Set the background color
 
@@ -51,5 +51,16 @@ class New_About_Window(tk.Tk):
                                         wraplength = 600)
         self.settings_label.grid(row = 0, column = 0, padx = 10, pady = 20)
 
+        #return to main menu button
+        self.back_button = ttk.Button(self, text = "Back to Main Menu", command = self.back_to_main_menu)
+        self.back_button.grid(row = 1, column = 0, padx = 10, pady = 20)
+
     def main(self):
         self.mainloop()
+
+    def back_to_main_menu(self):
+        # Destroy the current window
+        self.destroy()
+
+        # Unhide the main window
+        self.controller.start_main_window()

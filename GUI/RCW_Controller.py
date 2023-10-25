@@ -27,9 +27,16 @@ class RCW_Controller:
         self.mmsdc = None
 
     def start_route_comparison(self):
-        pass
+        self.controller.set_multiple_runs_parameters(self.cars_amount, self.simulations_amount, self.used_algorithms,
+                                                     self.sources, self.destinations, self.rain_intensity,
+                                                     self.traffic_lights,
+                                                     self.add_traffic_white_noise, self.use_existing_q_tables,
+                                                     self.number_of_episodes,
+                                                     self.max_steps_per_episode, self.earliest_timedate_pick,
+                                                     self.latest_timedate_pick)
+        self.controller.prepare_routing_comparisons()
     def prepare_route_comparison(self):
-        #parameters:
+        # parameters:
         #   cars amount
         #   simulation amount
         #   routing algorithms
@@ -51,8 +58,8 @@ class RCW_Controller:
 
         pass
 
-    def get_fixed_timedate_format(self,title_key):
-        year, month, day, hour,minute,second = self.view.get_time_date(title_key)
+    def get_fixed_timedate_format(self, title_key):
+        year, month, day, hour, minute, second = self.view.get_time_date(title_key)
         return datetime.datetime(year=year, month=month, day=day, hour=hour, minute=minute, second=second)
 
     def get_all_parameters(self):
@@ -80,8 +87,6 @@ class RCW_Controller:
         all_checks_passed &= self.check_max_steps_per_episode()
         all_checks_passed &= self.check_starting_time()
 
-
-
         return all_checks_passed
 
     def toggle_algorithm(self, algorithm, algorithm_var):
@@ -99,7 +104,6 @@ class RCW_Controller:
             self.view.set_load_status_label("Failed to load city map")
             self.map_loaded = False
 
-
     def choose_src_dst(self):
         """
         This function is used to choose the source and destination of the car
@@ -112,7 +116,7 @@ class RCW_Controller:
             self.mmsdc = mmsdc.Map_Src_Dst_Choose(G, self.controller)
         self.mmsdc.reset_src_dst()
         self.mmsdc.create_show_map()
-        print("chosen src and dst:", self.mmsdc.get_nodes_id())
+
 
     def back_to_main_menu(self):
         # Destroy the current simulation window if it exists
@@ -130,6 +134,8 @@ class RCW_Controller:
             passed_check = False
         if not passed_check:
             errors.incorrect_input_in_number_field_error('cars amount')
+            return False
+        self.cars_amount = int(self.cars_amount)
         return passed_check
 
     def check_simulations_amount(self):
@@ -140,8 +146,9 @@ class RCW_Controller:
             passed_check = False
         if not passed_check:
             errors.incorrect_input_in_number_field_error('simulations amount')
+            return False
+        self.simulations_amount = int(self.simulations_amount)
         return passed_check
-
 
     def check_used_algorithms(self):
         if len(self.used_algorithms) == 0:
@@ -158,7 +165,6 @@ class RCW_Controller:
             return False
         return True
 
-
     def check_number_of_episodes(self):
         passed_check = True
         if not self.number_of_episodes.isdigit():
@@ -167,8 +173,9 @@ class RCW_Controller:
             passed_check = False
         if not passed_check:
             errors.incorrect_input_in_number_field_error('number of episodes')
+            return False
+        self.number_of_episodes = int(self.number_of_episodes)
         return passed_check
-
 
     def check_max_steps_per_episode(self):
         passed_check = True
@@ -178,10 +185,12 @@ class RCW_Controller:
             passed_check = False
         if not passed_check:
             errors.incorrect_input_in_number_field_error('max steps per episode')
+            return False
+        self.max_steps_per_episode = int(self.max_steps_per_episode)
         return passed_check
 
     def check_starting_time(self):
-        if self.earliest_timedate_pick>=self.latest_timedate_pick:
+        if self.earliest_timedate_pick >= self.latest_timedate_pick:
             errors.starting_time_error()
             return False
         return True

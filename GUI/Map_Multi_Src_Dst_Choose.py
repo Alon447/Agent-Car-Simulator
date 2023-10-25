@@ -58,7 +58,7 @@ class Map_Src_Dst_Choose:
                     self.markers_dicts[TEMPORARY][point].remove()
                     del self.markers_dicts[TEMPORARY][point]
                 # self.cur_gdf.remove()
-            # fixed_osmid = self.controller.get_fixed_node_id(self.osmid)
+            self.osmid = self.controller.get_fixed_node_id(self.osmid)
             self.markers_dicts[TEMPORARY][self.osmid] = self.ax.scatter(self.curr_x, self.curr_y, color='blue', s=50)
             self.is_temp = True
 
@@ -166,7 +166,7 @@ class Map_Src_Dst_Choose:
             # if self.is_temp is True:
             #     self.scatter.remove()
             #     self.cur_gdf.remove()
-            # fixed_osmid = self.controller.get_fixed_node_id(self.osmid)
+            self.osmid = self.controller.get_fixed_node_id(self.osmid)
             if self.osmid in self.markers_dicts[TEMPORARY].keys():
                 return
             self.markers_dicts[TEMPORARY][self.osmid] = self.ax.scatter(self.curr_x, self.curr_y, color='blue', s=50)

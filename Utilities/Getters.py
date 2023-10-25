@@ -59,6 +59,9 @@ End_key = "End_title"
 Starting_time_title = "Enter simulation starting time:"
 Ending_time_title = "Enter simulation ending time:"
 
+run_time_data_file_name = "run_time_data.json"
+cars_times_file_name = "cars_times.json"
+
 
 # for testing and statistics in TLV map:
 # TODO: check if neccessary
@@ -82,6 +85,10 @@ day_mapping = {
 routing_algorithms = [
     "Shortest Path",
     "Random Path",
+    "Q Learning"
+]
+
+routing_learning_algorithms = [
     "Q Learning"
 ]
 

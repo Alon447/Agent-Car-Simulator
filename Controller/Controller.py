@@ -1,3 +1,4 @@
+import json
 import os
 import random
 import time
@@ -12,9 +13,9 @@ import GUI.Animate_Simulation as AS
 from GUI.Routings_Comparisons_Window import Routing_Comparisons_Window
 import GUI.Animate_Past_Simulation as APS
 from Main_Files import Car, Simulation_manager, Road_Network
-from Utilities.Results import save_results_to_JSON, plot_simulation_overview
+from Utilities.Results import save_results_to_JSON, plot_simulation_overview, get_simulation_times
 import datetime
-from Utilities import Getters
+from Utilities.Getters import *
 
 
 class Controller:
@@ -27,12 +28,12 @@ class Controller:
 
         # GUI and Simulation managers
         self.view = None
-        self.model = None # simulation manager
-        self.road_network = None # the simulation's road network
+        self.model = None  # simulation manager
+        self.road_network = None  # the simulation's road network
 
         # graph parameters
-        self.G = None # graph
-        self.G_name = None # graph name
+        self.G = None  # graph
+        self.G_name = None  # graph name
         self.graph_loaded = False
 
         # Simulation parameters
@@ -69,6 +70,7 @@ class Controller:
         self.num_of_cars = 0
         self.algorithms = []
         self.use_existing_q_tables = False
+        self.run_time_data = {}
 
     # view control - load windows according to user's choice
     def start_main_window(self):
@@ -114,9 +116,8 @@ class Controller:
         ASS.plot_simulation(self.model, routes, self.cars)
 
     def load_simulation(self, simulation_name, simulation_speed=5, repeat=True):
-        ASS = APS.Animate_Past_Simulation(animation_speed = simulation_speed, repeat = repeat)
+        ASS = APS.Animate_Past_Simulation(animation_speed=simulation_speed, repeat=repeat)
         ASS.plot_simulation(simulation_name)
-
 
     # gather settings
     def set_cars(self):
@@ -134,7 +135,7 @@ class Controller:
                                                            rain_intensity=rain_intensity,
                                                            traffic_white_noise=add_traffic_white_noise,
                                                            is_plot_results=plot_results,
-                                                           max_time_for_car = self.max_time_for_car,
+                                                           max_time_for_car=self.max_time_for_car,
                                                            start_time=simulation_starting_time)
         self.road_network = self.model.road_network
         for road_id in self.blocked_roads_array:
@@ -167,7 +168,7 @@ class Controller:
         return self.cars_values_dict
 
     def get_past_simulations(self):
-        directory_path = Getters.get_results_directory_path()
+        directory_path = get_results_directory_path()
         json_files = [file for file in os.listdir(directory_path)]
         return json_files, directory_path
 
@@ -231,11 +232,11 @@ class Controller:
             return False
         return True
 
-    ##########################################
-    #   controller for the multiple runs     #
-    ##########################################
+    ##################################################################
+    #   controller for the multiple runs for routing comparisons     #
+    ##################################################################
 
-    def run_multiple_simulations(self):
+    def prepare_routing_comparisons(self):
         self.model = Simulation_manager.Simulation_manager(graph_name=self.G_name,
                                                            activate_traffic_lights=self.traffic_lights,
                                                            rain_intensity=self.rain_intensity,
@@ -243,18 +244,46 @@ class Controller:
                                                            is_plot_results=self.plot_results,
                                                            start_time=self.simulation_starting_time)
         self.road_network = self.model.road_network
+        self.run_route_comparisons()
+
+    def run_route_comparisons(self):
         run_time_data = {}
         for i in range(self.num_of_runs):
+            print("run number: ", i)
             run_time_data[i] = {}
+            cur_cars = self.generate_random_cars(0, self.road_network)
             for j in range(len(self.algorithms)):
-                cur_cars = self.generate_random_cars(j, self.road_network)
+                cur_cars = self.set_cars_algorithm(j, cur_cars)
                 cur_alg_start_time = time.time()
-        pass
+                learning_time = self.model.run_full_simulation(cur_cars, num_episodes=self.number_of_episodes,
+                                                               max_steps_per_episode=self.max_steps_per_episode)
+                cur_alg_end_time = time.time()
+                run_time_data[i][self.algorithms[j]] = cur_alg_end_time - cur_alg_start_time - learning_time
+                if self.algorithms[j] in routing_learning_algorithms:
+                    run_time_data[i][self.algorithms[j] + " learning_time"] = learning_time
+        save_results_to_JSON(self.model.graph_name, self.model.simulation_results)
+        json.dump(run_time_data, open(self.model.graph_name + run_time_data_file_name, 'w'), indent=4)
+        organized_times = self.organize_simulation_times(get_simulation_times(self.model))
+        json.dump(self.organize_simulation_times(get_simulation_times(self.model)),
+                  open(self.model.graph_name + cars_times_file_name, 'w'), indent=4)
 
     def set_multiple_runs_parameters(self, num_of_cars, num_of_runs, algorithms, src_list, dst_list, rain_intesity,
-                                     traffic_light, add_trafic_white_noise, use_existing_q_tables, num_episodes, max_steps_per_episode,
+                                     traffic_light, add_trafic_white_noise, use_existing_q_tables, num_episodes,
+                                     max_steps_per_episode,
                                      earliest_time, latest_time):
-        pass
+        self.num_of_cars = num_of_cars
+        self.num_of_runs = num_of_runs
+        self.algorithms = algorithms
+        self.src_list = src_list
+        self.dst_list = dst_list
+        self.rain_intensity = rain_intesity
+        self.traffic_lights = traffic_light
+        self.add_traffic_white_noise = add_trafic_white_noise
+        self.use_existing_q_tables = use_existing_q_tables
+        self.number_of_episodes = num_episodes
+        self.max_steps_per_episode = max_steps_per_episode
+        self.simulation_starting_time = earliest_time
+        self.simulation_ending_time = latest_time
 
     def choose_random_src_dst(self):
         src = random.choice(self.src_list)
@@ -281,7 +310,7 @@ class Controller:
 
             # time_delta = create_time_delta(day)
             src, dst = self.choose_random_src_dst()
-            while not self.check_if_path_is_exist(src, dst, RN) or src==dst:
+            while not self.check_if_path_is_exist(src, dst, RN) or src == dst:
                 src, dst = self.choose_random_src_dst()
             cur_starting_time = self.generate_random_starting_time()
             cars.append(Car.Car(i, src, dst, cur_starting_time, RN, route_algorithm=self.algorithms[algorithm_ind],
@@ -295,14 +324,21 @@ class Controller:
         for i in range(0, self.num_of_runs):
             organized_times[i] = {}
             for k in range(0, len(self.algorithms)):
+                organized_times[i][self.algorithms[k]] = []
                 for j in range(0, self.num_of_cars):
                     # the times are organized in the following way:
                     # every self.num_of_cars times are for the same simulation number and same algorithm.
                     # so the first car of the i-th simulation and k-th algorithm is in index i*k
-                    organized_times[i][self.algorithms[k]].append(times[i * k + j])
+                    current_time = times[i * len(self.algorithms) * self.num_of_cars + k * self.num_of_cars + j]
+                    organized_times[i][self.algorithms[k]].append(current_time)
         return organized_times
 
-    def confirm_settings(self,**kwargs):
+    def set_cars_algorithm(self, algorithm_ind, cars):
+        for car in cars:
+            car.set_new_routing_algorithm(self.algorithms[algorithm_ind])
+        return cars
+
+    def confirm_settings(self, **kwargs):
         for key, value in kwargs.items():
             if key == "episodes":
                 self.episodes = int(value)
@@ -315,6 +351,7 @@ class Controller:
                 print("car_duration: ", self.max_time_for_car)
             else:
                 print("Error in confirm_settings")
+
 
 if __name__ == "__main__":
     controller = Controller()
