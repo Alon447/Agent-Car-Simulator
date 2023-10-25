@@ -83,17 +83,30 @@ Choose the routing algorithm you want the car to use. Three options are availabl
 **Use Existing Q Tables**
 
 Indicate whether the car should use existing Q tables (if available).
-- **Block/Unblock Road:** Use the "Block/Unblock Road" button to toggle the accessibility of specific road segments within the city map. This feature allows you to simulate road closures or restrictions.
 
-**Road's Blockage Starting Time:** Set the hour and minute when the road blockage begins.
+### Block/Unblock Road
+ 
+Use the "Block/Unblock Road" button to toggle the accessibility of specific road segments within the city map. This feature allows you to simulate road closures or restrictions.
 
-**Road's Blockage Starting Day:** Use the calendar to select the date when the road blockage commences.
+**Road's Blockage Starting Time**
 
-**Road's Blockage Ending Time:** Specify the hour and minute when the road blockage ends.
+Set the hour and minute when the road blockage begins.
 
-**Road's Blockage Ending Day:** Use the calendar to choose the date when the road blockage concludes.
+**Road's Blockage Starting Day** 
 
-**Choose Road To Block:** Click the "Choose Road To Block" button to select the road segment you want to block, after that close the window and press "Confirm".
+Use the calendar to select the date when the road blockage commences.
+
+**Road's Blockage Ending Time** 
+
+Specify the hour and minute when the road blockage ends.
+
+**Road's Blockage Ending Day** 
+
+Use the calendar to choose the date when the road blockage concludes.
+
+**Choose Road To Block** 
+
+Click the "Choose Road To Block" button to select the road segment you want to block, after that close the window and press "Confirm".
 
 **2. Load Simulation:**
 
