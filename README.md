@@ -60,19 +60,19 @@ In the "New Simulation" window, you can configure various parameters for your si
 
 Click the "Add New Car" button to introduce a new vehicle to the simulation. You can add multiple cars with different starting positions and behaviors.
 
-**Car's Starting Time**
+- **Car's Starting Time**
 
 Select the hour, minute, and second when the new car should start its journey.
 
-**Car's Starting Day**
+- **Car's Starting Day**
 
 Use the calendar widget to pick the date when the car enters the simulation.
 
-**Choose Source and Destination**
+- **Choose Source and Destination**
 
 Click the "Choose Source and destination" button to specify the starting and ending points for the new car. After that, close the window and press "Confirm."
 
-**Routing Algorithm**
+- **Routing Algorithm**
 
 Choose the routing algorithm you want the car to use. Three options are available:
 
@@ -80,7 +80,7 @@ Choose the routing algorithm you want the car to use. Three options are availabl
 - Shortest Path
 - Random Actions
 
-**Use Existing Q Tables**
+- **Use Existing Q Tables**
 
 Indicate whether the car should use existing Q tables (if available).
 
@@ -88,23 +88,23 @@ Indicate whether the car should use existing Q tables (if available).
  
 Use the "Block/Unblock Road" button to toggle the accessibility of specific road segments within the city map. This feature allows you to simulate road closures or restrictions.
 
-**Road's Blockage Starting Time**
+- **Road's Blockage Starting Time**
 
 Set the hour and minute when the road blockage begins.
 
-**Road's Blockage Starting Day** 
+- **Road's Blockage Starting Day** 
 
 Use the calendar to select the date when the road blockage commences.
 
-**Road's Blockage Ending Time** 
+- **Road's Blockage Ending Time** 
 
 Specify the hour and minute when the road blockage ends.
 
-**Road's Blockage Ending Day** 
+- **Road's Blockage Ending Day** 
 
 Use the calendar to choose the date when the road blockage concludes.
 
-**Choose Road To Block** 
+- **Choose Road To Block** 
 
 Click the "Choose Road To Block" button to select the road segment you want to block, after that close the window and press "Confirm".
 
@@ -120,6 +120,19 @@ Click the "Choose Road To Block" button to select the road segment you want to b
 
 **4. Settings:**
 
-- The "Settings" button opens the settings menu, allowing you to configure various program settings.
-- In the settings menu, you can customize parameters, adjust preferences, and tailor the program to your specific needs.
+- **Enter Q Learning Number Of Steps**
+
+Specify the number of steps for the Q-learning algorithm. This parameter affects how quickly the Q-learning agents learn and adapt their behavior.
+
+- **Enter Q Learning Number Of Episodes**
+
+Determine the number of episodes for the Q-learning algorithm. Each episode represents a complete learning cycle. A higher number of episodes allows the Q-learning agents to gain more experience and refine their strategies.
+
+- **Enter Car Duration (Hours)**
+
+Set the duration for each car's journey in hours. This parameter controls the time frame within which the simulated cars navigate through the city.
+
+- **Confirm Settings**
+
+After configuring your desired settings, click the "Confirm" button to save your changes and apply them to the simulation. The "Settings" window will close, and your customized settings will be used in the simulation.
 
