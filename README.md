@@ -18,10 +18,12 @@ The Multi-Agent Reinforcement Learning of Traffic Routing project is a simulatio
 
 ## Features
 
-- **Traffic Flow Simulation:** Simulate traffic behavior based on various road parameters, weather conditions, and car characteristics.
+- **Start A New Simulation:** Simulate traffic behavior based on various road parameters, weather conditions, and car characteristics.
+                              First choose a city in the world and load its map. Then apply the desired settings
 - **Visual Representation:** Visualize the simulation results with 2D maps, heatmaps, and animations.
 - **Multi-Agent Reinforcement Learning:** Apply reinforcement learning algorithms to autonomous vehicles to learn optimal path-finding strategies.
 - **Graph Transformation:** Transform real-life maps into graph structures for simulation and analysis.
+
 
 ## Installation
 
