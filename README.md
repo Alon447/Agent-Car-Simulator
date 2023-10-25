@@ -57,18 +57,28 @@ In the "New Simulation" window, you can configure various parameters for your si
 - **Rain Intensity:** Choose the desired rain intensity level for the simulation from the dropdown menu. The road speeds will be lower as the rain intensity is higher.
 
 - **Add New Car:** Click the "Add New Car" button to introduce a new vehicle to the simulation. You can add multiple cars with different starting positions and behaviors.
-**Car's Starting Time: Select the hour, minute, and second when the new car should start its journey.**
-**Car's Starting Day: Use the calendar widget to pick the date when the car enters the simulation.**
-**Choose Source and Destination: Click the "Choose Source and destination" button to specify the starting and ending points for the new car, after that close the window and press "Confirm".**
-**Routing Algorithm: Choose the routing algorithm you want the car to use. 3 optins are available: Reinforecemnt Machine Learning (Q-Learning), Shortest path and Random actions.**
-**Use Existing Q Tables: Indicate whether the car should use existing Q tables (if available).**
+
+**Car's Starting Time:** Select the hour, minute, and second when the new car should start its journey.
+
+**Car's Starting Day:** Use the calendar widget to pick the date when the car enters the simulation.
+
+**Choose Source and Destination:** Click the "Choose Source and destination" button to specify the starting and ending points for the new car, after that close the window and press "Confirm".
+
+**Routing Algorithm:** Choose the routing algorithm you want the car to use. 3 optins are available: Reinforecemnt Machine Learning (Q-Learning), Shortest path and Random actions.
+
+**Use Existing Q Tables:** Indicate whether the car should use existing Q tables (if available).
 
 - **Block/Unblock Road:** Use the "Block/Unblock Road" button to toggle the accessibility of specific road segments within the city map. This feature allows you to simulate road closures or restrictions.
-**Road's Blockage Starting Time: Set the hour and minute when the road blockage begins.**
-**Road's Blockage Starting Day: Use the calendar to select the date when the road blockage commences.**
-**Road's Blockage Ending Time: Specify the hour and minute when the road blockage ends.**
-**Road's Blockage Ending Day: Use the calendar to choose the date when the road blockage concludes.**
-**Choose Road To Block: Click the "Choose Road To Block" button to select the road segment you want to block, after that close the window and press "Confirm".**
+
+**Road's Blockage Starting Time:** Set the hour and minute when the road blockage begins.
+
+**Road's Blockage Starting Day:** Use the calendar to select the date when the road blockage commences.
+
+**Road's Blockage Ending Time:** Specify the hour and minute when the road blockage ends.
+
+**Road's Blockage Ending Day:** Use the calendar to choose the date when the road blockage concludes.
+
+**Choose Road To Block:** Click the "Choose Road To Block" button to select the road segment you want to block, after that close the window and press "Confirm".
 
 **2. Load Simulation:**
 
