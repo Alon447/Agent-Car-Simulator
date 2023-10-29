@@ -352,9 +352,9 @@ class Controller:
         return get_results_files(cars_times_file_name, run_time_data_file_name)
 
     def calculate_car_times_statistics(self, car_times_file):
-        with open(car_times_file) as json_file:
+        with open(f'../Results/{car_times_file}') as json_file:
             data = json.load(json_file)
-        algorithms = list(data[0].keys())
+        algorithms = list(data['0'].keys())
         algorithm_drive_times = {}
         for algorithm in algorithms:
             algorithm_drive_times[algorithm] = []
@@ -366,6 +366,23 @@ class Controller:
             algorithm_statistics[algorithm] = {}
             algorithm_statistics[algorithm][Average_key] = sum(algorithm_drive_times[algorithm])/len(algorithm_drive_times[algorithm])
             algorithm_statistics[algorithm][Standard_deviation_key] = statistics.stdev(algorithm_drive_times[algorithm])
+        return algorithm_statistics
+
+    def calculate_run_times_statistics(self,run_times_file):
+        with open(f'../Results/{run_times_file}') as json_file:
+            data = json.load(json_file)
+        algorithms = list(data['0'].keys())
+        algorithm_run_times = {}
+        for algorithm in algorithms:
+            algorithm_run_times[algorithm] = []
+        for run in data:
+            for algorithm in data[run]:
+                algorithm_run_times[algorithm].append(data[run][algorithm])
+        algorithm_statistics = {}
+        for algorithm in algorithms:
+            algorithm_statistics[algorithm] = {}
+            algorithm_statistics[algorithm][Average_key] = sum(algorithm_run_times[algorithm])/len(algorithm_run_times[algorithm])
+            algorithm_statistics[algorithm][Standard_deviation_key] = statistics.stdev(algorithm_run_times[algorithm])
         return algorithm_statistics
 
 
