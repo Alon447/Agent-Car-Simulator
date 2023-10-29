@@ -53,6 +53,10 @@ class Main_Window(tk.Tk):
                                                     command=self.mwc.start_route_comparison, width=20)
         self.route_comparison_button.pack(pady=10)
 
+        self.display_comparisons_results_button = ttk.Button(self.main_frame, text="Display Comparisons Results",
+                                                    command=self.mwc.display_comparisons_results_window, width=20)
+        self.display_comparisons_results_button.pack(pady=10)
+
         # exit button
         self.exit_button = ttk.Button(self.main_frame, text="Exit", command=self.mwc.quit, width=20)
         self.exit_button.pack(pady=10)

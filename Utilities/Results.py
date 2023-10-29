@@ -1,4 +1,6 @@
 import json
+import os
+
 from matplotlib import pyplot as plt
 import matplotlib.patches as mpatches
 import osmnx as ox
@@ -232,3 +234,16 @@ def plot_results(src, dst, all_training_paths_nodes, all_training_times, mean_re
 def save_multiple_simulations_results(SM, run_time_data, cars_times_data):
     json.dump(run_time_data, open(f'run_time_data_{SM.graph_name}.json', 'w'), indent=4)
     pass
+
+
+def get_results_files(*filters):
+    if len(filters) == 0:
+        filters = [".json"]
+    results_files = {}
+    for filter in filters:
+        results_files[filter] = []
+    for file in os.listdir("../Results"):
+        for filter in filters:
+            if file.endswith(filter):
+                results_files[filter].append(file)
+    return results_files

@@ -45,3 +45,7 @@ class Main_Window_Controller:
         print("About us")
         self.view.destroy()
         self.controller.load_about_window()
+
+    def display_comparisons_results_window(self):
+        self.view.destroy()
+        self.controller.start_display_comparisons_results_window()
