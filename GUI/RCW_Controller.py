@@ -30,9 +30,7 @@ class RCW_Controller:
         self.controller.set_multiple_runs_parameters(self.cars_amount, self.simulations_amount, self.used_algorithms,
                                                      self.sources, self.destinations, self.rain_intensity,
                                                      self.traffic_lights,
-                                                     self.add_traffic_white_noise, self.use_existing_q_tables,
-                                                     self.number_of_episodes,
-                                                     self.max_steps_per_episode, self.earliest_timedate_pick,
+                                                     self.add_traffic_white_noise, self.use_existing_q_tables, self.earliest_timedate_pick,
                                                      self.latest_timedate_pick)
         self.controller.prepare_routing_comparisons()
     def prepare_route_comparison(self):
@@ -71,8 +69,8 @@ class RCW_Controller:
         self.traffic_lights = self.view.get_traffic_lights()
         self.add_traffic_white_noise = self.view.get_add_traffic_white_noise()
         self.use_existing_q_tables = self.view.get_use_existing_q_tables()
-        self.number_of_episodes = self.view.get_number_of_episodes()
-        self.max_steps_per_episode = self.view.get_max_steps_per_episode()
+        # self.number_of_episodes = self.view.get_number_of_episodes()
+        # self.max_steps_per_episode = self.view.get_max_steps_per_episode()
         self.earliest_timedate_pick = self.get_fixed_timedate_format(Start_key)
         self.latest_timedate_pick = self.get_fixed_timedate_format(End_key)
 
@@ -83,8 +81,8 @@ class RCW_Controller:
         all_checks_passed &= self.check_simulations_amount()
         all_checks_passed &= self.check_used_algorithms()
         all_checks_passed &= self.check_sources_and_destinations()
-        all_checks_passed &= self.check_number_of_episodes()
-        all_checks_passed &= self.check_max_steps_per_episode()
+        # all_checks_passed &= self.check_number_of_episodes()
+        # all_checks_passed &= self.check_max_steps_per_episode()
         all_checks_passed &= self.check_starting_time()
 
         return all_checks_passed

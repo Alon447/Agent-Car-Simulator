@@ -244,8 +244,8 @@ class Controller:
             for j in range(len(self.algorithms)):
                 cur_cars = self.set_cars_algorithm(j, cur_cars)
                 cur_alg_start_time = time.time()
-                learning_time = self.model.run_full_simulation(cur_cars, num_episodes=self.number_of_episodes,
-                                                               max_steps_per_episode=self.max_steps_per_episode)
+                learning_time = self.model.run_full_simulation(cur_cars, num_episodes=self.episodes,
+                                                               max_steps_per_episode=self.steps_per_episode, simulation_number_added = i)
                 cur_alg_end_time = time.time()
                 run_time_data[i][self.algorithms[j]] = cur_alg_end_time - cur_alg_start_time - learning_time
                 if self.algorithms[j] in routing_learning_algorithms:
@@ -257,8 +257,7 @@ class Controller:
                   open(self.model.graph_name + cars_times_file_name, 'w'), indent=4)
 
     def set_multiple_runs_parameters(self, num_of_cars, num_of_runs, algorithms, src_list, dst_list, rain_intesity,
-                                     traffic_light, add_trafic_white_noise, use_existing_q_tables, num_episodes,
-                                     max_steps_per_episode,
+                                     traffic_light, add_trafic_white_noise, use_existing_q_tables,
                                      earliest_time, latest_time):
         self.num_of_cars = num_of_cars
         self.num_of_runs = num_of_runs
@@ -269,8 +268,6 @@ class Controller:
         self.traffic_lights = traffic_light
         self.add_traffic_white_noise = add_trafic_white_noise
         self.use_existing_q_tables = use_existing_q_tables
-        self.number_of_episodes = num_episodes
-        self.max_steps_per_episode = max_steps_per_episode
         self.simulation_starting_time = earliest_time
         self.simulation_ending_time = latest_time
 
