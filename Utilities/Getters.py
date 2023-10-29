@@ -86,9 +86,10 @@ day_mapping = {
 }
 
 routing_algorithms = [
+    "Q Learning",
     "Shortest Path",
-    "Random Path",
-    "Q Learning"
+    "Random Path"
+
 ]
 
 routing_learning_algorithms = [

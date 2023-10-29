@@ -14,7 +14,7 @@ class Routing_Comparisons_Window(tk.Tk):
         super().__init__()
         self.rcwc = rcwc.RCW_Controller(self, controller)
         self.controller = controller
-        self.title("Car Navigation")
+        self.title("Car Navigation Comparison")
 
         # Create a Canvas widget with a scrollbar
         self.canvas = tk.Canvas(self)
@@ -45,7 +45,7 @@ class Routing_Comparisons_Window(tk.Tk):
 
         # load city map
 
-        self.city_map_label = tk.Label(self.main_frame, text="Enter city map:")
+        self.city_map_label = tk.Label(self.main_frame, text="Enter City Map:")
         row += 1
         self.city_map_label.grid(row=row, column=1, padx=0, pady=10)
 
@@ -53,7 +53,7 @@ class Routing_Comparisons_Window(tk.Tk):
         row += 1
         self.city_map_entry.grid(row=row, column=1, padx=0, pady=10)
 
-        self.load_status_label = ttk.Label(self.main_frame, text="City map not loaded")
+        self.load_status_label = ttk.Label(self.main_frame, text="City Map Not Loaded")
         row += 1
         self.load_status_label.grid(row=row, column=1, padx=0, pady=10)
 
@@ -63,14 +63,14 @@ class Routing_Comparisons_Window(tk.Tk):
 
         # choose sources and destinations
 
-        self.choose_source_button = ttk.Button(self.main_frame, text="Choose Source and destination",
+        self.choose_source_button = ttk.Button(self.main_frame, text="Choose Source And Destination",
                                                command=self.rcwc.choose_src_dst)
         row += 1
         self.choose_source_button.grid(row=row, column=1, padx=0, pady=10)
 
         # choose routing algorithms
 
-        self.algorithms_label = tk.Label(self.main_frame, text="Choose routing algorithms:")
+        self.algorithms_label = tk.Label(self.main_frame, text="Choose Routing Algorithms:")
         row += 1
         self.algorithms_label.grid(row=row, column=1, padx=0, pady=10)
 
@@ -96,7 +96,7 @@ class Routing_Comparisons_Window(tk.Tk):
 
         # choose cars amount
 
-        self.cars_amount_label = tk.Label(self.main_frame, text="Enter amount of cars:")
+        self.cars_amount_label = tk.Label(self.main_frame, text="Enter Amount Of Cars:")
         row += 1
         self.cars_amount_label.grid(row=row, column=1, padx=10, pady=10)
 
@@ -106,7 +106,7 @@ class Routing_Comparisons_Window(tk.Tk):
 
         # choose simulations amount
 
-        self.simulations_amount_label = tk.Label(self.main_frame, text="Enter amount of simulations:")
+        self.simulations_amount_label = tk.Label(self.main_frame, text="Enter Amount Of Simulations:")
         row += 1
         self.simulations_amount_label.grid(row=row, column=1, padx=0, pady=10)
 
@@ -118,7 +118,7 @@ class Routing_Comparisons_Window(tk.Tk):
 
         self.times_titles = {Start_key: Starting_time_title, End_key: Ending_time_title}
         self.time_entries = {Hours_key: hours, Minutes_key: minutes, Seconds_key: seconds}
-        self.time_entries_lables = {}
+        self.time_entries_labels = {}
         self.drop_time_entries = {}
         self.cal = {}
         for title in self.times_titles.keys():
@@ -129,14 +129,20 @@ class Routing_Comparisons_Window(tk.Tk):
             col = 0
             row += 1
             self.drop_time_entries[title] = {}
-            self.time_entries_lables[title] = {}
+            self.time_entries_labels[title] = {}
             for time_entry in self.time_entries.keys():
-                self.time_entries_lables[title][time_entry] = ttk.Label(self.main_frame, text=time_entry)
-                self.time_entries_lables[title][time_entry].grid(row=row, column=col, padx=0, pady=10)
+                self.time_entries_labels[title][time_entry] = ttk.Label(self.main_frame, text=time_entry)
+                self.time_entries_labels[title][time_entry].grid(row=row, column=col, padx=0, pady=10)
 
                 self.drop_time_entries[title][time_entry] = ttk.Combobox(self.main_frame,
                                                                          values=self.time_entries[time_entry])
-                self.drop_time_entries[title][time_entry].current(0)
+                if time_entry is Hours_key:
+                    if title is Start_key:
+                        self.drop_time_entries[title][time_entry].current(7)
+                    else:
+                        self.drop_time_entries[title][time_entry].current(12)
+                else:
+                    self.drop_time_entries[title][time_entry].current(0)
                 self.drop_time_entries[title][time_entry].grid(row=row + 1, column=col, padx=0, pady=10)
                 col += 1
 
@@ -158,30 +164,31 @@ class Routing_Comparisons_Window(tk.Tk):
         # general settings
 
         # q learning settings
+
         self.q_learning_label = tk.Label(self.main_frame, text="Q-Learning Settings")
         row += 1
-        self.q_learning_label.grid(row=row, column=1, padx=0, pady=10)
+        # self.q_learning_label.grid(row=row, column=1, padx=0, pady=10)
+        #
+        # self.q_learning_parameters = {Number_of_episodes: "Number of episodes:",
+        #                               Max_steps_per_episode: "Max steps per episode:"}
+        # self.q_learning_parameters_lable = {}
+        # self.q_learning_parameters_entry = {}
+        # for parameter in self.q_learning_parameters.keys():
+        #     self.q_learning_parameters_lable[parameter] = tk.Label(self.main_frame,
+        #                                                            text=self.q_learning_parameters[parameter])
+        #     row += 1
+        #     self.q_learning_parameters_lable[parameter].grid(row=row, column=1, padx=0, pady=10)
+        #
+        #     self.q_learning_parameters_entry[parameter] = tk.Text(self.main_frame, width=15, height=1)
+        #     row += 1
+        #     self.q_learning_parameters_entry[parameter].grid(row=row, column=1, padx=0, pady=10)
 
-        self.q_learning_parameters = {Number_of_episodes: "Number of episodes:",
-                                      Max_steps_per_episode: "Max steps per episode:"}
-        self.q_learning_parameters_lable = {}
-        self.q_learning_parameters_entry = {}
-        for parameter in self.q_learning_parameters.keys():
-            self.q_learning_parameters_lable[parameter] = tk.Label(self.main_frame,
-                                                                   text=self.q_learning_parameters[parameter])
-            row += 1
-            self.q_learning_parameters_lable[parameter].grid(row=row, column=1, padx=0, pady=10)
-
-            self.q_learning_parameters_entry[parameter] = tk.Text(self.main_frame, width=15, height=1)
-            row += 1
-            self.q_learning_parameters_entry[parameter].grid(row=row, column=1, padx=0, pady=10)
-
-        self.use_existing_q_tables_label = tk.Label(self.main_frame, text="Use existing Q tables:")
+        self.use_existing_q_tables_label = tk.Label(self.main_frame, text="Use Existing Q Tables:")
         row += 1
         self.use_existing_q_tables_label.grid(row=row, column=1, padx=0, pady=10)
 
         self.use_existing_q_tables = tk.BooleanVar()
-        self.check_use_existing_q_tables = ttk.Checkbutton(self.main_frame, text="Use Existing Tables",
+        self.check_use_existing_q_tables = ttk.Checkbutton(self.main_frame, text="Use Existing Q Tables",
                                                            variable=self.use_existing_q_tables,
                                                            onvalue=True, offvalue=False)
         row += 1
@@ -201,7 +208,7 @@ class Routing_Comparisons_Window(tk.Tk):
         self.traffic_lights_label.grid(row=row, column=1, padx=0, pady=10)
 
         self.traffic_lights = tk.BooleanVar()
-        self.check_traffic_lights = ttk.Checkbutton(self.main_frame, text="add traffic light",
+        self.check_traffic_lights = ttk.Checkbutton(self.main_frame, text="Add Traffic Light",
                                                    variable=self.traffic_lights,
                                                    onvalue=True, offvalue=False)
 
@@ -211,7 +218,7 @@ class Routing_Comparisons_Window(tk.Tk):
         self.traffic_white_noise_label.grid(row=row, column=2, padx=0, pady=10)
 
         self.traffic_white_noise = tk.BooleanVar()
-        self.check_traffic_white_noise = ttk.Checkbutton(self.main_frame, text="add traffic white noise",
+        self.check_traffic_white_noise = ttk.Checkbutton(self.main_frame, text="Add Traffic White Noise",
                                                          variable=self.traffic_white_noise,
                                                          onvalue=True, offvalue=False)
         self.check_traffic_white_noise.grid(row=row + 1, column=2, padx=0, pady=10)

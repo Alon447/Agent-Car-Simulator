@@ -41,14 +41,7 @@ class Main_Window(tk.Tk):
                                                  command=self.mwc.load_simulation, width=20)
         self.load_simulation_button.pack(pady=10)
 
-        # settings button
-        self.settings_button = ttk.Button(self.main_frame, text="Settings", command=self.mwc.open_settings, width=20)
-        self.settings_button.pack(pady=10)
-
-        # about the project button
-        self.about_button = ttk.Button(self.main_frame, text="About the project", command=self.mwc.about_the_project, width=20)
-        self.about_button.pack(pady=10)
-
+        # route comparison button
         self.route_comparison_button = ttk.Button(self.main_frame, text="Route Comparison",
                                                     command=self.mwc.start_route_comparison, width=20)
         self.route_comparison_button.pack(pady=10)
@@ -56,6 +49,10 @@ class Main_Window(tk.Tk):
         self.display_comparisons_results_button = ttk.Button(self.main_frame, text="Display Comparisons Results",
                                                     command=self.mwc.display_comparisons_results_window, width=20)
         self.display_comparisons_results_button.pack(pady=10)
+
+        # settings button
+        self.settings_button = ttk.Button(self.main_frame, text="Settings", command=self.mwc.open_settings, width=20)
+        self.settings_button.pack(pady=10)
 
         # exit button
         self.exit_button = ttk.Button(self.main_frame, text="Exit", command=self.mwc.quit, width=20)

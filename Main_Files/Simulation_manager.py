@@ -82,7 +82,7 @@ class Simulation_manager:
         # Flags
         self.is_plot_results = is_plot_results
 
-    def run_full_simulation(self, cars, number_of_simulations=1, num_episodes=2000, max_steps_per_episode=150):
+    def run_full_simulation(self, cars, number_of_simulations=1, num_episodes=2000, max_steps_per_episode=150, simulation_number_added = 0):
         """
         Run the full simulation process including setup, execution, and result printing.
 
@@ -117,7 +117,7 @@ class Simulation_manager:
             self.start_simulation()
             self.end_simulation(i)
             # self.road_network.unblock_all_roads()
-            self.write_simulation_results(copy_cars, i)
+            self.write_simulation_results(copy_cars, i + simulation_number_added)
 
         return learning_time
 
@@ -352,7 +352,7 @@ class Simulation_manager:
 
 
 
-    def write_simulation_results(self, copy_cars: list, i: int):
+    def write_simulation_results(self, copy_cars: list, simulation_number: int):
         """
         Write simulation results to the simulation results list.
 
@@ -405,7 +405,7 @@ class Simulation_manager:
         # plt.title('Proportion of Simulation Results')
         # plt.show()
         self.simulation_results.append({
-            Simulation_number: i + 1,
+            Simulation_number: simulation_number + 1,
             **simulation_results
         })
 

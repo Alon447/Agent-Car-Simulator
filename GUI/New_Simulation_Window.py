@@ -32,15 +32,15 @@ class New_Simulation_Window(tk.Tk):
         ##########################################
 
         # load city map
-        self.city_map_label = tk.Label(self.main_frame, text="Enter city map:")
+        self.city_map_label = tk.Label(self.main_frame, text="Enter City Name:")
         self.city_map_label.pack(pady=10)
 
         self.city_map_entry = tk.Text(self.main_frame, width=15, height=1)
         self.city_map_entry.pack(pady=10)
 
-        self.city_map_entry.insert(tk.END, "TLV") # TODO: remove this line after testing
+        self.city_map_entry.insert(tk.END,"")
 
-        self.load_status_label = ttk.Label(self.main_frame, text="City map not loaded")
+        self.load_status_label = ttk.Label(self.main_frame, text="City Map Not Loaded")
         self.load_status_label.pack(pady=10)
 
         self.city_map_button = ttk.Button(self.main_frame, text="Load City Map", command=self.nswc.load_city_map)
@@ -48,27 +48,27 @@ class New_Simulation_Window(tk.Tk):
 
         # indicate weather to add traffic white noise
         self.traffic_white_noise = tk.BooleanVar()
-        self.check_traffic_white_noise = ttk.Checkbutton(self.main_frame, text="add traffic white noise",
+        self.check_traffic_white_noise = ttk.Checkbutton(self.main_frame, text="Add Traffic White Noise",
                                                            variable=self.traffic_white_noise,
                                                            onvalue=True, offvalue=False)
         self.check_traffic_white_noise.pack(pady=10)
 
         # indicate weather to plot results
         self.plot_results = tk.BooleanVar()
-        self.check_plot_results = ttk.Checkbutton(self.main_frame, text="plot results",
+        self.check_plot_results = ttk.Checkbutton(self.main_frame, text="Plot Q Learning Training Results",
                                                            variable=self.plot_results,
                                                            onvalue=True, offvalue=False)
         self.check_plot_results.pack(pady=10)
 
         # indicate weather to activate traffic lights
         self.traffic_lights = tk.BooleanVar()
-        self.check_traffic_lights = ttk.Checkbutton(self.main_frame, text="activate traffic lights",
+        self.check_traffic_lights = ttk.Checkbutton(self.main_frame, text="Activate Traffic Lights",
                                                            variable=self.traffic_lights,
                                                            onvalue=True, offvalue=False)
         self.check_traffic_lights.pack(pady=10)
 
         # choose rain intensity
-        self.rain_intensity_label = ttk.Label(self.main_frame, text = "rain intensity")
+        self.rain_intensity_label = ttk.Label(self.main_frame, text = "Rain Intensity")
         self.rain_intensity_label.pack()
 
         self.drop_rain_intensity = ttk.Combobox(self.main_frame, values = rain_intensity_values)
