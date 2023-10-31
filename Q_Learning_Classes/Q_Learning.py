@@ -4,7 +4,7 @@ import pickle
 from tqdm import tqdm
 from Main_Files.Road_Network import Road_Network
 from Q_Learning_Classes import Q_Agent
-from Utilities.Getters import get_q_tables_directory
+from Utilities.Getters import get_specific_directory
 from Utilities.Results import plot_results
 
 
@@ -126,7 +126,7 @@ Number of training episodes to 2000, maximum number of number of steps in each e
         for agent in self.agent_list:
             if is_plot_results:
                 plot_results(agent.src, agent.dst, agent.all_training_paths_nodes, agent.all_training_times, agent.mean_rewards)
-            self.save_q_table(agent, get_q_tables_directory())
+            self.save_q_table(agent, get_specific_directory("Q Tables Data"))
         return
 
     def check_all_agents_done(self):

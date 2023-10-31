@@ -146,7 +146,7 @@ class Routing_Comparisons_Window(tk.Tk):
                 self.drop_time_entries[title][time_entry].grid(row=row + 1, column=col, padx=0, pady=10)
                 col += 1
 
-            self.day_menu_label = ttk.Label(self.main_frame, text=Days_lable_text)
+            self.day_menu_label = ttk.Label(self.main_frame, text=Days_label_text)
             row += 2
             self.day_menu_label.grid(row=row, column=1, padx=1, pady=10)
 
