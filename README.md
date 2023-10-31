@@ -6,11 +6,9 @@
 
 - [Overview](#overview)
 - [Features](#features)
-- [Installation](#installation)
+- [Getting Started](#getting-started)
 - [Usage](#usage)
-- [Results](#results)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## Overview
 
@@ -29,7 +27,7 @@ The Multi-Agent Reinforcement Learning of Traffic Routing project is a simulatio
    ```bash
    git clone https://github.com/your-username/multi-agent-traffic-routing.git
 
-2. Run the Main.py file in the Controller directory to run the simulator
+2. Run the Main_Gui.py file in the Controller directory to run the simulator
 
 ## Usage
 
@@ -136,3 +134,7 @@ Set the duration for each car's journey in hours. This parameter controls the ti
 
 After configuring your desired settings, click the "Confirm" button to save your changes and apply them to the simulation. The "Settings" window will close, and your customized settings will be used in the simulation.
 
+## Contributing
+
+- Alon Reicher
+- Liad Gam
