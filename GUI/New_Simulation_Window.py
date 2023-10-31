@@ -1,13 +1,11 @@
+# external imports
 import tkinter as tk
 from tkinter import ttk
-
 from matplotlib.backends._backend_tk import NavigationToolbar2Tk
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from GUI import Animate_Simulation as asim
+
+# internal imports
 import GUI.NSW_Controller as nswc
-from matplotlib.figure import Figure
-from tkinter import messagebox
-from Utilities.Getters import hours, minutes, seconds, days, weeks, months, rain_intensity_values, rain_intensity_dict
+from Utilities.Getters import rain_intensity_values, rain_intensity_dict
 
 
 

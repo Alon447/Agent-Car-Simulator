@@ -1,7 +1,9 @@
+# external imports
 import os
 import tkinter as tk
 from tkinter import ttk
 
+# internal imports
 from Utilities.Getters import get_specific_directory, Q_Tables_directory, Graphs_directory, Speeds_Data_directory, Results_directory
 
 

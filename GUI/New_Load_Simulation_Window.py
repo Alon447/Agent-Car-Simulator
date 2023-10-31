@@ -1,5 +1,8 @@
+# external imports
 import tkinter as tk
 from tkinter import ttk
+
+# internal imports
 import GUI.NLSW_Controller as nlswc
 
 class New_Load_Simulation_Window(tk.Tk):
@@ -51,13 +54,6 @@ class New_Load_Simulation_Window(tk.Tk):
         self.existing_simulations_treeview.grid(row = 1, column = 0, padx = 50, pady = 50)
 
 
-        # self.existing_simulations_treeview.column("#4", width = 150, anchor = tk.CENTER)
-        # self.existing_simulations_treeview.heading("#4", text = "Start_time")
-
-
-    # def get_city_name(self):
-    #     return self.city_map_entry.get("1.0", 'end').replace('\n', '')
-
     def set_load_status_label(self, text):
         self.load_status_label.config(text=text)
 
@@ -70,6 +66,7 @@ class New_Load_Simulation_Window(tk.Tk):
         """
         simulation_data = json_data[0]
         self.existing_simulations_treeview.insert("", tk.END, values = (simulation_name, modification_datetime, len(simulation_data)-1))
+
     # functions for the treeview
     def simulation_id_from_treeview(self, simulation_id):
         return self.existing_simulations_treeview.item(simulation_id)['values'][0]

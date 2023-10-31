@@ -1,11 +1,13 @@
+# external imports
 import datetime
 import tkinter as tk
-from tkinter import ttk, Scrollbar
-from tkcalendar import Calendar, DateEntry
+from tkinter import ttk
+from tkcalendar import Calendar
+
+# internal imports
 import GUI.RCW_Controller as rcwc
 from Utilities.Getters import *
 
-import GUI.Main_Window_Controller as mwc
 
 
 class Routing_Comparisons_Window(tk.Tk):
@@ -167,21 +169,7 @@ class Routing_Comparisons_Window(tk.Tk):
 
         self.q_learning_label = tk.Label(self.main_frame, text="Q-Learning Settings")
         row += 1
-        # self.q_learning_label.grid(row=row, column=1, padx=0, pady=10)
-        #
-        # self.q_learning_parameters = {Number_of_episodes: "Number of episodes:",
-        #                               Max_steps_per_episode: "Max steps per episode:"}
-        # self.q_learning_parameters_lable = {}
-        # self.q_learning_parameters_entry = {}
-        # for parameter in self.q_learning_parameters.keys():
-        #     self.q_learning_parameters_lable[parameter] = tk.Label(self.main_frame,
-        #                                                            text=self.q_learning_parameters[parameter])
-        #     row += 1
-        #     self.q_learning_parameters_lable[parameter].grid(row=row, column=1, padx=0, pady=10)
-        #
-        #     self.q_learning_parameters_entry[parameter] = tk.Text(self.main_frame, width=15, height=1)
-        #     row += 1
-        #     self.q_learning_parameters_entry[parameter].grid(row=row, column=1, padx=0, pady=10)
+
 
         self.use_existing_q_tables_label = tk.Label(self.main_frame, text="Use Existing Q Tables:")
         row += 1
@@ -249,16 +237,9 @@ class Routing_Comparisons_Window(tk.Tk):
     def set_load_status_label(self, text):
         self.load_status_label.config(text=text)
 
-    def main(self):
-        self.mainloop()
 
     def get_city_name(self):
         return self.city_map_entry.get("1.0", 'end').replace('\n', '')
-
-    def get_starting_time(self):
-        return self.drop_time_entries[Start_key][Hours_key].get(), \
-        self.drop_time_entries[Start_key][Minutes_key].get(), \
-        self.drop_time_entries[Start_key][Seconds_key].get(), self.cal[Start_key].get_date()
 
     def get_date(self,title):
         raw_date = self.cal[title].get_date()
@@ -268,12 +249,6 @@ class Routing_Comparisons_Window(tk.Tk):
         year = int(date[2])
         return day, month, year
 
-    def get_time(self,title):
-        return self.drop_time_entries[title][Hours_key].get(), \
-        self.drop_time_entries[title][Minutes_key].get(), \
-        self.drop_time_entries[title][Seconds_key].get(), self.cal[End_key].get_date()
-    def get_algorithms(self):
-        return self.algorithms_boolean_dict
 
     def get_cars_amount(self):
         return self.cars_amount_entry.get("1.0", 'end').replace('\n', '')
@@ -281,16 +256,6 @@ class Routing_Comparisons_Window(tk.Tk):
     def get_simulations_amount(self):
         return self.simulations_amount_entry.get("1.0", 'end').replace('\n', '')
 
-    def get_city_map(self):
-        return self.city_map_entry.get("1.0", 'end').replace('\n', '')
-
-    def get_date_from_title(self, title):
-        raw_date = self.cal[title].get_date()
-        date = raw_date.split('/')
-        day = int(date[0])
-        month = int(date[1])
-        year = int(date[2])
-        return day, month, year
 
     def get_rain_intensity(self):
         rain_val = self.drop_rain_intensity.get()
@@ -302,8 +267,6 @@ class Routing_Comparisons_Window(tk.Tk):
     def get_use_existing_q_tables(self):
         return self.use_existing_q_tables.get()
 
-    def get_number_of_episodes(self):
-        return self.q_learning_parameters_entry[Number_of_episodes].get("1.0", 'end').replace('\n', '')
 
     def get_used_algorithms(self):
         algorithms_list = []
@@ -315,8 +278,6 @@ class Routing_Comparisons_Window(tk.Tk):
     def get_add_traffic_white_noise(self):
         return self.traffic_white_noise.get()
 
-    def get_max_steps_per_episode(self):
-        return self.q_learning_parameters_entry[Max_steps_per_episode].get("1.0", 'end').replace('\n', '')
 
     def get_time_date(self,title_key):
         raw_date = self.cal[title_key].get_date()
@@ -327,6 +288,8 @@ class Routing_Comparisons_Window(tk.Tk):
         return  year,month,day, int(self.drop_time_entries[title_key][Hours_key].get()), \
         int(self.drop_time_entries[title_key][Minutes_key].get()), int(self.drop_time_entries[title_key][Seconds_key].get())
 
+    def main(self):
+        self.mainloop()
 
 if __name__ == "__main__":
     app = Routing_Comparisons_Window(None)

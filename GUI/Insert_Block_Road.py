@@ -1,8 +1,10 @@
+# external imports
 import datetime
 import tkinter as tk
 from tkcalendar import Calendar
 from tkinter import ttk
 
+# internal imports
 from GUI import IBR_Controller as ibrc
 from Utilities.Getters import hours, minutes
 
@@ -39,13 +41,6 @@ class Insert_Block_Road(tk.Toplevel):
         self.start_minute.current(0)
         self.start_minute.pack()
 
-        # self.sec_menu_label1 = ttk.Label(self, text = "Second")
-        # self.sec_menu_label1.pack()
-        #
-        # self.start_second = ttk.Combobox(self, values = seconds)
-        # self.start_second.current(0)
-        # self.start_second.pack()
-
         ###############################
         # Road's blockage starting day using calendar
         ###############################
@@ -79,12 +74,6 @@ class Insert_Block_Road(tk.Toplevel):
         self.end_minute.current(0)
         self.end_minute.pack()
 
-        # self.sec_menu_label2 = ttk.Label(self, text = "Second")
-        # self.sec_menu_label2.pack()
-        #
-        # self.end_second = ttk.Combobox(self, values = seconds)
-        # self.end_second.current(0)
-        # self.end_second.pack()
 
         ###############################
         # Road's blockage ending day using calendar
@@ -145,10 +134,6 @@ class Insert_Block_Road(tk.Toplevel):
             self.existing_blockages_treeview.selection()))
         self.delete_blockage_button.pack()
 
-        # # delete all roads blockages button
-        # self.delete_blockage_button = ttk.Button(self, text = "Delete All Road Blockages", command = lambda: self.ibrc.delete_all_blockages())
-        # self.delete_blockage_button.pack()
-
     # Gets for IBR_Controller
     def get_start_date(self):
         raw_date = self.cal_start.get_date()
@@ -180,10 +165,6 @@ class Insert_Block_Road(tk.Toplevel):
 
     def get_end_minute(self):
         return int(self.end_minute.get())
-
-    def get_end_second(self):
-        # return int(self.end_second.get())
-        return 0
 
     # functions for the treeview
     def add_road(self, road):

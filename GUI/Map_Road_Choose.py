@@ -3,23 +3,17 @@ from matplotlib import pyplot as plt
 
 
 class Map_Road_Choose:
-    def __init__(self, G, controller=None):
+    def __init__(self, G):
         self.fig = None
         self.ax = None
-        self.road_id = None
         self.G = G
-        self.mouse_pressed = False
-        self.key_pressed = False
-        self.curr_x = None
-        self.curr_y = None
-        self.count = 0
         self.scatter_src = None
         self.scatter_dst = None
-        self.controller = controller
         self.is_temp = False
-        self.have_src = False
-        self.have_dst = False
-        self.cur_gdf = None
+        self.edge = None
+        self.src = None
+        self.dst = None
+
 
     def onclick(self, event):
         if event.xdata is not None and event.ydata is not None:
@@ -42,8 +36,7 @@ class Map_Road_Choose:
             self.scatter_src = self.ax.scatter(self.src['x'], self.src['y'], color='green', s=50, label=f'start point (node id: {self.edge[0]})')
             self.scatter_dst = self.ax.scatter(self.dst['x'], self.dst['y'], color='red', s=50, label=f'end point (node id: {self.edge[1]})')
             self.is_temp = True
-            # self.cur_gdf = gpd.GeoDataFrame(geometry=[Point(lon, lat)],crs='epsg:4326')
-            # self.cur_gdf.plot(ax=self.ax, color='black', label='clicked point')
+
 
             plt.legend()
             self.fig.canvas.draw()
@@ -59,12 +52,3 @@ class Map_Road_Choose:
 
     def get_road(self):
         return self.edge
-
-    # def onpress(self, event):
-    #     if event.key is None:
-    #         return
-    #     try:
-    #         if event.key in [""]:
-    #
-    #     except:
-    #         pass

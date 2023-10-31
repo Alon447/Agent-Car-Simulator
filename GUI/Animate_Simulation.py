@@ -1,9 +1,12 @@
+# external imports
 from matplotlib import pyplot as plt
 import osmnx as ox
 from matplotlib.animation import FuncAnimation
 from shapely.geometry import Point
 import geopandas as gpd
 import numpy as np
+
+# internal imports
 from Utilities.Speeds import color_edges_by_speed
 
 
@@ -51,7 +54,6 @@ class Animate_Simulation:
         # Plot the graph
         fig, ax = ox.plot_graph(graph, figsize=(10, 10), show=False, close=False, edge_color=self.edge_colors,
                                 node_color=self.node_colors, bgcolor='white', node_size=5)
-        # colors = ['purple', 'blue', 'red']  # Add more colors as needed
 
         for j, route in enumerate(custom_routes):
             origin_x, origin_y = RN.get_xy_from_node_id(route[0])
@@ -72,7 +74,6 @@ class Animate_Simulation:
             self.origins.append(gdf)
 
             dest_x, dest_y = cars[j].get_xy_destination()
-            # dest_x, dest_y = RN.get_xy_from_node_id(route[-1])
             geometry_data = [(dest_y, dest_x)]
             gdf = gpd.GeoDataFrame(geometry=[Point(lon, lat) for lat, lon in geometry_data], crs='epsg:4326')
             self.destinations.append(gdf)

@@ -1,9 +1,9 @@
+# external imports
 import tkinter as tk
 from tkinter import ttk
 
+# internal imports
 import GUI.Main_Window_Controller as mwc
-
-
 
 class Main_Window(tk.Tk):
     """

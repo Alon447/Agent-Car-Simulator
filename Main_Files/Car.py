@@ -1,9 +1,8 @@
 
-from Main_Files import Route,Road_Network
 import datetime
-import pandas as pd
 
 from Utilities.Getters import time_delta_to_seconds
+from Main_Files import Route,Road_Network
 
 
 class Car:

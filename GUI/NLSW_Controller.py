@@ -1,6 +1,9 @@
+# external imports
 import datetime
 import json
 import os
+
+# internal imports
 import Utilities.Results as Results
 
 class NLSW_Controller:
@@ -16,18 +19,6 @@ class NLSW_Controller:
         self.blocked_roads = []
         self.simulation_manager_ready = False
         self.simulation_params_dict = {}
-
-    # def load_city_map(self):
-    #     city_name = self.view.get_city_name()
-    #     ml = self.simulation_params_dict["map loaded"] = self.controller.load_city_map(city_name)
-    #     if ml:
-    #         print("loaded city map")
-    #         self.view.set_load_status_label("City map loaded")
-    #         self.map_loaded = True
-    #     else:
-    #         print("failed to load city map")
-    #         self.view.set_load_status_label("Failed to load city map")
-    #         self.map_loaded = False
 
     def confirm(self, selected_simulation):
         """

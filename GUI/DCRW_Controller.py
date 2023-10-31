@@ -1,5 +1,5 @@
-import matplotlib.pyplot as plt
 
+# internal imports
 from Utilities import Errors as errors
 from Utilities.Getters import *
 
@@ -19,9 +19,6 @@ class DCRW_Controller:
         for variable in Variables_for_statistics:
             self.variable_chosen[variable] = False
 
-    # def show_numerical_statistics(self):
-    #     self.view.withdraw()
-    #     self.controller.start_numerical_statistics_window()
 
     def load_past_results(self):
         all_results_files = self.controller.get_run_times_and_cars_times_files()

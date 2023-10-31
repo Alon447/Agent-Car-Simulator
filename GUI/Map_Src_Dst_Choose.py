@@ -1,11 +1,5 @@
 import matplotlib.pyplot as plt
 import osmnx as ox
-import geopandas as gpd
-import Utilities.Getters as Getters
-from shapely.geometry import Point
-
-
-
 
 class Map_Src_Dst_Choose:
     def __init__(self, G, controller=None):
@@ -14,19 +8,15 @@ class Map_Src_Dst_Choose:
         self.src_osmid = None
         self.dst_osmid = None
         self.G = G
-        self.mouse_pressed = False #
         self.key_pressed = False
         self.curr_x = None
         self.curr_y = None
-        self.count = 0 #
         self.scatter = None
         self.src_scatter = None #
         self.dst_scatter = None #
         self.controller = controller
         self.is_temp = False
-        self.have_src = False #
-        self.have_dst = False #
-        self.cur_gdf = None
+
 
     def onclick(self, event):
         if event.xdata is not None and event.ydata is not None:
@@ -41,7 +31,6 @@ class Map_Src_Dst_Choose:
 
             if self.is_temp is True:
                 self.scatter.remove()
-                # self.cur_gdf.remove()
             fixed_osmid = self.controller.get_fixed_node_id(self.osmid)
             self.scatter = self.ax.scatter(self.curr_x, self.curr_y, color='gray', s=50, label=f'temporary (node id: {fixed_osmid})')
             self.is_temp = True
@@ -83,7 +72,6 @@ class Map_Src_Dst_Choose:
         self.is_temp = False
         self.src_scatter = self.ax.scatter(self.curr_x, self.curr_y, color='green', s=50, label='Start')
         self.src_osmid = self.osmid
-        # self.have_src = True
         plt.legend()
         self.fig.canvas.draw()
 
@@ -93,7 +81,6 @@ class Map_Src_Dst_Choose:
         self.is_temp = False
         self.dst_scatter = self.ax.scatter(self.curr_x, self.curr_y, color='red', s=50, label='End')
         self.dst_osmid = self.osmid
-        # self.have_dst = True
         plt.legend()
         self.fig.canvas.draw()
 
@@ -109,11 +96,9 @@ class Map_Src_Dst_Choose:
         if self.src_scatter is not None:
             self.src_scatter.remove()
             self.src_scatter = None
-            # self.fig.canvas.draw()
         if self.dst_scatter is not None:
             self.dst_scatter.remove()
             self.dst_scatter = None
-            # self.fig.canvas.draw()
 
         if is_pressed_r is True:
             plt.legend()
@@ -132,12 +117,6 @@ class Map_Src_Dst_Choose:
         return self.src_osmid, self.dst_osmid
 
     def clear(self):
-        # self.fig.clear()
-
-        # self.ax.clear()
         self.osmid = None
-        self.mouse_pressed = False
         self.curr_x = None
         self.curr_y = None
-        self.prev_x = None
-        self.prev_y = None

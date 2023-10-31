@@ -1,5 +1,7 @@
+# external imports
 import datetime
 
+# internal imports
 from GUI import Map_Src_Dst_Choose as msdc
 import Utilities.Errors as errors
 from Utilities.Getters import check_if_path_exist
@@ -53,7 +55,6 @@ class ICW_Controller:
             print("chosen routing algorithm:", self.view.get_routing_algorithm())
             print("chosen date: ", self.view.get_raw_date())
             print("use existing q table: ", self.view.get_use_existing_q_tables())
-            # self.view.destroy()
             self.cur_car_id += 1
             fixed_src = self.controller.get_fixed_node_id(src)
             fixed_dst = self.controller.get_fixed_node_id(dst)

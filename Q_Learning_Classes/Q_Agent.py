@@ -1,6 +1,5 @@
 import copy
 import datetime
-
 import networkx as nx
 import numpy as np
 
