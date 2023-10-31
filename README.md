@@ -6,7 +6,7 @@
 
 - [Overview](#overview)
 - [Features](#features)
-- [Installation](#installation)
+- [Getting Started](#Getting Started)
 - [Usage](#usage)
 - [Contributing](#contributing)
 
@@ -27,7 +27,7 @@ The Multi-Agent Reinforcement Learning of Traffic Routing project is a simulatio
    ```bash
    git clone https://github.com/your-username/multi-agent-traffic-routing.git
 
-2. Run the Main.py file in the Controller directory to run the simulator
+2. Run the Main_Gui.py file in the Controller directory to run the simulator
 
 ## Usage
 
