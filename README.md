@@ -6,7 +6,7 @@
 
 - [Overview](#overview)
 - [Features](#features)
-- [Getting Started](#Getting Started)
+- [Getting Started](#getting-started)
 - [Usage](#usage)
 - [Contributing](#contributing)
 
