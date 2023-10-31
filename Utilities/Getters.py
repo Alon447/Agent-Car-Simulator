@@ -62,6 +62,13 @@ Ending_time_title = "Enter simulation ending time:"
 run_time_data_file_name = "run_time_data.json"
 cars_times_file_name = "cars_times.json"
 
+Average_key = "Average"
+Standard_deviation_key = "Standard deviation"
+
+Cars = "cars"
+Run_Times = "run_times"
+Variables_for_statistics = [Cars, Run_Times]
+
 
 # for testing and statistics in TLV map:
 # TODO: check if neccessary

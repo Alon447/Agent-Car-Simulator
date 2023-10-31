@@ -44,3 +44,7 @@ def no_algorithms_to_compare_error():
 
 def starting_time_error():
     tk.messagebox.showerror("Error", "Please enter a valid starting time (later than ending time")
+
+
+def no_file_chosen_error():
+    tk.messagebox.showerror("Error", "Please choose a file to load")

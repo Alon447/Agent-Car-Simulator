@@ -1,4 +1,6 @@
 # import csv
+from Utilities.Results import *
+from Utilities.Getters import *
 # from datetime import datetime
 #
 # from matplotlib import pyplot as plt
@@ -97,16 +99,4 @@ from matplotlib import pyplot as plt
 #             print(f"Latitude: {lat}, Longitude: {lng}")
 
 if __name__ == "__main__":
-    x = [1, 2, 3, 4, 5]
-    y = [10, 14, 8, 12, 6]
-
-    # Create a line plot
-    plt.plot(x, y)
-
-    # Add labels and a title
-    plt.xlabel('X-axis')
-    plt.ylabel('Y-axis')
-    plt.title('Simple Line Plot')
-
-    # Show the plot
-    plt.show()
+    print(get_results_files(cars_times_file_name,run_time_data_file_name))

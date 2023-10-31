@@ -1,7 +1,11 @@
 import json
+import os
+import random
+import statistics
 import time
 import traceback
 
+from GUI.Display_Comparisons_Results_Window import Display_Comparisons_Results_Window
 from GUI.Main_Window import Main_Window
 from GUI.New_Load_Simulation_Window import New_Load_Simulation_Window
 from GUI.New_Settings_Window import New_Settings_Window
@@ -10,7 +14,7 @@ import GUI.Animate_Simulation as AS
 from GUI.Routings_Comparisons_Window import Routing_Comparisons_Window
 import GUI.Animate_Past_Simulation as APS
 from Main_Files import Car, Simulation_manager, Road_Network
-from Utilities.Results import save_results_to_JSON, plot_simulation_overview, get_simulation_times
+from Utilities.Results import save_results_to_JSON, plot_simulation_overview, get_simulation_times, get_results_files
 import datetime
 from Utilities.Getters import *
 
@@ -89,6 +93,14 @@ class Controller:
     # model control
     def load_settings_window(self):
         self.view = New_Settings_Window(self)
+        self.view.main()
+
+    def load_about_window(self):
+        self.view = New_About_Window(self)
+        self.view.main()
+
+    def start_display_comparisons_results_window(self):
+        self.view = Display_Comparisons_Results_Window(self)
         self.view.main()
 
     # controller control
@@ -335,6 +347,43 @@ class Controller:
                 print("car_duration: ", self.max_time_for_car)
             else:
                 print("Error in confirm_settings")
+
+    def get_run_times_and_cars_times_files(self):
+        return get_results_files(cars_times_file_name, run_time_data_file_name)
+
+    def calculate_car_times_statistics(self, car_times_file):
+        with open(f'../Results/{car_times_file}') as json_file:
+            data = json.load(json_file)
+        algorithms = list(data['0'].keys())
+        algorithm_drive_times = {}
+        for algorithm in algorithms:
+            algorithm_drive_times[algorithm] = []
+        for run in data:
+            for algorithm in data[run]:
+                algorithm_drive_times[algorithm].extend(data[run][algorithm])
+        algorithm_statistics = {}
+        for algorithm in algorithms:
+            algorithm_statistics[algorithm] = {}
+            algorithm_statistics[algorithm][Average_key] = sum(algorithm_drive_times[algorithm])/len(algorithm_drive_times[algorithm])
+            algorithm_statistics[algorithm][Standard_deviation_key] = statistics.stdev(algorithm_drive_times[algorithm])
+        return algorithm_statistics
+
+    def calculate_run_times_statistics(self,run_times_file):
+        with open(f'../Results/{run_times_file}') as json_file:
+            data = json.load(json_file)
+        algorithms = list(data['0'].keys())
+        algorithm_run_times = {}
+        for algorithm in algorithms:
+            algorithm_run_times[algorithm] = []
+        for run in data:
+            for algorithm in data[run]:
+                algorithm_run_times[algorithm].append(data[run][algorithm])
+        algorithm_statistics = {}
+        for algorithm in algorithms:
+            algorithm_statistics[algorithm] = {}
+            algorithm_statistics[algorithm][Average_key] = sum(algorithm_run_times[algorithm])/len(algorithm_run_times[algorithm])
+            algorithm_statistics[algorithm][Standard_deviation_key] = statistics.stdev(algorithm_run_times[algorithm])
+        return algorithm_statistics
 
 
 if __name__ == "__main__":
