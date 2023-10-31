@@ -4,9 +4,7 @@ from tkinter import ttk
 import GUI.Main_Window_Controller as mwc
 
 
-# TODO: Add menu to load simulation by name/choose from list of saved simulations
-#   also add functionality as written in the controller file
-#   maybe option to load statistics only?
+
 class Main_Window(tk.Tk):
     """
     This class is used to create the main window (first menu) of the program

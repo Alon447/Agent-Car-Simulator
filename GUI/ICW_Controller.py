@@ -5,7 +5,6 @@ import Utilities.Errors as errors
 from Utilities.Getters import check_if_path_exist
 
 
-# TODO: add functions to send the car parameters to the controller
 class ICW_Controller:
     """
     This class is used to control the insert car window

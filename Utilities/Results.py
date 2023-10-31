@@ -6,7 +6,7 @@ import matplotlib.patches as mpatches
 import osmnx as ox
 from Main_Files.Road_Network import Road_Network
 from Utilities.Getters import Time_taken, Reached_destination, Simulation_number, Route, Distance_travelled, \
-    node_route_to_osm_route, Source, Destination, Blocked_roads
+    node_route_to_osm_route, Source, Destination, Blocked_roads, Route_comparisons_results_directory
 
 
 def save_results_to_JSON(graph_name, results):
@@ -242,7 +242,7 @@ def get_results_files(*filters):
     results_files = {}
     for filter in filters:
         results_files[filter] = []
-    for file in os.listdir("../Results"):
+    for file in os.listdir(f'../{Route_comparisons_results_directory}'):
         for filter in filters:
             if file.endswith(filter):
                 results_files[filter].append(file)

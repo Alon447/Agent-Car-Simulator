@@ -1,5 +1,4 @@
 
-#TODO: add functions to support loading existin simulation from file
 class Main_Window_Controller:
     """
     This class is used to control the main window (first menu) of the program
@@ -40,11 +39,11 @@ class Main_Window_Controller:
         self.view.destroy()
         self.controller.load_settings_window()
 
-    def about_the_project(self):
-        # Code to open settings
-        print("About us")
-        self.view.destroy()
-        self.controller.load_about_window()
+    # def about_the_project(self):
+    #     # Code to open settings
+    #     print("About us")
+    #     self.view.destroy()
+    #     self.controller.load_about_window()
 
     def display_comparisons_results_window(self):
         self.view.destroy()

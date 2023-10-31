@@ -5,7 +5,7 @@ from Utilities import Errors as errors
 from Utilities.Getters import *
 
 
-# TODO: add functions to send the car parameters to the controller
+
 class RCW_Controller:
     def __init__(self, view, controller):
 
@@ -112,7 +112,7 @@ class RCW_Controller:
             errors.no_map_loaded_error()
         if self.mmsdc is None:
             self.mmsdc = mmsdc.Map_Src_Dst_Choose(G, self.controller)
-        self.mmsdc.reset_src_dst()
+            self.mmsdc.reset_src_dst()
         self.mmsdc.create_show_map()
 
 

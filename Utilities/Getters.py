@@ -44,8 +44,8 @@ months = [i for i in range(0, 12)]
 
 
 # for simulation
-rain_intensity_values = ["None", "Light", "Moderate", "Heavy"] # TODO: change to none, light, medium, heavy
-rain_intensity_dict= {"None":0, "Light":1, "Moderate":2, "Heavy":3} # TODO: change to none, light, medium, heavy
+rain_intensity_values = ["None", "Light", "Moderate", "Heavy"]
+rain_intensity_dict= {"None":0, "Light":1, "Moderate":2, "Heavy":3}
 
 # Json keys
 SP = "Shortest Path"
@@ -69,9 +69,11 @@ Cars = "cars"
 Run_Times = "run_times"
 Variables_for_statistics = [Cars, Run_Times]
 
+#   directories
+Route_comparisons_results_directory = "Route_comparisons_results"
 
 # for testing and statistics in TLV map:
-# TODO: check if neccessary
+
 top_right_nodes = [714,428,963,720,242,969,677,319,206,653,404,970,964,406,684,870]
 bottom_left_nodes = [650,604,651,652,135,602,647,803,480,637,644,640,872,884,497,166]
 

@@ -6,9 +6,7 @@ from GUI import ICW_Controller as icwc
 from Utilities.Getters import hours, minutes, seconds, routing_algorithms
 
 
-# TODO: add buttons with functionality to reset choices and cars,
-#   also display current list of cars and their parameters
-#   and most importantly fill in on inputting the rest of the car parameters
+
 class Insert_Car_Window(tk.Toplevel):
     """
     This class is used to create the insert a new car into the simulation window

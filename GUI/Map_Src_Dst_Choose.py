@@ -5,8 +5,7 @@ import Utilities.Getters as Getters
 from shapely.geometry import Point
 
 
-# TODO: maybe change it so it will immidiateley show the changes on the map
-#   also maybe add somewhere else explaination for the functionality: a - src, z - dst, r - reset, q - quit
+
 
 class Map_Src_Dst_Choose:
     def __init__(self, G, controller=None):

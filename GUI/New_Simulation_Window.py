@@ -10,7 +10,6 @@ from tkinter import messagebox
 from Utilities.Getters import hours, minutes, seconds, days, weeks, months, rain_intensity_values, rain_intensity_dict
 
 
-# TODO: add the functionality to insert every parameter for the simulation (that isn't already already here- all the optional parameters)
 
 class New_Simulation_Window(tk.Tk):
     def __init__(self, controller):

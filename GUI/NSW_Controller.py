@@ -3,7 +3,7 @@ from GUI import Insert_Block_Road as ibr
 from Utilities import Getters as gtrs
 from Utilities import Errors as errors
 
-#TODO: add functionality of sending simulation parameters to the controller
+
 class NSW_Controller:
     """
     This class is used to control the new simulation window

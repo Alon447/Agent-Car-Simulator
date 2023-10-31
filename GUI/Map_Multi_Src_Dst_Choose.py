@@ -5,8 +5,7 @@ import Utilities.Getters as Getters
 from shapely.geometry import Point
 import traceback
 
-# TODO: maybe change it so it will immidiateley show the changes on the map
-#   also maybe add somewhere else explaination for the functionality: a - src, z - dst, r - reset, q - quit
+
 SOURCE = 'src'
 DESTINATION = 'dst'
 TEMPORARY = 'temp'
@@ -16,6 +15,8 @@ SOURCE_AND_DESTINATION = 'src_dst'
 SOURCE_AND_DESTINATION_COLOR = 'yellow'
 TEMPORARY_COLOR = 'blue'
 MARKERS_TYPES_LIST = [SOURCE, DESTINATION, TEMPORARY, SOURCE_AND_DESTINATION]
+MARKERS_TYPE_DICT = {SOURCE: SOURCE_COLOR, DESTINATION: DESTINATION_COLOR, TEMPORARY: TEMPORARY_COLOR,
+                     SOURCE_AND_DESTINATION: SOURCE_AND_DESTINATION_COLOR}
 
 
 class Map_Src_Dst_Choose:
@@ -40,6 +41,7 @@ class Map_Src_Dst_Choose:
         self.markers_dicts = {}
         for type in MARKERS_TYPES_LIST:
             self.markers_dicts[type] = {}
+        self.is_new_map = True
 
     def onclick(self, event):
         if event.xdata is not None and event.ydata is not None:
@@ -57,7 +59,6 @@ class Map_Src_Dst_Choose:
                 for point in keys_to_iterate:
                     self.markers_dicts[TEMPORARY][point].remove()
                     del self.markers_dicts[TEMPORARY][point]
-                # self.cur_gdf.remove()
             self.osmid = self.controller.get_fixed_node_id(self.osmid)
             self.markers_dicts[TEMPORARY][self.osmid] = self.ax.scatter(self.curr_x, self.curr_y, color='blue', s=50)
             self.is_temp = True
@@ -169,7 +170,7 @@ class Map_Src_Dst_Choose:
             self.osmid = self.controller.get_fixed_node_id(self.osmid)
             if self.osmid in self.markers_dicts[TEMPORARY].keys():
                 return
-            self.markers_dicts[TEMPORARY][self.osmid] = self.ax.scatter(self.curr_x, self.curr_y, color='blue', s=50)
+            self.markers_dicts[TEMPORARY][self.osmid] = self.ax.scatter(self.curr_x, self.curr_y, color=TEMPORARY_COLOR, s=50)
             self.is_temp = True
 
             # plt.legend()
@@ -194,7 +195,7 @@ class Map_Src_Dst_Choose:
                 del scatter_dict[scatter]
 
     def create_show_map(self, sources=None, destinations=None):
-        # TODO: maybe plot existing source and destination
+
         self.fig, self.ax = ox.plot_graph(self.G, bgcolor='white', node_color='black', show=False, close=False)
         self.fig.canvas.mpl_connect('button_press_event', self.onclick)
         self.fig.canvas.mpl_connect('key_press_event', self.onpress)
@@ -205,6 +206,10 @@ class Map_Src_Dst_Choose:
                       'hovering to unmark multiple points. \'r\' to reset, \'q\' to quit.\n'
                       f'{TEMPORARY_COLOR} points are temporary, {SOURCE_COLOR} are source, {DESTINATION_COLOR} are destination, {SOURCE_AND_DESTINATION_COLOR} are both.'
                       "\n also, click on the arrows below to move the map")
+        if not self.is_new_map:
+            self.rescatter_all_points()
+        self.is_new_map = False
+        # self.fig.canvas.draw()
         plt.show()
 
     def get_sources_and_destinations(self):
@@ -224,6 +229,13 @@ class Map_Src_Dst_Choose:
         self.prev_x = None
         self.prev_y = None
 
+    def rescatter_all_points(self):
+        for type in MARKERS_TYPES_LIST:
+            for point in self.markers_dicts[type].keys():
+                x, y = self.controller.get_xy_from_node_id(point)
+                self.markers_dicts[type][point].remove()
+                self.markers_dicts[type][point] = self.ax.scatter(x, y, color=MARKERS_TYPE_DICT[type], s=50)
+        self.fig.canvas.draw()
 
 if __name__ == "__main__":
     G, _ = Getters.get_graph("TLV")

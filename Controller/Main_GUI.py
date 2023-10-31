@@ -1,22 +1,20 @@
+import datetime
 import json
-import os
-import random
 import statistics
 import time
 import traceback
 
+import GUI.Animate_Past_Simulation as APS
+import GUI.Animate_Simulation as AS
 from GUI.Display_Comparisons_Results_Window import Display_Comparisons_Results_Window
 from GUI.Main_Window import Main_Window
 from GUI.New_Load_Simulation_Window import New_Load_Simulation_Window
 from GUI.New_Settings_Window import New_Settings_Window
 from GUI.New_Simulation_Window import New_Simulation_Window
-import GUI.Animate_Simulation as AS
 from GUI.Routings_Comparisons_Window import Routing_Comparisons_Window
-import GUI.Animate_Past_Simulation as APS
 from Main_Files import Car, Simulation_manager, Road_Network
-from Utilities.Results import save_results_to_JSON, plot_simulation_overview, get_simulation_times, get_results_files
-import datetime
 from Utilities.Getters import *
+from Utilities.Results import save_results_to_JSON, plot_simulation_overview, get_simulation_times, get_results_files
 
 
 class Controller:
@@ -95,9 +93,9 @@ class Controller:
         self.view = New_Settings_Window(self)
         self.view.main()
 
-    def load_about_window(self):
-        self.view = New_About_Window(self)
-        self.view.main()
+    # def load_about_window(self):
+    #     self.view = New_About_Window(self)
+    #     self.view.main()
 
     def start_display_comparisons_results_window(self):
         self.view = Display_Comparisons_Results_Window(self)
@@ -134,7 +132,6 @@ class Controller:
 
     def set_simulation_manager(self, traffic_lights, rain_intensity, add_traffic_white_noise,
                                plot_results, simulation_starting_time):
-        # TODO: add checks for values (check if they exist and are valid)
         self.model = Simulation_manager.Simulation_manager(graph_name=self.G_name,
                                                            activate_traffic_lights=traffic_lights,
                                                            rain_intensity=rain_intensity,
@@ -164,7 +161,6 @@ class Controller:
         return
 
     def add_car(self, car_id, start_node, end_node, start_time, speed, routing_alg, use_existing_q_table):
-        # TODO: make sure that we have all of the parameters for the car
 
         new_car = Car.Car(car_id, start_node, end_node, start_time, speed, routing_alg, use_existing_q_table)
         self.cars.append(new_car)
@@ -233,6 +229,9 @@ class Controller:
             return False
         return True
 
+    def get_xy_from_node_id(self, node_id):
+        return self.road_network.get_xy_from_node_id(node_id)
+
     ##################################################################
     #   controller for the multiple runs for routing comparisons     #
     ##################################################################
@@ -257,16 +256,18 @@ class Controller:
                 cur_cars = self.set_cars_algorithm(j, cur_cars)
                 cur_alg_start_time = time.time()
                 learning_time = self.model.run_full_simulation(cur_cars, num_episodes=self.episodes,
-                                                               max_steps_per_episode=self.steps_per_episode, simulation_number_added = i)
+                                                               max_steps_per_episode=self.steps_per_episode,
+                                                               simulation_number_added=i)
                 cur_alg_end_time = time.time()
                 run_time_data[i][self.algorithms[j]] = cur_alg_end_time - cur_alg_start_time - learning_time
                 if self.algorithms[j] in routing_learning_algorithms:
                     run_time_data[i][self.algorithms[j] + " learning_time"] = learning_time
         save_results_to_JSON(self.model.graph_name, self.model.simulation_results)
-        json.dump(run_time_data, open(self.model.graph_name + run_time_data_file_name, 'w'), indent=4)
+        json.dump(run_time_data, open(f'../{Route_comparisons_results_directory}/{self.model.graph_name + "_" + run_time_data_file_name}', 'w'),
+                  indent=4)
         organized_times = self.organize_simulation_times(get_simulation_times(self.model))
-        json.dump(self.organize_simulation_times(get_simulation_times(self.model)),
-                  open(self.model.graph_name + cars_times_file_name, 'w'), indent=4)
+        json.dump(organized_times, open(f'../{Route_comparisons_results_directory} /{self.model.graph_name + "_" + cars_times_file_name}', 'w'),
+                  indent=4)
 
     def set_multiple_runs_parameters(self, num_of_cars, num_of_runs, algorithms, src_list, dst_list, rain_intesity,
                                      traffic_light, add_trafic_white_noise, use_existing_q_tables,
@@ -352,7 +353,7 @@ class Controller:
         return get_results_files(cars_times_file_name, run_time_data_file_name)
 
     def calculate_car_times_statistics(self, car_times_file):
-        with open(f'../Results/{car_times_file}') as json_file:
+        with open(f'../{Route_comparisons_results_directory}/{car_times_file}') as json_file:
             data = json.load(json_file)
         algorithms = list(data['0'].keys())
         algorithm_drive_times = {}
@@ -364,12 +365,13 @@ class Controller:
         algorithm_statistics = {}
         for algorithm in algorithms:
             algorithm_statistics[algorithm] = {}
-            algorithm_statistics[algorithm][Average_key] = sum(algorithm_drive_times[algorithm])/len(algorithm_drive_times[algorithm])
+            algorithm_statistics[algorithm][Average_key] = sum(algorithm_drive_times[algorithm]) / len(
+                algorithm_drive_times[algorithm])
             algorithm_statistics[algorithm][Standard_deviation_key] = statistics.stdev(algorithm_drive_times[algorithm])
         return algorithm_statistics
 
-    def calculate_run_times_statistics(self,run_times_file):
-        with open(f'../Results/{run_times_file}') as json_file:
+    def calculate_run_times_statistics(self, run_times_file):
+        with open(f'../{Route_comparisons_results_directory}/{run_times_file}') as json_file:
             data = json.load(json_file)
         algorithms = list(data['0'].keys())
         algorithm_run_times = {}
@@ -381,7 +383,8 @@ class Controller:
         algorithm_statistics = {}
         for algorithm in algorithms:
             algorithm_statistics[algorithm] = {}
-            algorithm_statistics[algorithm][Average_key] = sum(algorithm_run_times[algorithm])/len(algorithm_run_times[algorithm])
+            algorithm_statistics[algorithm][Average_key] = sum(algorithm_run_times[algorithm]) / len(
+                algorithm_run_times[algorithm])
             algorithm_statistics[algorithm][Standard_deviation_key] = statistics.stdev(algorithm_run_times[algorithm])
         return algorithm_statistics
 
