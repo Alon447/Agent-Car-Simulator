@@ -8,9 +8,7 @@
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Results](#results)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## Overview
 
@@ -136,3 +134,7 @@ Set the duration for each car's journey in hours. This parameter controls the ti
 
 After configuring your desired settings, click the "Confirm" button to save your changes and apply them to the simulation. The "Settings" window will close, and your customized settings will be used in the simulation.
 
+## Contributing
+
+- Alon Reicher
+- Liad Gam
