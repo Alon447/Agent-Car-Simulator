@@ -1,6 +1,6 @@
-import osmnx as ox
 import matplotlib.pyplot as plt
-import sklearn
+import osmnx as ox
+
 import Utilities.Getters as Getters
 
 
