@@ -1,12 +1,14 @@
+# external imports
 import json
 from datetime import timedelta, datetime
-
 from matplotlib import pyplot as plt
 import osmnx as ox
 from matplotlib.animation import FuncAnimation
 from shapely.geometry import Point
 import geopandas as gpd
 import numpy as np
+
+# internal imports
 from Main_Files.Road_Network import Road_Network
 import Utilities.Getters  as Getters
 from Utilities.Speeds import color_edges_by_speed_json
@@ -22,6 +24,7 @@ class Animate_Past_Simulation:
         self.handles, self.labels = None, None
         self.is_paused = False
         self.running = True
+
         # animation route variables
         self.simulation_data = []
         self.sources = []
@@ -89,15 +92,6 @@ class Animate_Past_Simulation:
         color_mapping = {Getters.Q: 'red', Getters.SP: 'blue'}
 
         for i in range(len(self.simulation_data)):
-            # origin_x, origin_y = self.RN.get_xy_from_node_id(self.simulation_data[i][Getters.Source])
-            # geometry_data = [(origin_y, origin_x)]
-            # gdf = gpd.GeoDataFrame(geometry = [Point(lon, lat) for lat, lon in geometry_data], crs = 'epsg:4326')
-            # self.sources.append(gdf)
-
-            # dest_x, dest_y = self.RN.get_xy_from_node_id(self.simulation_data[i][Getters.Destination])
-            # geometry_data = [(dest_y, dest_x)]
-            # gdf = gpd.GeoDataFrame(geometry = [Point(lon, lat) for lat, lon in geometry_data], crs = 'epsg:4326')
-            # self.destinations.append(gdf)
 
             origin_x, origin_y = create_geo_dataframe(Getters.Source, self.sources)
             create_geo_dataframe(Getters.Destination, self.destinations)
@@ -116,6 +110,7 @@ class Animate_Past_Simulation:
         # Add a legend with labels from scatter plots
         plt.legend(frameon = False)
         self.handles, self.labels = ax.get_legend_handles_labels()
+
         # animate the route
         self.animate_route(ax, fig, scatter_list)
         return
@@ -196,7 +191,6 @@ class Animate_Past_Simulation:
                         for i in range(len(self.sources)):
                             self.sources[i].plot(ax = ax, color = 'black')
                             self.destinations[i].plot(ax = ax, color = 'yellow')
-                        # plt.legend(frameon=False)
                         ax.legend(handles = self.handles + scatter_list, labels = self.labels, frameon = False)
                         for sc in scatter_list:
                             ax.add_artist(sc)
@@ -278,7 +272,3 @@ class Animate_Past_Simulation:
         sorted_dict = {k: v for k, v in sorted(car_update_times.items(), key = lambda item: item[0])}
 
         return sorted_dict
-
-if __name__ == '__main__':
-    aps = Animate_Past_Simulation()
-    aps.plotting_custom_route("simulation_results_TLV")

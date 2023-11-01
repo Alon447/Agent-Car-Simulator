@@ -1,6 +1,5 @@
 import os
 import random
-
 import networkx as nx
 import osmnx as ox
 
@@ -26,7 +25,7 @@ Max_steps_per_episode = 'Max_steps_per_episode'
 Hours_key = "Hours"
 Minutes_key = "Minutes"
 Seconds_key = "Seconds"
-Days_lable_text = "Days"
+Days_label_text = "Days"
 
 # times
 minute_in_seconds = 60
@@ -71,6 +70,17 @@ Variables_for_statistics = [Cars, Run_Times]
 
 #   directories
 Route_comparisons_results_directory = "Route_comparisons_results"
+Q_Tables_directory = "Q Tables Data"
+Results_directory = "Results"
+Speeds_Data_directory = "Speeds_Data"
+Graphs_directory = "Graphs"
+
+
+# paths
+
+# Route_comparisons_results_path = get_specific_directory(Route_comparisons_results_directory)
+# Q_Tables_path = os.path.join(os.getcwd(), Q_Tables_directory)
+
 
 # for testing and statistics in TLV map:
 
@@ -124,17 +134,16 @@ def get_graph(graph_name: str):
 
     return ox.load_graphml(path),path
 
-def get_q_tables_directory():
+def get_specific_directory(dir_name):
     """
-    get the directory of the q tables
+    get the path of a directory in the project, works only if the directory is in the main directory of the project
 
     :return:
     (str): the updated path
     """
-    tables_directory = "Q Tables Data"
     cur = os.getcwd()
     parent = os.path.dirname(cur)
-    path = os.path.join(parent, tables_directory)
+    path = os.path.join(parent, dir_name)
     return path
 def get_simulation_speeds_file_path(graph, graph_name):
     """

@@ -1,9 +1,7 @@
 import datetime
 import json
 import time
-
 import pandas as pd
-from matplotlib import pyplot as plt
 
 from Q_Learning_Classes import Q_Learning
 from Main_Files import Car_manager

@@ -1,8 +1,7 @@
+# internal imports
 from GUI import Insert_Car_Window as icw
 from GUI import Insert_Block_Road as ibr
-from Utilities import Getters as gtrs
 from Utilities import Errors as errors
-
 
 class NSW_Controller:
     """

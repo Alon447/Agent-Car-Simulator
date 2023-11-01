@@ -1,10 +1,10 @@
+# external imports
 import matplotlib.pyplot as plt
 import osmnx as ox
-import geopandas as gpd
-import Utilities.Getters as Getters
-from shapely.geometry import Point
 import traceback
 
+# internal imports
+import Utilities.Getters as Getters
 
 SOURCE = 'src'
 DESTINATION = 'dst'
@@ -23,20 +23,12 @@ class Map_Src_Dst_Choose:
     def __init__(self, G, controller=None):
         self.fig = None
         self.ax = None
-        self.src_osmid = None
-        self.dst_osmid = None
         self.G = G
-        self.mouse_pressed = False  #
         self.key_pressed = False
         self.curr_x = None
         self.curr_y = None
-        self.count = 0  #
-        # self.scatter = None
-        self.src_scatter = None  #
-        self.dst_scatter = None  #
         self.controller = controller
         self.is_temp = False
-        self.cur_gdf = None
         self.mark_hover = False
         self.markers_dicts = {}
         for type in MARKERS_TYPES_LIST:
@@ -151,8 +143,7 @@ class Map_Src_Dst_Choose:
                 if point in cur_dict_keys:
                     dict[point].remove()
                     del dict[point]
-        # self.markers_dicts[TEMPORARY] = {}
-        # plt.legend()
+
         self.fig.canvas.draw()
 
     def on_hover(self, event):  # when M is pressed, hovering over a graph will mark nearby nodes blue
@@ -163,17 +154,12 @@ class Map_Src_Dst_Choose:
             self.osmid = ox.distance.nearest_nodes(self.G, x, y)
             self.curr_x = self.G.nodes[self.osmid]['x']
             self.curr_y = self.G.nodes[self.osmid]['y']
-            # self.curr_x, self.curr_y = x, y
-            # if self.is_temp is True:
-            #     self.scatter.remove()
-            #     self.cur_gdf.remove()
             self.osmid = self.controller.get_fixed_node_id(self.osmid)
             if self.osmid in self.markers_dicts[TEMPORARY].keys():
                 return
             self.markers_dicts[TEMPORARY][self.osmid] = self.ax.scatter(self.curr_x, self.curr_y, color=TEMPORARY_COLOR, s=50)
             self.is_temp = True
 
-            # plt.legend()
             self.fig.canvas.draw()
             print("Hovering over Junction OSMID:", self.osmid)
 
@@ -184,7 +170,6 @@ class Map_Src_Dst_Choose:
         self.reset_scatter_dicts()
 
         if is_pressed_r is True:
-            # plt.legend()
             self.fig.canvas.draw()
 
     def reset_scatter_dicts(self):
@@ -209,7 +194,6 @@ class Map_Src_Dst_Choose:
         if not self.is_new_map:
             self.rescatter_all_points()
         self.is_new_map = False
-        # self.fig.canvas.draw()
         plt.show()
 
     def get_sources_and_destinations(self):
@@ -219,15 +203,10 @@ class Map_Src_Dst_Choose:
         return all_sources, all_destinations
 
     def clear(self):
-        # self.fig.clear()
-
-        # self.ax.clear()
         self.osmid = None
-        self.mouse_pressed = False
         self.curr_x = None
         self.curr_y = None
-        self.prev_x = None
-        self.prev_y = None
+
 
     def rescatter_all_points(self):
         for type in MARKERS_TYPES_LIST:
@@ -237,10 +216,10 @@ class Map_Src_Dst_Choose:
                 self.markers_dicts[type][point] = self.ax.scatter(x, y, color=MARKERS_TYPE_DICT[type], s=50)
         self.fig.canvas.draw()
 
-if __name__ == "__main__":
-    G, _ = Getters.get_graph("TLV")
-    m = Map_Src_Dst_Choose(G)
-    m.create_show_map()
-    src, dst = m.get_nodes_id()
-    print(src, dst)
-    print("done")
+# if __name__ == "__main__":
+#     G, _ = Getters.get_graph("TLV")
+#     m = Map_Src_Dst_Choose(G)
+#     m.create_show_map()
+#     src, dst = m.get_nodes_id()
+#     print(src, dst)
+#     print("done")

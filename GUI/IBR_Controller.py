@@ -1,4 +1,7 @@
+# internal imports
 import datetime
+
+# external imports
 import Utilities.Errors as errors
 import GUI.Map_Road_Choose as mrc
 class IBR_Controller:
@@ -18,7 +21,7 @@ class IBR_Controller:
         if self.G_name is None:
             self.view.no_map_loaded_error()
         if self.mrc is None:
-            self.mrc = mrc.Map_Road_Choose(G, self.controller)
+            self.mrc = mrc.Map_Road_Choose(G)
         self.mrc.create_show_map()
         print("chosen road:", self.mrc.get_road())
 
@@ -36,7 +39,7 @@ class IBR_Controller:
         day, month, year = self.view.get_end_date()
         hour = self.view.get_end_hour()
         minute = self.view.get_end_minute()
-        second = self.view.get_end_second()
+        second = 0
         ending_time = datetime.datetime(year = year, month = month, day = day, hour = hour, minute = minute,
                                           second = second)
         try:

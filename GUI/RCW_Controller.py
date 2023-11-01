@@ -1,5 +1,7 @@
+# external imports
 import datetime
 
+# internal imports
 from GUI import Map_Multi_Src_Dst_Choose as mmsdc
 from Utilities import Errors as errors
 from Utilities.Getters import *
@@ -9,8 +11,6 @@ from Utilities.Getters import *
 class RCW_Controller:
     def __init__(self, view, controller):
 
-        self.max_steps_per_episode = None
-        self.number_of_episodes = None
         self.use_existing_q_tables = None
         self.add_traffic_white_noise = None
         self.traffic_lights = None
@@ -69,8 +69,6 @@ class RCW_Controller:
         self.traffic_lights = self.view.get_traffic_lights()
         self.add_traffic_white_noise = self.view.get_add_traffic_white_noise()
         self.use_existing_q_tables = self.view.get_use_existing_q_tables()
-        # self.number_of_episodes = self.view.get_number_of_episodes()
-        # self.max_steps_per_episode = self.view.get_max_steps_per_episode()
         self.earliest_timedate_pick = self.get_fixed_timedate_format(Start_key)
         self.latest_timedate_pick = self.get_fixed_timedate_format(End_key)
 
@@ -81,8 +79,6 @@ class RCW_Controller:
         all_checks_passed &= self.check_simulations_amount()
         all_checks_passed &= self.check_used_algorithms()
         all_checks_passed &= self.check_sources_and_destinations()
-        # all_checks_passed &= self.check_number_of_episodes()
-        # all_checks_passed &= self.check_max_steps_per_episode()
         all_checks_passed &= self.check_starting_time()
 
         return all_checks_passed
@@ -163,29 +159,6 @@ class RCW_Controller:
             return False
         return True
 
-    def check_number_of_episodes(self):
-        passed_check = True
-        if not self.number_of_episodes.isdigit():
-            passed_check = False
-        elif int(self.number_of_episodes) <= 0:
-            passed_check = False
-        if not passed_check:
-            errors.incorrect_input_in_number_field_error('number of episodes')
-            return False
-        self.number_of_episodes = int(self.number_of_episodes)
-        return passed_check
-
-    def check_max_steps_per_episode(self):
-        passed_check = True
-        if not self.max_steps_per_episode.isdigit():
-            passed_check = False
-        elif int(self.max_steps_per_episode) <= 0:
-            passed_check = False
-        if not passed_check:
-            errors.incorrect_input_in_number_field_error('max steps per episode')
-            return False
-        self.max_steps_per_episode = int(self.max_steps_per_episode)
-        return passed_check
 
     def check_starting_time(self):
         if self.earliest_timedate_pick >= self.latest_timedate_pick:

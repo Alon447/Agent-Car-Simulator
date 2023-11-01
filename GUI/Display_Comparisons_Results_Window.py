@@ -1,11 +1,10 @@
-import datetime
+# external imports
 import tkinter as tk
-from tkinter import ttk, Scrollbar
-from tkcalendar import Calendar, DateEntry
+from tkinter import ttk
+
+# internal imports
 import GUI.DCRW_Controller as dcrwc
 from Utilities.Getters import *
-
-
 
 class Display_Comparisons_Results_Window(tk.Tk):
 
@@ -16,9 +15,6 @@ class Display_Comparisons_Results_Window(tk.Tk):
         self.title("Display Comparisons Results")
         self.dcrwc = dcrwc.DCRW_Controller(self, controller)
 
-        # show numerical statistics: standard deviation, average
-        # self.show_numerical_statistics_button = ttk.Button(self, text="Show numerical statistics",
-        #                                                   command=self.dcrc.show_numerical_statistics)
         # textbox for statistics
         self.statistics_textboxes = {}
         col = 0
@@ -71,8 +67,10 @@ class Display_Comparisons_Results_Window(tk.Tk):
         for file in times_files:
             self.results_variables_treeviews[variable_for_statistics].insert("", tk.END, values=(file,))
 
-    def main(self):
-        self.mainloop()
+
 
     def simulation_id_from_treeview(self, simulation_id, treeview):
         return treeview.item(simulation_id)['values'][0]
+
+    def main(self):
+        self.mainloop()

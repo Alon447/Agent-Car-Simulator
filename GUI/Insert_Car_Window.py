@@ -1,7 +1,10 @@
+# external imports
 import datetime
 import tkinter as tk
-from tkcalendar import Calendar, DateEntry
+from tkcalendar import Calendar
 from tkinter import ttk
+
+# internal imports
 from GUI import ICW_Controller as icwc
 from Utilities.Getters import hours, minutes, seconds, routing_algorithms
 
