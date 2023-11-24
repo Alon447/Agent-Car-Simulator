@@ -52,7 +52,13 @@ def add_max_speed_to_graph(graph):
         if isinstance(highway_type, list):
             highway_type = highway_type[0]  # Use the first value in the list as the highway type
         if 'maxspeed' in data:
-            data['maxspeed'] = data['maxspeed']
+            maxspeed = data['maxspeed']
+            if isinstance(maxspeed, list):
+                maxspeed = maxspeed[0]
+            if maxspeed.isdigit():
+                data['maxspeed'] = int(maxspeed)
+            else:
+                data['maxspeed'] = int(fix_speed(maxspeed))
         else:
             data['maxspeed'] = max_speed_mapping.get(highway_type, 50)
     return graph

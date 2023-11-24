@@ -18,6 +18,7 @@ class Node:
         self.y = y
         self.traffic_lights = traffic_lights
         self.street_count = street_count
+        self.connected_nodes = []
 
     def __str__(self):
         return f'Id: {self.id}, Osm_Id: {self.osm_id}, X: {self.x}, Y: {self.y}, Traffic_Lights: {self.traffic_lights}, Street_Count: {self.street_count}'

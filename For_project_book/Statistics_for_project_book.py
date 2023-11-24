@@ -4,7 +4,7 @@ import random
 import time
 
 from Main_Files import Car
-import Simulation_manager
+import Main_Files.Simulation_manager as Simulation_manager
 import GUI.Animate_Simulation as AS
 from Utilities.Getters import get_random_src_dst, check_if_path_exist
 from Utilities.Results import save_results_to_JSON, read_results_from_JSON, car_times_bar_chart, \

@@ -134,7 +134,7 @@ class Simulation_manager:
         for car in copy_cars:
             if car.route_algorithm_name == "q" and car.route.q_table is None:
                 q_learning_cars.append(car)
-        q_learn = Q_Learning.Q_Learning(self.road_network, cars = q_learning_cars, num_episodes= num_episodes, max_steps_per_episode = max_steps_per_episode, learning_rate=0.1, discount_factor=0.9, epsilon=0.1)
+        q_learn = Q_Learning.Q_Learning(self.road_network, cars = q_learning_cars, num_episodes= num_episodes, max_steps_per_episode = max_steps_per_episode, learning_rate=0.3, discount_factor=0.9, epsilon=0.2)
         q_learn.train(self.simulation_datetime_start, is_plot_results = self.is_plot_results)
         return
 

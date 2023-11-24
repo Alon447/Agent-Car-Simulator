@@ -2,6 +2,7 @@ import copy
 import datetime
 import networkx as nx
 import numpy as np
+import osmnx as ox
 
 from Main_Files.Road_Network import Road_Network
 class Q_Agent:
@@ -254,12 +255,7 @@ class Q_Agent:
         Calculate the reward for a given action.
 
         Args:
-            next_state (int): The next node id.
-            src (int): The inital source node index.
-            dst (int): The final destination node index.
-            eta (float): The estimated time of arrival for the next action.
-            path_nodes (list): The list of nodes in the path.
-            delta_time (float): The difference in travel time compared to the shortest path.
+            blocked_roads (dict): A dictionary of blocked roads and their blockage times.
 
         Returns:
             float: The calculated reward.
@@ -271,20 +267,33 @@ class Q_Agent:
                 (id in blocked_roads.keys() and blocked_roads[id][0] <= self.simulation_time <= blocked_roads[id][1]) or\
                 len(self.q_table[self.next_state]) == 0:
             self.blocked = True
-
             return -1000
 
         if self.dst == self.next_state:
             # High reward for reaching the destination
             self.finished = True
-            if self.end_time is None:
-                self.end_time = self.simulation_time
-            else:
-                self.end_time = min(self.end_time, self.simulation_time)
             return 1000
 
         else:
-            return -1
+            # apply a penalty of -1 if the agent getting further from the destination
+            distance_penalty = 0
+            prev_x, prev_y = self.next_road.source_node.x, self.next_road.source_node.y
+            next_x, next_y = self.next_road.destination_node.x, self.next_road.destination_node.y
+            dest_x, dest_y = self.road_network.nodes_array[self.dst].x, self.road_network.nodes_array[self.dst].y
+            distance_prev = ox.distance.great_circle(prev_y, prev_x, dest_y, dest_x)
+            distance_next = ox.distance.great_circle(next_y, next_x, dest_y, dest_x)
+            if distance_next > distance_prev:
+                distance_penalty = -1
+
+            # apply a small penalty for choosing a slow road
+            speed_penalty = 0
+            if self.next_road.max_speed < 20:
+                speed_penalty = -0.75
+            elif self.next_road.max_speed < 40:
+                speed_penalty = -0.3
+            elif self.next_road.max_speed < 60:
+                speed_penalty = -0.1
+            return -1 + distance_penalty + speed_penalty
             # rounded_minutes = self.simulation_time.minute - (self.simulation_time.minute % 10)
             # time_obj = self.simulation_time.replace(minute = rounded_minutes, second = 0, microsecond = 0)
             # time_str = time_obj.strftime("%H:%M")

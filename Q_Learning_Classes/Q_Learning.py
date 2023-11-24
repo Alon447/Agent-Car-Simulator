@@ -9,6 +9,7 @@ from Utilities.Getters import get_specific_directory
 from Utilities.Results import plot_results
 
 
+
 class Q_Learning:
     """
     Class for applying the Q-learning algorithm in a road network.
