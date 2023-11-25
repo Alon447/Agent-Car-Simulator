@@ -80,7 +80,7 @@ class Simulation_manager:
         # Flags
         self.is_plot_results = is_plot_results
 
-    def run_full_simulation(self, cars, number_of_simulations=1, num_episodes=2000, max_steps_per_episode=150, simulation_number_added = 0):
+    def run_full_simulation(self, cars, number_of_simulations=1, num_episodes=2000, max_steps_per_episode=150, simulation_number_added = 0, learning_rate = 0.1, discount_factor = 0.9, epsilon = 0.2):
         """
         Run the full simulation process including setup, execution, and result printing.
 
@@ -108,7 +108,7 @@ class Simulation_manager:
 
             # set up the simulation
             start_learning_time = time.time()
-            self.start_q_learning_simulation(copy_cars, num_episodes, max_steps_per_episode)
+            self.start_q_learning_simulation(copy_cars, num_episodes, max_steps_per_episode, learning_rate, discount_factor, epsilon)
             end_learning_time = time.time()
             learning_time = end_learning_time - start_learning_time
             self.set_up_simulation(copy_cars)
@@ -119,13 +119,16 @@ class Simulation_manager:
 
         return learning_time
 
-    def start_q_learning_simulation(self, copy_cars, num_episodes, max_steps_per_episode):
+    def start_q_learning_simulation(self, copy_cars, num_episodes, max_steps_per_episode, learning_rate, discount_factor, epsilon):
         """
         Start the Q-Learning simulation by training the cars that use Q-Learning.
 
-        :param copy_cars (list): List of Car objects for the simulation.
-        :param num_episodes (int): will determine the number of episodes to train the cars.
-        :param max_steps_per_episode (int): will determine the maximum number of steps per episode.
+        :param copy_cars: List of Car objects for the simulation.
+        :param num_episodes: Number of episodes to train the Q-Learning agent.
+        :param max_steps_per_episode: Maximum number of steps per episode.
+        :param learning_rate: The learning rate for the Q-Learning agent.
+        :param discount_factor: The discount factor for the Q-Learning agent.
+        :param epsilon: The epsilon for the Q-Learning agent.
 
         :return:  None
         """
@@ -134,7 +137,7 @@ class Simulation_manager:
         for car in copy_cars:
             if car.route_algorithm_name == "q" and car.route.q_table is None:
                 q_learning_cars.append(car)
-        q_learn = Q_Learning.Q_Learning(self.road_network, cars = q_learning_cars, num_episodes= num_episodes, max_steps_per_episode = max_steps_per_episode, learning_rate=0.3, discount_factor=0.9, epsilon=0.2)
+        q_learn = Q_Learning.Q_Learning(self.road_network, cars = q_learning_cars, num_episodes= num_episodes, max_steps_per_episode = max_steps_per_episode, learning_rate=learning_rate, discount_factor=discount_factor, epsilon=epsilon)
         q_learn.train(self.simulation_datetime_start, is_plot_results = self.is_plot_results)
         return
 

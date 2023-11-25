@@ -9,6 +9,9 @@ from Utilities.Getters import *
 
 
 class RCW_Controller:
+    """
+    This class is used to control the route comparison window
+    """
     def __init__(self, view, controller):
 
         self.use_existing_q_tables = None

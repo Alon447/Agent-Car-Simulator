@@ -8,8 +8,8 @@ import GUI.Animate_Past_Simulation as APS
 import GUI.Animate_Simulation as AS
 from GUI.Display_Comparisons_Results_Window import Display_Comparisons_Results_Window
 from GUI.Main_Window import Main_Window
-from GUI.New_Load_Simulation_Window import New_Load_Simulation_Window
-from GUI.New_Settings_Window import New_Settings_Window
+from GUI.Load_Simulation_Window import New_Load_Simulation_Window
+from GUI.Settings_Window import Settings_Window
 from GUI.New_Simulation_Window import New_Simulation_Window
 from GUI.Routings_Comparisons_Window import Routing_Comparisons_Window
 from Main_Files import Car, Simulation_manager, Road_Network
@@ -44,6 +44,9 @@ class Controller:
         # q learning parameters
         self.episodes = 2000
         self.steps_per_episode = 200
+        self.learning_rate = 0.1
+        self.discount_factor = 0.9
+        self.epsilon = 0.2
 
         self.simulation_duration = None
         self.simulation_starting_time = None
@@ -90,7 +93,7 @@ class Controller:
 
     # model control
     def load_settings_window(self):
-        self.view = New_Settings_Window(self)
+        self.view = Settings_Window(self)
         self.view.main()
 
     # def load_about_window(self):
@@ -111,7 +114,10 @@ class Controller:
         self.set_cars()
 
         self.model.run_full_simulation(self.cars, num_episodes=self.episodes,
-                                       max_steps_per_episode=self.steps_per_episode)
+                                       max_steps_per_episode=self.steps_per_episode,
+                                       learning_rate = self.learning_rate,
+                                       discount_factor = self.discount_factor,
+                                       epsilon = self.epsilon)
         ASS = AS.Animate_Simulation(animation_speed=simulation_speed, repeat=repeat)
         routes = self.model.get_simulation_routes(self.cars, 0)
         json_name = save_results_to_JSON(self.model.graph_name, self.model.simulation_results)
@@ -257,7 +263,10 @@ class Controller:
                 cur_alg_start_time = time.time()
                 learning_time = self.model.run_full_simulation(cur_cars, num_episodes=self.episodes,
                                                                max_steps_per_episode=self.steps_per_episode,
-                                                               simulation_number_added=i)
+                                                               simulation_number_added=i,
+                                                               learning_rate=self.learning_rate,
+                                                               discount_factor=self.discount_factor,
+                                                               epsilon=self.epsilon)
                 cur_alg_end_time = time.time()
                 run_time_data[i][self.algorithms[j]] = cur_alg_end_time - cur_alg_start_time - learning_time
                 if self.algorithms[j] in routing_learning_algorithms:
@@ -336,6 +345,15 @@ class Controller:
         return cars
 
     def confirm_settings(self, **kwargs):
+
+        def check_if_input_correct(input):
+            # check if the input is between 0 and 1
+            if input < 0:
+                input = 0
+            elif input > 1:
+                input = 1
+            return input
+
         for key, value in kwargs.items():
             if key == "episodes":
                 self.episodes = int(value)
@@ -346,6 +364,15 @@ class Controller:
             elif key == "car_duration":
                 self.max_time_for_car = datetime.timedelta(hours=float(value))
                 print("car_duration: ", self.max_time_for_car)
+            elif key == "learning_rate":
+                self.learning_rate = check_if_input_correct(float(value))
+                print("learning_rate: ", self.learning_rate)
+            elif key == "discount_factor":
+                self.discount_factor = check_if_input_correct(float(value))
+                print("discount_factor: ", self.discount_factor)
+            elif key == "epsilon":
+                self.epsilon = check_if_input_correct(float(value))
+                print("epsilon: ", self.epsilon)
             else:
                 print("Error in confirm_settings")
 
