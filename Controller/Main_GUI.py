@@ -275,7 +275,7 @@ class Controller:
         json.dump(run_time_data, open(f'../{Route_comparisons_results_directory}/{self.model.graph_name + "_" + run_time_data_file_name}', 'w'),
                   indent=4)
         organized_times = self.organize_simulation_times(get_simulation_times(self.model))
-        json.dump(organized_times, open(f'../{Route_comparisons_results_directory} /{self.model.graph_name + "_" + cars_times_file_name}', 'w'),
+        json.dump(organized_times, open(f'../{Route_comparisons_results_directory}/{self.model.graph_name + "_" + cars_times_file_name}', 'w'),
                   indent=4)
 
     def set_multiple_runs_parameters(self, num_of_cars, num_of_runs, algorithms, src_list, dst_list, rain_intesity,
