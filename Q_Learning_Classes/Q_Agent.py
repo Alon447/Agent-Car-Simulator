@@ -1,6 +1,5 @@
 import copy
 import datetime
-import networkx as nx
 import numpy as np
 import osmnx as ox
 
@@ -24,7 +23,7 @@ class Q_Agent:
         self.current_road = None # The current road the agent is on.
         self.next_road = None # The next road the agent will travel on.
         self.num_of_steps = 0 # The number of steps the agent has taken.
-        # self.visited_nodes = [self.src] # A list of visited nodes.
+
         # nodes
         self.current_state = None # The current node id.
         self.next_state = None # The next node id that the agent will go to.

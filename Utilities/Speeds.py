@@ -84,18 +84,18 @@ def generate_speed(highway, max_speed, day, current_time):
         else:  # no traffic, night in friday
             traffic = 0
     elif day == 5: # saturday
-        if 19 < current_time.hour < 23:  #medium traffic, rush hours in saturday
+        if 19 < current_time.hour < 22:  #medium traffic, rush hours in saturday
             traffic = 2
-        elif current_time.hour == 19 or 23 == current_time.hour:  # low traffic, before and after rush hours in saturday
+        elif current_time.hour == 19 or 22 == current_time.hour:  # low traffic, before and after rush hours in saturday
             traffic = 1
         else:  # no traffic, night in saturday
             traffic = 0
     else: # sunday - thursday
-        if 7 < current_time.hour < 10 or 15 < current_time.hour < 18:  # high traffic, rush hours in sunday - thursday
+        if 7 < current_time.hour < 10 or 15 < current_time.hour < 19:  # high traffic, rush hours in sunday - thursday
             traffic = 3
-        elif current_time.hour == 7 or 10 == current_time.hour or 15 == current_time.hour or 18 == current_time.hour:  # medium traffic, before and after rush hours in sunday - thursday
+        elif current_time.hour == 7 or 10 == current_time.hour or 15 == current_time.hour or 19 == current_time.hour:  # medium traffic, before and after rush hours in sunday - thursday
             traffic = 2
-        elif current_time.hour == 6 or 11 <= current_time.hour <= 14  or 19 == current_time.hour:  # low traffic, before and after rush hours in sunday - thursday
+        elif current_time.hour == 6 or 11 <= current_time.hour <= 14  or 20 == current_time.hour:  # low traffic, before and after rush hours in sunday - thursday
             traffic = 1
         else:  # no traffic, night in sunday - thursday
             traffic = 0
