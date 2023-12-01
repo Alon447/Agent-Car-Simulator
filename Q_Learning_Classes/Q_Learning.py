@@ -107,7 +107,7 @@ Number of training episodes to 2000, maximum number of number of steps in each e
                         # if the agent is done, then move to the next agent
                         continue
                     agent.step(self.epsilon)
-                    reward = agent.calculate_reward_basic(blocked_roads)
+                    reward = agent.calculate_reward(blocked_roads)
                     agent.total_episode_reward += reward
                     agent.update_q_table(reward, self.learning_rate, self.discount_factor)
                     agent.move_to_next_road(self.max_steps_per_episode)

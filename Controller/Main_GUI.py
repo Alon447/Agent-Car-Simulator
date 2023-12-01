@@ -354,25 +354,36 @@ class Controller:
                 input = 1
             return input
 
+        def set_episodes(value):
+            self.episodes = int(value)
+            print("episodes: ", self.episodes)
+
+        def set_steps(value):
+            self.steps_per_episode = int(value)
+            print("steps: ", self.steps_per_episode)
+
+        def set_car_duration(value):
+            self.max_time_for_car = datetime.timedelta(hours = float(value))
+            print("car_duration: ", self.max_time_for_car)
+
+        def set_learning_rate(value):
+            self.learning_rate = check_if_input_correct(float(value))
+            print("learning_rate: ", self.learning_rate)
+
+        def set_discount_factor(value):
+            self.discount_factor = check_if_input_correct(float(value))
+            print("discount_factor: ", self.discount_factor)
+
+        def set_epsilon(value):
+            self.epsilon = check_if_input_correct(float(value))
+            print("epsilon: ", self.epsilon)
+
+        actions = {"episodes": set_episodes, "steps": set_steps, "car_duration": set_car_duration, "learning_rate": set_learning_rate, "discount_factor": set_discount_factor, "epsilon": set_epsilon, }
+
         for key, value in kwargs.items():
-            if key == "episodes":
-                self.episodes = int(value)
-                print("episodes: ", self.episodes)
-            elif key == "steps":
-                self.steps_per_episode = int(value)
-                print("steps: ", self.steps_per_episode)
-            elif key == "car_duration":
-                self.max_time_for_car = datetime.timedelta(hours=float(value))
-                print("car_duration: ", self.max_time_for_car)
-            elif key == "learning_rate":
-                self.learning_rate = check_if_input_correct(float(value))
-                print("learning_rate: ", self.learning_rate)
-            elif key == "discount_factor":
-                self.discount_factor = check_if_input_correct(float(value))
-                print("discount_factor: ", self.discount_factor)
-            elif key == "epsilon":
-                self.epsilon = check_if_input_correct(float(value))
-                print("epsilon: ", self.epsilon)
+            action = actions.get(key)
+            if action:
+                action(value)
             else:
                 print("Error in confirm_settings")
 

@@ -134,6 +134,27 @@ Set the duration for each car's journey in hours. This parameter controls the ti
 
 After configuring your desired settings, click the "Confirm" button to save your changes and apply them to the simulation. The "Settings" window will close, and your customized settings will be used in the simulation.
 
+## Required Libraries
+
+- tkinter
+- datetime
+- json
+- time
+- traceback
+- matplotlib
+- osmnx 1.8.0
+- shapely
+- geopandas
+- numpy
+- os
+- random
+- networkx
+- pickle
+- abc
+- statistics
+- tqdm
+- copy
+
 ## Contributing
 
 - Alon Reicher

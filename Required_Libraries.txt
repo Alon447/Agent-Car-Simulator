@@ -4,7 +4,7 @@ json
 time
 traceback
 matplotlib
-osmnx
+osmnx 1.8.0
 shapely
 geopandas
 numpy
