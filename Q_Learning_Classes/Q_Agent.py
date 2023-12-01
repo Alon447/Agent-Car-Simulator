@@ -220,6 +220,7 @@ class Q_Agent:
         if self.next_road.is_blocked or\
                 (id in blocked_roads.keys() and blocked_roads[id][0] <= self.simulation_time <= blocked_roads[id][1]) or\
                 len(self.q_table[self.next_state]) == 0:
+            # blocked
             self.blocked = True
             return -1000
 
@@ -247,16 +248,8 @@ class Q_Agent:
                 speed_penalty = -0.3
             elif self.next_road.max_speed < 60:
                 speed_penalty = -0.1
+
             return -1 + distance_penalty + speed_penalty
-            # rounded_minutes = self.simulation_time.minute - (self.simulation_time.minute % 10)
-            # time_obj = self.simulation_time.replace(minute = rounded_minutes, second = 0, microsecond = 0)
-            # time_str = time_obj.strftime("%H:%M")
-            # eta = float(self.next_road.get_eta(time_str))  # eta in seconds
-            # if self.next_road.destination_node.id in self.visited_nodes:
-            #     return -eta-200
-            # else:
-            #     self.visited_nodes.append(self.next_road.destination_node.id)
-            #     return -eta
 
     def reset(self):
         """
