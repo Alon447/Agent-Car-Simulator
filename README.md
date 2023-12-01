@@ -8,6 +8,7 @@
 - [Features](#features)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
+- [Libraries](#Required Libraries)
 - [Contributing](#contributing)
 
 ## Overview
