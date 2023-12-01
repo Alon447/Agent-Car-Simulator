@@ -21,7 +21,7 @@
 <key id="d2" for="graph" attr.name="crs" attr.type="string"/>
 <key id="d1" for="graph" attr.name="created_with" attr.type="string"/>
 <key id="d0" for="graph" attr.name="created_date" attr.type="string"/>
-<graph edgedefault="directed"><data key="d0">2023-11-24 16:06:29</data>
+<graph edgedefault="directed"><data key="d0">2023-12-01 15:30:34</data>
 <data key="d1">OSMnx 1.7.1</data>
 <data key="d2">epsg:4326</data>
 <data key="d3">True</data>
@@ -14531,7 +14531,7 @@
 </edge>
 <edge source="436875670" target="871729389" id="0">
   <data key="d8">[218923156, 424940172, 333725870]</data>
-  <data key="d12">['광교', '남대문로']</data>
+  <data key="d12">['남대문로', '광교']</data>
   <data key="d13">secondary</data>
   <data key="d9">False</data>
   <data key="d15">True</data>
@@ -15171,7 +15171,7 @@
 </edge>
 <edge source="871729389" target="436875670" id="0">
   <data key="d8">[424940172, 218923156, 333725870]</data>
-  <data key="d12">['광교', '남대문로']</data>
+  <data key="d12">['남대문로', '광교']</data>
   <data key="d13">secondary</data>
   <data key="d9">False</data>
   <data key="d15">False</data>
@@ -22217,7 +22217,7 @@
 </edge>
 <edge source="2323213842" target="2304636253" id="0">
   <data key="d8">[223421019, 223165012, 233647095]</data>
-  <data key="d12">['옥인3길', '필운대로5길', '필운대로5나길']</data>
+  <data key="d12">['필운대로5길', '옥인3길', '필운대로5나길']</data>
   <data key="d13">residential</data>
   <data key="d9">False</data>
   <data key="d15">True</data>
@@ -22248,7 +22248,7 @@
 <edge source="2323311266" target="2320929928" id="0">
   <data key="d8">[223165008, 1149018525]</data>
   <data key="d9">True</data>
-  <data key="d12">['사직로9길', '필운대로1길']</data>
+  <data key="d12">['필운대로1길', '사직로9길']</data>
   <data key="d13">residential</data>
   <data key="d15">False</data>
   <data key="d16">286.78700000000003</data>
@@ -30429,7 +30429,7 @@
 </edge>
 <edge source="2772203476" target="2772203481" id="0">
   <data key="d8">[272232099, 272263606]</data>
-  <data key="d12">['서애로5길', '필동로1길']</data>
+  <data key="d12">['필동로1길', '서애로5길']</data>
   <data key="d13">residential</data>
   <data key="d9">False</data>
   <data key="d15">False</data>
@@ -30478,7 +30478,7 @@
 </edge>
 <edge source="2772203481" target="2772203476" id="1">
   <data key="d8">[272232099, 272263606]</data>
-  <data key="d12">['서애로5길', '필동로1길']</data>
+  <data key="d12">['필동로1길', '서애로5길']</data>
   <data key="d13">residential</data>
   <data key="d9">False</data>
   <data key="d15">True</data>
@@ -38148,7 +38148,7 @@
 </edge>
 <edge source="3807475318" target="3807475353" id="0">
   <data key="d8">[377373658, 464399103]</data>
-  <data key="d12">['효창원로104다길', '청파로73길']</data>
+  <data key="d12">['청파로73길', '효창원로104다길']</data>
   <data key="d13">residential</data>
   <data key="d9">False</data>
   <data key="d15">True</data>
@@ -38235,7 +38235,7 @@
 </edge>
 <edge source="3807475353" target="3807475318" id="0">
   <data key="d8">[377373658, 464399103]</data>
-  <data key="d12">['효창원로104다길', '청파로73길']</data>
+  <data key="d12">['청파로73길', '효창원로104다길']</data>
   <data key="d13">residential</data>
   <data key="d9">False</data>
   <data key="d15">False</data>
@@ -43827,7 +43827,7 @@
 </edge>
 <edge source="3893042431" target="4223315296" id="0">
   <data key="d8">[464238824, 464238822, 464238823]</data>
-  <data key="d12">['만리재로37길', '서소문로2길']</data>
+  <data key="d12">['서소문로2길', '만리재로37길']</data>
   <data key="d13">residential</data>
   <data key="d9">False</data>
   <data key="d15">[False, True]</data>
@@ -47157,7 +47157,7 @@
 </edge>
 <edge source="4203244003" target="4203244007" id="0">
   <data key="d8">[420391195, 420391196]</data>
-  <data key="d12">['청계천로', '을지로19길']</data>
+  <data key="d12">['을지로19길', '청계천로']</data>
   <data key="d13">residential</data>
   <data key="d9">False</data>
   <data key="d15">[False, True]</data>
@@ -47195,7 +47195,7 @@
 </edge>
 <edge source="4203244007" target="4203244003" id="0">
   <data key="d8">[420391195, 420391196]</data>
-  <data key="d12">['청계천로', '을지로19길']</data>
+  <data key="d12">['을지로19길', '청계천로']</data>
   <data key="d13">residential</data>
   <data key="d9">False</data>
   <data key="d15">[False, True]</data>
@@ -47380,7 +47380,7 @@
 </edge>
 <edge source="4223315296" target="3893042431" id="0">
   <data key="d8">[464238824, 464238822, 464238823]</data>
-  <data key="d12">['만리재로37길', '서소문로2길']</data>
+  <data key="d12">['서소문로2길', '만리재로37길']</data>
   <data key="d13">residential</data>
   <data key="d9">False</data>
   <data key="d15">[False, True]</data>
@@ -47855,7 +47855,7 @@
 </edge>
 <edge source="4591805990" target="4591848501" id="0">
   <data key="d8">[237264673, 463999807]</data>
-  <data key="d12">['북아현로4아길', '북아현로14나길']</data>
+  <data key="d12">['북아현로14나길', '북아현로4아길']</data>
   <data key="d13">residential</data>
   <data key="d9">False</data>
   <data key="d15">True</data>
@@ -49442,7 +49442,7 @@
 </edge>
 <edge source="4591848500" target="10933410143" id="0">
   <data key="d8">[463998266, 463992135]</data>
-  <data key="d12">['북아현로4자길', '북아현로14나길']</data>
+  <data key="d12">['북아현로14나길', '북아현로4자길']</data>
   <data key="d13">residential</data>
   <data key="d9">False</data>
   <data key="d15">True</data>
@@ -50072,7 +50072,7 @@
 </edge>
 <edge source="4591859922" target="4663447879" id="0">
   <data key="d8">[463999810, 224260211]</data>
-  <data key="d12">['북아현로10길', '북아현로6길']</data>
+  <data key="d12">['북아현로6길', '북아현로10길']</data>
   <data key="d13">residential</data>
   <data key="d9">False</data>
   <data key="d15">False</data>
@@ -50223,7 +50223,7 @@
 </edge>
 <edge source="4591859933" target="4591859935" id="0">
   <data key="d8">[780472225, 463999811, 463999815]</data>
-  <data key="d12">['북아현로', '북아현로10길']</data>
+  <data key="d12">['북아현로10길', '북아현로']</data>
   <data key="d13">residential</data>
   <data key="d9">False</data>
   <data key="d15">False</data>
@@ -51585,7 +51585,7 @@
 </edge>
 <edge source="4592858369" target="5863307798" id="0">
   <data key="d8">[780472232, 464135097]</data>
-  <data key="d12">['경기대로', '충정로']</data>
+  <data key="d12">['충정로', '경기대로']</data>
   <data key="d13">residential</data>
   <data key="d9">False</data>
   <data key="d15">True</data>
@@ -57304,7 +57304,7 @@
 </edge>
 <edge source="4663447879" target="4591859922" id="0">
   <data key="d8">[463999810, 224260211]</data>
-  <data key="d12">['북아현로10길', '북아현로6길']</data>
+  <data key="d12">['북아현로6길', '북아현로10길']</data>
   <data key="d13">residential</data>
   <data key="d9">False</data>
   <data key="d15">True</data>
@@ -58825,7 +58825,7 @@
   <data key="d9">True</data>
   <data key="d10">2</data>
   <data key="d12">삼청로</data>
-  <data key="d13">['secondary_link', 'tertiary']</data>
+  <data key="d13">['tertiary', 'secondary_link']</data>
   <data key="d15">False</data>
   <data key="d16">445.50699999999995</data>
   <data key="d17">LINESTRING (126.9798764 37.5800936, 126.9798576 37.580033, 126.9798339 37.5799631, 126.9797021 37.5795746, 126.9796879 37.5795328, 126.9795888 37.5792383, 126.9795463 37.5789859, 126.979511 37.5786381, 126.9794779 37.5781536, 126.979472 37.5780014, 126.979472 37.5777826, 126.979472 37.5774881, 126.979472 37.5771852, 126.9794685 37.5769299, 126.979448 37.5763732, 126.9792635 37.5761681)</data>
@@ -64779,7 +64779,7 @@
 <edge source="9284853536" target="2420018513" id="0">
   <data key="d8">[1084408272, 233651340]</data>
   <data key="d9">True</data>
-  <data key="d12">['세종대로23길', '새문안로9길']</data>
+  <data key="d12">['새문안로9길', '세종대로23길']</data>
   <data key="d13">residential</data>
   <data key="d15">False</data>
   <data key="d16">230.54399999999998</data>
@@ -65689,7 +65689,7 @@
 </edge>
 <edge source="10933410143" target="4591848500" id="0">
   <data key="d8">[463998266, 463992135]</data>
-  <data key="d12">['북아현로4자길', '북아현로14나길']</data>
+  <data key="d12">['북아현로14나길', '북아현로4자길']</data>
   <data key="d13">residential</data>
   <data key="d9">False</data>
   <data key="d15">False</data>

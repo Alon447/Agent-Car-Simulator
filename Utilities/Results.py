@@ -8,7 +8,7 @@ from Main_Files.Road_Network import Road_Network
 from Utilities.Getters import Time_taken, Reached_destination, Simulation_number, Route, Distance_travelled, node_route_to_osm_route, Source, Destination, Blocked_roads, Route_comparisons_results_directory, get_specific_directory
 
 
-def save_results_to_JSON(graph_name, results):
+def save_results_to_JSON(graph_name, results, starting_time=None):
     """
     Save simulation results to a JSON file.
 
@@ -20,7 +20,11 @@ def save_results_to_JSON(graph_name, results):
     None
     """
     # self.simulation_results.append(results)
-    json_name = f'simulation_results_{graph_name}'
+    day = ""
+    if starting_time :
+        day = "_"+str(starting_time.weekday())
+
+    json_name = f'simulation_results_{graph_name}{day}'
     with open(f'../Results/{json_name}.json', 'w') as outfile:
         json.dump(results, outfile, indent=4)
     return json_name
@@ -77,7 +81,9 @@ def plot_simulation_overview(past_result_json_name):
     global ax, fig, origin_x, dest_x, origin_y, dest_y
     substring_to_remove = "simulation_results_"
     # get the city name from the json name and create a road network object of the city
-    graph_name = past_result_json_name.replace(substring_to_remove, "")
+    graph_name_with_extra = past_result_json_name.replace(substring_to_remove, "")
+    graph_name_parts = graph_name_with_extra.split('_')
+    graph_name = graph_name_parts[0]  # Get the first part as the base graph name
     RN = Road_Network(graph_name)
     # Load the past result
     with open(f'../Results/{past_result_json_name}.json') as json_file:

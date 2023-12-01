@@ -246,7 +246,28 @@ def calaulate_starting_ending_times(datetimes_list):
 
 def check_if_path_exist(src,dst,RN):
     try:
-        path = RN.get_shortest_path(src, dst)
+        RN.get_shortest_path(src, dst)
         return True
     except:
         return False
+
+def get_starting_time_of_the_day(hour):
+    """
+    converts the hour into a string that represents the time of the day
+    for example: 5:00 AM - night
+                    8:00 AM - morning
+                    12:00 PM - noon
+                    5:00 PM - evening
+                    8:00 PM - night
+    :param hour: int that represents the starting hour
+    :return: string of the start of the day
+
+    """
+    if 7 <= hour < 12:
+        return "morning"
+    elif 11 <= hour < 14:
+        return "noon"
+    elif 14 <= hour < 20:
+        return "evening"
+    else:
+        return "night"

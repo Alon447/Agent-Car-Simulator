@@ -48,7 +48,9 @@ class Animate_Past_Simulation:
         substring_to_remove = "simulation_results_"
 
         # get the city name from the json name and create a road network object of the city
-        self.graph_name = simulation_json_file.replace(substring_to_remove, "")
+        graph_name_with_extra = simulation_json_file.replace(substring_to_remove, "")
+        graph_name_parts = graph_name_with_extra.split('_')
+        self.graph_name = graph_name_parts[0]  # Get the first part as the base graph name
         self.RN = Road_Network(self.graph_name)
         graph = self.RN.graph
 

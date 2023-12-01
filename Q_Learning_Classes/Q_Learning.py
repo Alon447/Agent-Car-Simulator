@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 from Main_Files.Road_Network import Road_Network
 from Q_Learning_Classes import Q_Agent
-from Utilities.Getters import get_specific_directory
+from Utilities.Getters import get_specific_directory, get_starting_time_of_the_day
 from Utilities.Results import plot_results
 
 
@@ -56,6 +56,7 @@ Number of training episodes to 2000, maximum number of number of steps in each e
         Returns:
             None
         """
+        # add the blocked roads to the filename
         blocked_roads = self.road_network.blocked_roads_dict
         blocked_roads_str = '_blocked_roads'
         if blocked_roads:
@@ -64,7 +65,12 @@ Number of training episodes to 2000, maximum number of number of steps in each e
                     blocked_roads_str += '_' + str(block_road)
         if blocked_roads_str == '_blocked_roads':
             blocked_roads_str = ''
-        filename = os.path.join(save_path, f'q_table_{self.road_network.graph_name}_{agent.src}_{agent.dst}{blocked_roads_str}.pkl')
+        # add the car's starting hour and the day of the week to the filename
+        time_of_the_day = get_starting_time_of_the_day(agent.start_time.hour)
+
+        day_of_week = agent.start_time.weekday()
+        filename = os.path.join(save_path,
+                                f'q_table_{self.road_network.graph_name}_{agent.src}_{agent.dst}_{time_of_the_day}_{day_of_week}{blocked_roads_str}.pkl')
         with open(filename, 'wb') as f:
             pickle.dump(agent.q_table, f)
 
@@ -92,9 +98,6 @@ Number of training episodes to 2000, maximum number of number of steps in each e
         blocked_roads = self.road_network.blocked_roads_dict
         for episode in tqdm(range(self.num_episodes), desc="Episodes", unit="episode"):
             # Initialize parameters to evaluate the episode
-            # for agent in self.agent_list:
-            #     inital_eta = nx.shortest_path_length(self.road_network.nx_graph, agent.src, agent.dst, weight='eta')  # time to dest from the current node
-            #     agent.last_node_time = inital_eta
 
             for step in range(self.max_steps_per_episode): # every car can take max_steps_per_episode steps
                 if self.check_all_agents_done():

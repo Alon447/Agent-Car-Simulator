@@ -5,6 +5,7 @@ from abc import abstractmethod, ABC
 import random
 import numpy as np
 from Main_Files.Road_Network import Road_Network
+from Utilities.Getters import get_starting_time_of_the_day
 
 
 class Route(ABC):
@@ -96,24 +97,15 @@ class Q_Learning_Route(Route):
         # src and dst dosent change during the run
         self.src_node = src_node
         self.dst_node = dst_node
+
         # current node changes during the run, it represents the current's road destination node
         self.current_node = src_node
         self.start_time = start_time
         self.road_network = road_network
-        # self.agent = Q_Learning(road_network, learning_rate=0.1, discount_factor=0.9, epsilon=0.2)
-
-        # num_episodes = 2000
-        max_steps_per_episode = 100
         full_tables_path = self.get_tables_directory(r"Q Tables Data")
         self.q_table = None
         if use_q_table:
             self.load_q_table(self.src_node, self.dst_node, full_tables_path)
-
-        # else:
-            # self.q_table = self.agent.train(src_node, dst_node, self.start_time, num_episodes, max_steps_per_episode=max_steps_per_episode)
-            # self.agent.save_q_table(self.src_node, self.dst_node, full_tables_path)
-        # Test the agent
-        # test_reward, agent_path = self.agent.test(src_node, dst_node, self.start_time)  # this will be the Test function
         self.path = [src_node]
 
     def get_tables_directory(self, tables_directory):
@@ -143,6 +135,7 @@ class Q_Learning_Route(Route):
 
             bool: True if Q-value table was loaded successfully, False if the file was not found.
         """
+        # add the blocked roads to the file name
         blocked_roads = self.road_network.blocked_roads_dict
         blocked_roads_str = '_blocked_roads'
         if blocked_roads:
@@ -151,14 +144,15 @@ class Q_Learning_Route(Route):
                     blocked_roads_str += '_' + str(block_road)
         if blocked_roads_str == '_blocked_roads':
             blocked_roads_str = ''
-
-        filename = os.path.join(save_path, f'q_table_{self.road_network.graph_name}_{src}_{dst}{blocked_roads_str}.pkl')
+        # add the car's starting hour and the day of the week to the filename
+        time_of_the_day = get_starting_time_of_the_day(self.start_time.hour)
+        day_of_week = self.start_time.weekday()
+        filename = os.path.join(save_path, f'q_table_{self.road_network.graph_name}_{src}_{dst}_{time_of_the_day}_{day_of_week}{blocked_roads_str}.pkl')
         try:
             with open(filename, 'rb') as f:
                 self.q_table = pickle.load(f)
             return True
         except FileNotFoundError:
-            # print(f"Q-table file '{filename}' not found.")
             return False
 
     def decide_first_road(self):
