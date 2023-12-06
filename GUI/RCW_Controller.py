@@ -80,11 +80,12 @@ class RCW_Controller:
 
         all_checks_passed &= self.check_cars_amount()
         all_checks_passed &= self.check_simulations_amount()
+        all_checks_passed &= self.mmsdc.check_cars_and_sims_amount()
         all_checks_passed &= self.check_used_algorithms()
         all_checks_passed &= self.check_sources_and_destinations()
         all_checks_passed &= self.check_starting_time()
-
         return all_checks_passed
+
 
     def toggle_algorithm(self, algorithm, algorithm_var):
         self.used_algorithms[algorithm] = algorithm_var.get()
@@ -146,6 +147,12 @@ class RCW_Controller:
             return False
         self.simulations_amount = int(self.simulations_amount)
         return passed_check
+
+    def check_cars_and_sims_amount(self):
+        if self.cars_amount * self.simulations_amount < 2:
+            errors.not_enough_routes_error()
+            return False
+        return True
 
     def check_used_algorithms(self):
         if len(self.used_algorithms) == 0:

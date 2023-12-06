@@ -45,7 +45,7 @@ SIMULATION_SPEED = 10  # X30 faster than one second interval
 
 PLOT_RESULTS = False
 
-NUM_OF_RUNS = 3
+NUM_OF_RUNS = 100
 PLACE_NAME = 'TLV'
 NUM_OF_CARS = 5
 

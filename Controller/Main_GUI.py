@@ -8,7 +8,7 @@ import GUI.Animate_Past_Simulation as APS
 import GUI.Animate_Simulation as AS
 from GUI.Display_Comparisons_Results_Window import Display_Comparisons_Results_Window
 from GUI.Main_Window import Main_Window
-from GUI.Load_Simulation_Window import New_Load_Simulation_Window
+from GUI.Load_Simulation_Window import Load_Simulation_Window
 from GUI.Settings_Window import Settings_Window
 from GUI.New_Simulation_Window import New_Simulation_Window
 from GUI.Routings_Comparisons_Window import Routing_Comparisons_Window
@@ -84,7 +84,7 @@ class Controller:
         self.view.main()
 
     def load_simulation_window(self):
-        self.view = New_Load_Simulation_Window(self)
+        self.view = Load_Simulation_Window(self)
         self.view.main()
 
     def start_routing_comparisons_window(self):
@@ -267,11 +267,13 @@ class Controller:
                 run_time_data[i][self.algorithms[j]] = cur_alg_end_time - cur_alg_start_time - learning_time
                 if self.algorithms[j] in routing_learning_algorithms:
                     run_time_data[i][self.algorithms[j] + " learning_time"] = learning_time
-        save_results_to_JSON(self.model.graph_name, self.model.simulation_results)
-        json.dump(run_time_data, open(f'../{Route_comparisons_results_directory}/{self.model.graph_name + "_" + run_time_data_file_name}', 'w'),
+        now = datetime.datetime.now()
+        date_time = now.strftime("d_%d_mon_%m_y_%Y,h%H_min_%M_s_%S")
+        save_results_to_JSON(self.model.graph_name+"_comparison_"+date_time, self.model.simulation_results)
+        json.dump(run_time_data, open(f'../{Route_comparisons_results_directory}/{self.model.graph_name + "_comparison_"+date_time+ run_time_data_file_name}', 'w'),
                   indent=4)
         organized_times = self.organize_simulation_times(get_simulation_times(self.model))
-        json.dump(organized_times, open(f'../{Route_comparisons_results_directory}/{self.model.graph_name + "_" + cars_times_file_name}', 'w'),
+        json.dump(organized_times, open(f'../{Route_comparisons_results_directory}/{self.model.graph_name +"_comparison_"+date_time+ cars_times_file_name}', 'w'),
                   indent=4)
 
     def set_multiple_runs_parameters(self, num_of_cars, num_of_runs, algorithms, src_list, dst_list, rain_intesity,

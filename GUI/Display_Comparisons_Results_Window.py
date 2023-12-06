@@ -56,11 +56,11 @@ class Display_Comparisons_Results_Window(tk.Tk):
     def set_textbox_statistics(self, statistics_dict, variable):
         self.statistics_textboxes[variable].configure(state='normal')
         self.statistics_textboxes[variable].delete("1.0", "end")
-        self.statistics_textboxes[variable].insert(tk.END, "Driving Time Statistics:\n")
+        self.statistics_textboxes[variable].insert(tk.END, variable+" Statistics:\n")
         for algorithm in statistics_dict:
             self.statistics_textboxes[variable].insert(tk.END, algorithm + ":\n")
             for key in statistics_dict[algorithm]:
-                self.statistics_textboxes[variable].insert(tk.END, key + ": " + str(statistics_dict[algorithm][key]) + "\n")
+                self.statistics_textboxes[variable].insert(tk.END, key + ": " + '%.4f' %(statistics_dict[algorithm][key]) + "\n")
         self.statistics_textboxes[variable].configure(state='disabled')
 
     def add_existing_times_files(self, times_files, variable_for_statistics):

@@ -64,8 +64,8 @@ cars_times_file_name = "cars_times.json"
 Average_key = "Average"
 Standard_deviation_key = "Standard deviation"
 
-Cars = "cars"
-Run_Times = "run_times"
+Cars = "Cars Driving Times"
+Run_Times = "Run Times"
 Variables_for_statistics = [Cars, Run_Times]
 
 #   directories

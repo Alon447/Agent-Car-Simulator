@@ -48,3 +48,7 @@ def starting_time_error():
 
 def no_file_chosen_error():
     tk.messagebox.showerror("Error", "Please choose a file to load")
+
+
+def not_enough_routes_error():
+    tk.messagebox.showerror("Error", "Please choose more cars or simulations")

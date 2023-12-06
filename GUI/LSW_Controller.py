@@ -6,7 +6,7 @@ import os
 # internal imports
 import Utilities.Results as Results
 
-class NLSW_Controller:
+class LSW_Controller:
     """
     This class is used to control the new load simulation window
     NLSW stands for New Load Simulation Window

@@ -3,9 +3,9 @@ import tkinter as tk
 from tkinter import ttk
 
 # internal imports
-import GUI.NLSW_Controller as nlswc
+import GUI.LSW_Controller as lswc
 
-class New_Load_Simulation_Window(tk.Tk):
+class Load_Simulation_Window(tk.Tk):
     """
     This class is used to create the load simulation window
     """
@@ -13,7 +13,7 @@ class New_Load_Simulation_Window(tk.Tk):
 
         super().__init__()
         self.existing_simulations_treeview = None
-        self.nlswc = nlswc.NLSW_Controller(self, controller)
+        self.nlswc = lswc.LSW_Controller(self, controller)
 
         self.title("Load Simulation")
         self.main_frame = ttk.Frame(self, padding = 20)
