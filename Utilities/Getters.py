@@ -127,7 +127,7 @@ def get_graph(graph_name: str):
     parent = os.path.dirname(cur)
     data = os.path.join(parent, "Graphs")
     path = data + "\\" + graph_name + ".graphml"
-    GRAPH_DISTANCE = 2000
+    GRAPH_DISTANCE = 2500
     if not os.path.exists(path):
         graph = ox.graph_from_address(graph_name, network_type='drive', dist = GRAPH_DISTANCE, simplify = True)
         modified_graph = Speeds.add_max_speed_to_graph(graph) # add max speed to the graph
@@ -254,20 +254,19 @@ def check_if_path_exist(src,dst,RN):
 def get_starting_time_of_the_day(hour):
     """
     converts the hour into a string that represents the time of the day
-    for example: 5:00 AM - night
-                    8:00 AM - morning
-                    12:00 PM - noon
-                    5:00 PM - evening
-                    8:00 PM - night
+    7AM-11AM: morning
+    12PM-3PM: noon
+    4PM-7PM: evening
+    8PM-6AM: night
     :param hour: int that represents the starting hour
     :return: string of the start of the day
 
     """
-    if 7 <= hour < 12:
+    if 7 <= hour <= 11:
         return "morning"
-    elif 11 <= hour < 14:
+    elif 12 <= hour <= 15:
         return "noon"
-    elif 14 <= hour < 20:
+    elif 16 <= hour <= 19:
         return "evening"
     else:
         return "night"

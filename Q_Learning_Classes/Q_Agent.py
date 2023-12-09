@@ -93,7 +93,6 @@ class Q_Agent:
         Returns:
         Road: The next road to travel.
         """
-
         dest_node = self.node_list[self.current_state][self.action]
         self.next_road = self.road_network.get_road_from_src_dst(self.current_state,dest_node)
 

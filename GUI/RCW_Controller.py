@@ -80,7 +80,7 @@ class RCW_Controller:
 
         all_checks_passed &= self.check_cars_amount()
         all_checks_passed &= self.check_simulations_amount()
-        all_checks_passed &= self.mmsdc.check_cars_and_sims_amount()
+        all_checks_passed &= self.check_cars_and_sims_amount()
         all_checks_passed &= self.check_used_algorithms()
         all_checks_passed &= self.check_sources_and_destinations()
         all_checks_passed &= self.check_starting_time()
