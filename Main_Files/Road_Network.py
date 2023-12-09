@@ -24,6 +24,7 @@ class Road_Network:
     def __init__(self, graph_name, activate_traffic_lights = False, rain_intensity = 0, traffic_white_noise = True):
 
         # Graph
+
         self.graph_name = graph_name
         self.graph,_ = Getters.get_graph(graph_name) # use graphml file
         self.nx_graph = None # create_graph() will initialize this attribute
@@ -37,6 +38,7 @@ class Road_Network:
         self.roads_array = [] # list of all the roads in the graph
         self.nodes_array = [] # list of all the nodes in the graph
         self.old_to_new_node_id_dict = {} # key: old node id, value: new node id
+        self.roades_by_nodes = {} # key: tuple of (source node new id, destination node new id), value: the correlating road
 
         self.node_connectivity_dict = {} # node id to list of connected nodes ids
         self.blocked_roads_array = []
@@ -110,6 +112,7 @@ class Road_Network:
             type = self.graph.edges[edge]['highway']
             new_road = Road.Road(id, start_node ,end_node, length, max_speed,type, self.activate_traffic_lights, self.rain_intensity)
             self.roads_array.append(new_road)
+            self.roades_by_nodes[(start_node_id,end_node_id)] = new_road
 
             # update node_connectivity_dict
             start_node_id = start_node.id
@@ -383,9 +386,8 @@ class Road_Network:
         Returns:
         Road object: Road between the source and destination nodes.
         """
-        for road in self.roads_array:
-            if road.source_node.id == src_id and road.destination_node.id == dst_id:
-                return road
+        if (src_id,dst_id) in self.roades_by_nodes.keys():
+            return self.roades_by_nodes[(src_id,dst_id)]
         return None
 
     def get_shortest_path(self, src_id, dst_id):
