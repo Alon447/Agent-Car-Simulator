@@ -39,7 +39,7 @@ class Road:
         self.source_node = source_node  # class Node (id, osm_id, lat, lon, street_count, traffic_lights)
         self.destination_node = destination_node  # class Node (id, osm_id, lat, lon, street_count, traffic_lights)
         self.length = length
-        self.type = type  # "highway" or "street"
+        self.type = type
         self.max_speed = max_speed
         self.current_speed = 10
         self.estimated_time = float('inf')

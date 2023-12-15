@@ -197,11 +197,12 @@ def color_edges_by_speed(RN, current_time, blocked_roads):
                 # if the road is blocked at the start time of the simulation, color it black
                 edge_colors.append('black')
                 continue
-
-        if road.past_speeds[current_time] < 25:
+        ratio = road.past_speeds[current_time] / road.max_speed
+        if ratio < 0.4:
             edge_colors.append('red')
-        elif road.past_speeds[current_time] < 37:
+        elif ratio < 0.75:
             edge_colors.append('orange')
+
         else:
             edge_colors.append('green')
     return edge_colors

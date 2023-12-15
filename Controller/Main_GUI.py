@@ -109,12 +109,13 @@ class Controller:
                                     plot_results, simulation_starting_time)
         self.set_cars()
 
-        self.model.run_full_simulation(self.cars, num_episodes=self.episodes,
-                                       max_steps_per_episode=self.steps_per_episode,
+        self.model.run_full_simulation(self.cars,
+                                       num_episodes = self.episodes,
+                                       max_steps_per_episode = self.steps_per_episode,
                                        learning_rate = self.learning_rate,
                                        discount_factor = self.discount_factor,
                                        epsilon = self.epsilon)
-        ASS = AS.Animate_Simulation(animation_speed=simulation_speed, repeat=repeat)
+        ASS = AS.Animate_Simulation(animation_speed = simulation_speed, repeat = repeat)
         routes = self.model.get_simulation_routes(self.cars, 0)
         json_name = save_results_to_JSON(self.model.graph_name, self.model.simulation_results, simulation_starting_time)
         plot_simulation_overview(json_name)
@@ -201,9 +202,6 @@ class Controller:
             return self.G, self.G_name
         else:
             return None, None
-
-    def unblock_road(self, road_id):
-        self.blocked_roads.remove(road_id)
 
     def unblock_all_roads(self):
         self.blocked_roads = []
