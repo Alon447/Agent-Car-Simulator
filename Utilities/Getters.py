@@ -55,8 +55,8 @@ Q = "Q Learning"
 
 Start_key = "Start_title"
 End_key = "End_title"
-Starting_time_title = "Enter simulation starting time:"
-Ending_time_title = "Enter simulation ending time:"
+Starting_time_title = "Enter simulation earliest starting time:"
+Ending_time_title = "Enter simulation latest starting time:"
 
 run_time_data_file_name = "run_time_data.json"
 cars_times_file_name = "cars_times.json"

@@ -31,29 +31,29 @@ class Main_Window(tk.Tk):
 
         # start new simulation button
         self.new_simulation_button = ttk.Button(self.main_frame, text="Start New Simulation",
-                                                command=self.mwc.start_new_simulation, width=20)
+                                                command=self.mwc.start_new_simulation, width=30)
         self.new_simulation_button.pack(pady=10)
 
         # load simulation button
         self.load_simulation_button = ttk.Button(self.main_frame, text="Load Simulation",
-                                                 command=self.mwc.load_simulation, width=20)
+                                                 command=self.mwc.load_simulation, width=30)
         self.load_simulation_button.pack(pady=10)
 
         # route comparison button
         self.route_comparison_button = ttk.Button(self.main_frame, text="Route Comparison",
-                                                    command=self.mwc.start_route_comparison, width=20)
+                                                    command=self.mwc.start_route_comparison, width=30)
         self.route_comparison_button.pack(pady=10)
 
         self.display_comparisons_results_button = ttk.Button(self.main_frame, text="Display Comparisons Results",
-                                                    command=self.mwc.display_comparisons_results_window, width=20)
+                                                    command=self.mwc.display_comparisons_results_window, width=30)
         self.display_comparisons_results_button.pack(pady=10)
 
         # settings button
-        self.settings_button = ttk.Button(self.main_frame, text="Settings", command=self.mwc.open_settings, width=20)
+        self.settings_button = ttk.Button(self.main_frame, text="Settings", command=self.mwc.open_settings, width=30)
         self.settings_button.pack(pady=10)
 
         # exit button
-        self.exit_button = ttk.Button(self.main_frame, text="Exit", command=self.mwc.quit, width=20)
+        self.exit_button = ttk.Button(self.main_frame, text="Exit", command=self.mwc.quit, width=30)
         self.exit_button.pack(pady=10)
 
 
