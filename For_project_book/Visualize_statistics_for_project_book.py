@@ -7,15 +7,17 @@ import osmnx as ox
 from Main_Files import Road_Network
 
 if __name__ == "__main__":
-    with open('run_time_data.json', 'r') as infile:
+    run_time_data_file_name = "TLV_run_time_data.json" #enter the name of the file you want to visualize
+    cars_times_file_name = "TLV_cars_times.json" #enter the name of the file you want to visualize
+    with open(f'../{Getters.Route_comparisons_results_directory}/{run_time_data_file_name}', 'r') as infile:
         new_simulation_results = json.load(infile)
     sp_run_times = []
     q_run_times = []
     q_learning_times = []
     for run in new_simulation_results:
-        sp_run_times.append(new_simulation_results[run]["sp"])
-        q_run_times.append(new_simulation_results[run]["q"])
-        q_learning_times.append(new_simulation_results[run]["learning_time"])
+        sp_run_times.append(new_simulation_results[run][Getters.SP])
+        q_run_times.append(new_simulation_results[run][Getters.Q])
+        q_learning_times.append(new_simulation_results[run][Getters.Q+" learning_time"])
 
     # avarage run times and standard deviation
     sp_avg = sum(sp_run_times) / len(sp_run_times)
@@ -35,7 +37,7 @@ if __name__ == "__main__":
     plt.show()
 
     # car's driving times: sp vs q learning
-    with open('times_data.json', 'r') as infile:
+    with open(f'../{Getters.Route_comparisons_results_directory}/{cars_times_file_name}', 'r') as infile:
         times_data = json.load(infile)
     sp_times = []
     q_times = []
@@ -45,14 +47,8 @@ if __name__ == "__main__":
     # every index is a list of times of cars in the simulation, currently when writing this code
     # and comment-the simulation is with 5 cars.
     for run in times_data:
-        if int(run) % 2 == 0:
-            sp_times_by_sim.append(times_data[run])
-            for time in times_data[run]:
-                sp_times.append(time)
-            continue
-        q_times_by_sim.append(times_data[run])
-        for time in times_data[run]:
-            q_times.append(time)
+        sp_times+=times_data[run][Getters.SP]
+        q_times+=times_data[run][Getters.Q]
 
     #   average times and standard deviation
     sp_avg_drive_time = sum(sp_times) / len(sp_times)

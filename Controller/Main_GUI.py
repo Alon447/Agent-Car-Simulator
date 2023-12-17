@@ -266,7 +266,7 @@ class Controller:
                 if self.algorithms[j] in routing_learning_algorithms:
                     run_time_data[i][self.algorithms[j] + " learning_time"] = learning_time
         now = datetime.datetime.now()
-        date_time = now.strftime("d_%d_mon_%m_y_%Y,h%H_min_%M_s_%S")
+        date_time = now.strftime("%d_%m_%Y,h%H_min_%M")
         save_results_to_JSON(self.model.graph_name+"_comparison_"+date_time, self.model.simulation_results)
         json.dump(run_time_data, open(f'../{Route_comparisons_results_directory}/{self.model.graph_name + "_comparison_"+date_time+ run_time_data_file_name}', 'w'),
                   indent=4)

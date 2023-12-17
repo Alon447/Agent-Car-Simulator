@@ -269,7 +269,7 @@ class Q_Agent:
         self.finished = False
         # Rewards
         self.rewards.append(self.total_episode_reward)
-        if len(self.rewards) % 50 == 0:
+        if len(self.rewards) % 50 == 0:  #for the graph
             self.mean_rewards.append(np.mean(self.rewards[-50:]))
         self.total_episode_reward = 0
 
