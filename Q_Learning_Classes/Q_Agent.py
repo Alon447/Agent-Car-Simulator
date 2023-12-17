@@ -240,15 +240,23 @@ class Q_Agent:
                 distance_penalty = -1
 
             # apply a small penalty for choosing a slow road
-            speed_penalty = 0
+            max_speed_penalty = 0
             if self.next_road.max_speed < 20:
-                speed_penalty = -0.75
+                max_speed_penalty = -0.75
             elif self.next_road.max_speed < 40:
-                speed_penalty = -0.3
+                max_speed_penalty = -0.3
             elif self.next_road.max_speed < 60:
-                speed_penalty = -0.1
+                max_speed_penalty = -0.1
 
-            return -1 + distance_penalty + speed_penalty
+            # apply a small penalty for choosing a slow road
+            current_speed_penalty = 0
+            if self.next_road.current_speed < 20:
+                current_speed_penalty = -0.75
+            elif self.next_road.max_speed < 40:
+                current_speed_penalty = -0.3
+            elif self.next_road.max_speed < 60:
+                current_speed_penalty = -0.1
+            return -1 + distance_penalty + max_speed_penalty + current_speed_penalty
 
     def reset(self):
         """
