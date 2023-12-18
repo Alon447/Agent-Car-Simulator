@@ -3,12 +3,11 @@ import statistics
 import matplotlib.pyplot as plt
 import json
 import Utilities.Getters as Getters
-import osmnx as ox
-from Main_Files import Road_Network
+
 
 if __name__ == "__main__":
-    run_time_data_file_name = "TLV_run_time_data.json" #enter the name of the file you want to visualize
-    cars_times_file_name = "TLV_cars_times.json" #enter the name of the file you want to visualize
+    cars_times_file_name = "tel aviv_comparison_18_12_2023,h09_min_25cars_times.json" #enter the name of the file you want to visualize
+    run_time_data_file_name = "tel aviv_comparison_18_12_2023,h09_min_25run_time_data.json" #enter the name of the file you want to visualize
     with open(f'../{Getters.Route_comparisons_results_directory}/{run_time_data_file_name}', 'r') as infile:
         new_simulation_results = json.load(infile)
     sp_run_times = []
@@ -20,21 +19,21 @@ if __name__ == "__main__":
         q_learning_times.append(new_simulation_results[run][Getters.Q+" learning_time"])
 
     # avarage run times and standard deviation
-    sp_avg = sum(sp_run_times) / len(sp_run_times)
-    q_avg = sum(q_run_times) / len(q_run_times)
-    q_learning_times_avg = sum(q_learning_times) / len(q_learning_times)
-    sp_std = statistics.stdev(sp_run_times)
-    q_std = statistics.stdev(q_run_times)
-    q_learning_times_std = statistics.stdev(q_learning_times)
-    print("sp run times in seconds is %.3f" % sp_avg, "+-%.3f" % sp_std, " standard deviation")
-    print("q run times in seconds is %.3f" % q_avg, "+-%.3f" % q_std, " standard deviation")
-    print("q learning times in seconds is %.3f" % q_learning_times_avg, "+-%.3f" % q_learning_times_std, " standard deviation")
-
-    # plot run times with sp as x axis and q as y axis
-    plt.plot(sp_run_times, q_run_times, 'o')
-    plt.xlabel("sp run times in seconds")
-    plt.ylabel("q run times in seconds")
-    plt.show()
+    # sp_avg = sum(sp_run_times) / len(sp_run_times)
+    # q_avg = sum(q_run_times) / len(q_run_times)
+    # q_learning_times_avg = sum(q_learning_times) / len(q_learning_times)
+    # sp_std = statistics.stdev(sp_run_times)
+    # q_std = statistics.stdev(q_run_times)
+    # q_learning_times_std = statistics.stdev(q_learning_times)
+    # print("sp run times in seconds is %.3f" % sp_avg, "+-%.3f" % sp_std, " standard deviation")
+    # print("q run times in seconds is %.3f" % q_avg, "+-%.3f" % q_std, " standard deviation")
+    # print("q learning times in seconds is %.3f" % q_learning_times_avg, "+-%.3f" % q_learning_times_std, " standard deviation")
+    #
+    # # plot run times with sp as x axis and q as y axis
+    # plt.plot(sp_run_times, q_run_times, 'o')
+    # plt.xlabel("sp run times in seconds")
+    # plt.ylabel("q run times in seconds")
+    # plt.show()
 
     # car's driving times: sp vs q learning
     with open(f'../{Getters.Route_comparisons_results_directory}/{cars_times_file_name}', 'r') as infile:
@@ -133,19 +132,19 @@ if __name__ == "__main__":
     print("sp ran equal to q run", same_time_count, " times")
 
     # scatter the nodes used in the simulation
-    RN = Road_Network.Road_Network("TLV")
-    fig, ax = ox.plot_graph(RN.graph, bgcolor='white', node_color='black', show=False, close=False)
-    plt.title("Nodes used in the simulation")
+    # RN = Road_Network.Road_Network("TLV")
+    # fig, ax = ox.plot_graph(RN.graph, bgcolor='white', node_color='black', show=False, close=False)
+    # plt.title("Nodes used in the simulation")
     # plt.show()
 
-    all_nodes = ["blue"] + Getters.top_right_nodes + ["purple"] + Getters.bottom_right_nodes + [
-        "red"] + Getters.bottom_left_nodes + ["green"] + Getters.top_left_nodes
-    cur_color = "blue"
-    for node in all_nodes:
-        if type(node) == str:
-            cur_color = node
-            continue
-        x, y = RN.get_xy_from_node_id(node)
-        ax.scatter(x, y, color=cur_color, s=50)
-        # plt.legend()
-    plt.show()
+    # all_nodes = ["blue"] + Getters.top_right_nodes + ["purple"] + Getters.bottom_right_nodes + [
+    #     "red"] + Getters.bottom_left_nodes + ["green"] + Getters.top_left_nodes
+    # cur_color = "blue"
+    # for node in all_nodes:
+    #     if type(node) == str:
+    #         cur_color = node
+    #         continue
+    #     x, y = RN.get_xy_from_node_id(node)
+    #     ax.scatter(x, y, color=cur_color, s=50)
+    #     # plt.legend()
+    # plt.show()

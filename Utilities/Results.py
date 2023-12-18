@@ -1,6 +1,6 @@
+from datetime import datetime
 import json
 import os
-
 from matplotlib import pyplot as plt
 import matplotlib.patches as mpatches
 import osmnx as ox
@@ -8,7 +8,7 @@ from Main_Files.Road_Network import Road_Network
 from Utilities.Getters import Time_taken, Reached_destination, Simulation_number, Route, Distance_travelled, node_route_to_osm_route, Source, Destination, Blocked_roads, Route_comparisons_results_directory, get_specific_directory
 
 
-def save_results_to_JSON(graph_name, results, starting_time=None):
+def save_results_to_JSON(graph_name, results):
     """
     Save simulation results to a JSON file.
 
@@ -20,11 +20,8 @@ def save_results_to_JSON(graph_name, results, starting_time=None):
     None
     """
     # self.simulation_results.append(results)
-    day = ""
-    if starting_time :
-        day = "_"+str(starting_time.weekday())
-
-    json_name = f'simulation_results_{graph_name}{day}'
+    current_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    json_name = f'simulation_results_{graph_name}_{current_time}'
     with open(f'../Results/{json_name}.json', 'w') as outfile:
         json.dump(results, outfile, indent=4)
     return json_name
@@ -235,11 +232,6 @@ def plot_results(src, dst, all_training_paths_nodes, all_training_times, mean_re
     # plt.pause(5)
     # plt.close()
     return
-
-def save_multiple_simulations_results(SM, run_time_data, cars_times_data):
-    json.dump(run_time_data, open(f'run_time_data_{SM.graph_name}.json', 'w'), indent=4)
-    pass
-
 
 def get_results_files(*filters):
     if len(filters) == 0:

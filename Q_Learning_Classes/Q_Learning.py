@@ -17,7 +17,7 @@ class Q_Learning:
     Most of the functions are defined in Q_Agent.py
     This is like a main class that runs the Q-learning algorithm for all the agents
     """
-    def __init__(self, road_network, cars, num_episodes = 1000, max_steps_per_episode = 100, learning_rate=0.1, discount_factor=0.9, epsilon=0.2):
+    def __init__(self, road_network, cars, num_episodes = 2000, max_steps_per_episode = 100, learning_rate=0.1, discount_factor=0.9, epsilon=0.2):
         """
         Initialize the Q_Learning class.
 

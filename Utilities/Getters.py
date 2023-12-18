@@ -164,17 +164,6 @@ def get_simulation_speeds_file_path(graph, graph_name):
         Speeds.generate_day_data(graph, graph_name)
         print("file created")
     return path
-def get_lat_lng(address):
-    """
-    can get hebrew and english addresses
-    :param address: hebrew or english address
-    :return: latitude and longitude of the address
-    """
-    # Perform geocoding
-    location = ox.geocode(address)
-    latitude = location[0]
-    longitude = location[1]
-    return latitude, longitude
 
 def time_delta_to_seconds(time):
     """
@@ -214,35 +203,6 @@ def get_results_directory_path():
     current_directory = os.path.dirname(current_directory)
     directory_path = os.path.join(current_directory, "Results")
     return directory_path
-
-
-def get_key_from_value(dictionary, value):
-    """
-    Retrieve the corresponding key from a dictionary given a value.
-
-    Args:
-    dictionary (dict): The dictionary to search in.
-    value: The value to search for.
-
-    Returns:
-    key: The key corresponding to the given value.
-    """
-    for key, val in dictionary.items():
-        if int(val) == value:
-            return key
-    return None
-
-def calaulate_starting_ending_times(datetimes_list):
-    """
-    :param datetimes_list: list of datetimes
-    :return: starting and ending times of the datetimes
-    """
-    starting_time = datetimes_list[0]
-    ending_time = datetimes_list[0]
-    for time in datetimes_list:
-        starting_time = min(starting_time, time)
-        ending_time = max(ending_time, time)
-    return starting_time, ending_time
 
 def check_if_path_exist(src,dst,RN):
     try:

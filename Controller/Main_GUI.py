@@ -117,7 +117,7 @@ class Controller:
                                        epsilon = self.epsilon)
         ASS = AS.Animate_Simulation(animation_speed = simulation_speed, repeat = repeat)
         routes = self.model.get_simulation_routes(self.cars, 0)
-        json_name = save_results_to_JSON(self.model.graph_name, self.model.simulation_results, simulation_starting_time)
+        json_name = save_results_to_JSON(self.model.graph_name, self.model.simulation_results)
         plot_simulation_overview(json_name)
         ASS.plot_simulation(self.model, routes, self.cars)
 
