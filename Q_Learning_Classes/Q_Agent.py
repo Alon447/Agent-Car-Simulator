@@ -256,6 +256,7 @@ class Q_Agent:
                 current_speed_penalty = -0.3
             elif self.next_road.max_speed < 60:
                 current_speed_penalty = -0.1
+
             return -1 + distance_penalty + max_speed_penalty + current_speed_penalty
 
     def reset(self):
