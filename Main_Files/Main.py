@@ -87,26 +87,4 @@ from Utilities.Results import save_results_to_JSON, read_results_from_JSON, car_
 #     ASS.plot_simulation(SM, routes, cars)
 #
 
-cur = os.getcwd()
-parent = os.path.dirname(cur)
-data = os.path.join(parent, "Graphs")
-path = data + "\\" + "real_seoul_graph" + ".graphml"
-graph = ox.load_graphml(path)
-
-
-# Access and print node attributes
-# for node, data in graph.nodes(data=True):
-#     print(f"Node {node} attributes:")
-#     print(data)  # Print all attributes for each node
-
-# Access and print edge attributes
-for u, v, data in graph.edges(data=True):
-    print(f"Edge ({u}, {v}) attributes:")
-    print(data.get('road_id'))  # Print all attributes for each edge
-
-plt.figure(figsize=(8, 6))
-pos = nx.spring_layout(graph)  # or use other layout algorithms like nx.circular_layout, nx.random_layout, etc.
-nx.draw(graph, pos, with_labels=True, node_size=50, node_color='skyblue', edge_color='gray', font_size=8)
-plt.title('Graph Visualization')
-plt.show()
 

@@ -4,6 +4,29 @@ from Main_Files import Road
 import Utilities.Getters as Getters
 import Utilities.Speeds as Speeds
 from Main_Files import Node
+from math import radians, sin, cos, sqrt, atan2
+
+
+def calculate_length(start_node, end_node):
+    lat1_rad = radians(float(start_node.x))
+    lon1_rad = radians(float(start_node.y))
+    lat2_rad = radians(float(end_node.x))
+    lon2_rad = radians(float(end_node.y))
+
+    # Radius of the Earth in kilometers
+    earth_radius = 6371.0
+
+    # Calculate the differences between latitudes and longitudes
+    d_lat = lat2_rad - lat1_rad
+    d_lon = lon2_rad - lon1_rad
+
+    # Haversine formula
+    a = sin(d_lat / 2) ** 2 + cos(lat1_rad) * cos(lat2_rad) * sin(d_lon / 2) ** 2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    # Calculate the distance
+    distance = earth_radius * c
+    return distance
 
 
 class Road_Network:
@@ -71,15 +94,23 @@ class Road_Network:
         """
         for i, node in enumerate(self.graph.nodes):
             id = i
-            osm_id = int(node)
-            self.old_to_new_node_id_dict[osm_id] = id
-            x = self.graph.nodes[node].get('x')
-            y = self.graph.nodes[node].get('y')
-            if self.graph.nodes[node].get('highway') == 'traffic_signals':
-                traffic_lights = True
-            else:
+            if self.graph_name.startswith("real_seoul"):
+                osm_id = id + 1
+                self.old_to_new_node_id_dict[osm_id] = id
+                x = self.graph.nodes[node].get('lat') # צריך לבדוק את הנכונות ש- x=latitde ו- y=longitude
+                y = self.graph.nodes[node].get('long')
                 traffic_lights = False
-            street_count = self.graph.nodes[node].get('street_count')
+                street_count = 1
+            else:
+                osm_id = int(node)
+                self.old_to_new_node_id_dict[osm_id] = id
+                x = self.graph.nodes[node].get('x')
+                y = self.graph.nodes[node].get('y')
+                if self.graph.nodes[node].get('highway') == 'traffic_signals':
+                    traffic_lights = True
+                else:
+                    traffic_lights = False
+                street_count = self.graph.nodes[node].get('street_count')
             new_node = Node.Node(id, osm_id, x, y, traffic_lights, street_count)
             self.nodes_array.append(new_node)
         return
@@ -94,22 +125,32 @@ class Road_Network:
         for i,edge in enumerate(self.graph.edges):
             # make new road
             id = i
-            start_node_id = self.get_node_from_osm_id(edge[0]) # int
-            end_node_id = self.get_node_from_osm_id(edge[1]) # int
-            start_node = self.nodes_array[start_node_id] # Node object
-            end_node = self.nodes_array[end_node_id] # Node object
-            length = round(self.graph.edges[edge]['length'],2) # round to 2 decimal places
-            max_speed = (self.graph.edges[edge]['maxspeed'])
-            if isinstance(max_speed, list):
-                max_speed = max_speed[0]  # Use the first element of the list
-            try:
-                max_speed = int(max_speed)
-            except Exception as e:
-                print("Error casting max_speed to int")
-                print(e)
-                max_speed = Speeds.fix_speed(max_speed)
+            if self.graph_name.startswith("real_seoul"):
+                start_node_id = edge[0] - 1
+                end_node_id = edge[1] - 1
+                start_node = self.nodes_array[start_node_id]
+                end_node = self.nodes_array[end_node_id]
+                length = calculate_length(start_node, end_node)
+                max_speed = 90
+                type = "highway"
 
-            type = self.graph.edges[edge]['highway']
+            else:
+                start_node_id = self.get_node_from_osm_id(edge[0]) # int
+                end_node_id = self.get_node_from_osm_id(edge[1]) # int
+                start_node = self.nodes_array[start_node_id] # Node object
+                end_node = self.nodes_array[end_node_id] # Node object
+                length = round(self.graph.edges[edge]['length'],2) # round to 2 decimal places
+                max_speed = (self.graph.edges[edge]['maxspeed'])
+                if isinstance(max_speed, list):
+                    max_speed = max_speed[0]  # Use the first element of the list
+                try:
+                    max_speed = int(max_speed)
+                except Exception as e:
+                    print("Error casting max_speed to int")
+                    print(e)
+                    max_speed = Speeds.fix_speed(max_speed)
+
+                type = self.graph.edges[edge]['highway']
             new_road = Road.Road(id, start_node ,end_node, length, max_speed,type, self.activate_traffic_lights, self.rain_intensity)
             self.roads_array.append(new_road)
             self.roades_by_nodes[(start_node_id,end_node_id)] = new_road
