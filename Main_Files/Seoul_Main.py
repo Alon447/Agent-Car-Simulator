@@ -44,10 +44,10 @@ graph = ox.load_graphml(path)
 #     print(f"Node {node} attributes:")
 #     print(data)  # Print all attributes for each node
 
-# Access and print edge attributes
-for u, v, data in graph.edges(data=True):
-    print(f"Edge ({u}, {v}) attributes:")
-    print(data.get('road_id'))  # Print all attributes for each edge
+# # Access and print edge attributes
+# for u, v, data in graph.edges(data=True):
+#     print(f"Edge ({u}, {v}) attributes:")
+#     print(data.get('road_id'))  # Print all attributes for each edge
 
 SM = Simulation_manager.Simulation_manager("real_seoul_graph", TRAFFIC_LIGHTS, Rain_intensity, TRAFFIC_WHITE_NOISE,
                                            PLOT_RESULTS, START_TIME1)
@@ -56,4 +56,19 @@ SM = Simulation_manager.Simulation_manager("real_seoul_graph", TRAFFIC_LIGHTS, R
 # nx.draw(graph, pos, with_labels=True, node_size=50, node_color='skyblue', edge_color='gray', font_size=8)
 # plt.title('Graph Visualization')
 # plt.show()
-print("ho")
+CM = SM.car_manager
+RN = SM.road_network
+
+cars = []
+
+src1, dst1 = 719, 665
+src2, dst2 = 200, 300
+src3, dst3 = 300, 400
+cars.append(
+    Car.Car(1, src1, dst1, START_TIME1, RN, route_algorithm="q", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
+# cars.append(
+#     Car.Car(2, src2, dst2, START_TIME1, RN, route_algorithm="sp", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
+# cars.append(
+#     Car.Car(3, src3, dst3, START_TIME1, RN, route_algorithm="sp", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
+SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS, num_episodes=3000, max_steps_per_episode=100)
+routes = SM.get_simulation_routes(cars, 0)

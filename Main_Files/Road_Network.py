@@ -7,26 +7,6 @@ from Main_Files import Node
 from math import radians, sin, cos, sqrt, atan2
 
 
-def calculate_length(start_node, end_node):
-    lat1_rad = radians(float(start_node.x))
-    lon1_rad = radians(float(start_node.y))
-    lat2_rad = radians(float(end_node.x))
-    lon2_rad = radians(float(end_node.y))
-
-    # Radius of the Earth in kilometers
-    earth_radius = 6371.0
-
-    # Calculate the differences between latitudes and longitudes
-    d_lat = lat2_rad - lat1_rad
-    d_lon = lon2_rad - lon1_rad
-
-    # Haversine formula
-    a = sin(d_lat / 2) ** 2 + cos(lat1_rad) * cos(lat2_rad) * sin(d_lon / 2) ** 2
-    c = 2 * atan2(sqrt(a), sqrt(1 - a))
-
-    # Calculate the distance
-    distance = earth_radius * c
-    return distance
 
 
 class Road_Network:
@@ -97,8 +77,8 @@ class Road_Network:
             if self.graph_name.startswith("real_seoul"):
                 osm_id = id + 1
                 self.old_to_new_node_id_dict[osm_id] = id
-                x = self.graph.nodes[node].get('lat') # צריך לבדוק את הנכונות ש- x=latitde ו- y=longitude
-                y = self.graph.nodes[node].get('long')
+                x = float(self.graph.nodes[node].get('lat')) # צריך לבדוק את הנכונות ש- x=latitde ו- y=longitude
+                y = float(self.graph.nodes[node].get('long'))
                 traffic_lights = False
                 street_count = 1
             else:
@@ -122,19 +102,21 @@ class Road_Network:
         Returns:
         None
         """
-        for i,edge in enumerate(self.graph.edges):
+        for i,edge in enumerate(self.graph.edges(data=True)):
             # make new road
             id = i
             if self.graph_name.startswith("real_seoul"):
+                osm_id = str(edge[2].get('road_id'))  # Convert road_id to string
                 start_node_id = edge[0] - 1
                 end_node_id = edge[1] - 1
                 start_node = self.nodes_array[start_node_id]
                 end_node = self.nodes_array[end_node_id]
-                length = calculate_length(start_node, end_node)
+                length = self.calculate_length(start_node, end_node)
                 max_speed = 90
                 type = "highway"
 
             else:
+                osm_id = id
                 start_node_id = self.get_node_from_osm_id(edge[0]) # int
                 end_node_id = self.get_node_from_osm_id(edge[1]) # int
                 start_node = self.nodes_array[start_node_id] # Node object
@@ -151,7 +133,7 @@ class Road_Network:
                     max_speed = Speeds.fix_speed(max_speed)
 
                 type = self.graph.edges[edge]['highway']
-            new_road = Road.Road(id, start_node ,end_node, length, max_speed,type, self.activate_traffic_lights, self.rain_intensity)
+            new_road = Road.Road(id, osm_id, start_node ,end_node, length, max_speed, type, self.activate_traffic_lights, self.rain_intensity)
             self.roads_array.append(new_road)
             self.roades_by_nodes[(start_node_id,end_node_id)] = new_road
 
@@ -267,16 +249,26 @@ class Road_Network:
         self.blocked_roads_array.remove(road_id)
         return
 
-    # def unblock_all_roads(self):
-    #     """
-    #     Unblock all previously blocked roads.
-    #
-    #     Returns:
-    #     None
-    #     """
-    #     for road in self.blocked_roads_array:
-    #         self.unblock_road(road)
-    #     return
+    def calculate_length(self, start_node, end_node):
+        lat1_rad = radians(float(start_node.y))
+        lon1_rad = radians(float(start_node.x))
+        lat2_rad = radians(float(end_node.y))
+        lon2_rad = radians(float(end_node.x ))
+
+        # Radius of the Earth in kilometers
+        earth_radius = 6371.0
+
+        # Calculate the differences between latitudes and longitudes
+        d_lat = lat2_rad - lat1_rad
+        d_lon = lon2_rad - lon1_rad
+
+        # Haversine formula
+        a = sin(d_lat / 2) ** 2 + cos(lat1_rad) * cos(lat2_rad) * sin(d_lon / 2) ** 2
+        c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+        # Calculate the distance
+        distance = earth_radius * c
+        return round(1000 * distance, 2)
 
     def set_roads_speeds_from_dict(self, roads_speeds:dict, current_time:datetime):
         """
@@ -290,8 +282,14 @@ class Road_Network:
         None
         """
         for road in self.roads_array:
-            road_id = road.id
-            road.update_road_speed_dict(roads_speeds[str(road_id)]) # update the road's speed dict
+            if self.graph_name.startswith("real_seoul"):
+                road_id = road.osm_id
+                str_road_id = str(road_id)
+                road.update_road_speed_dict(roads_speeds['0'][str_road_id])
+            else:
+                road_id = road.id
+                str_road_id = str(road_id)
+                road.update_road_speed_dict(roads_speeds[str_road_id]) # update the road's speed dict
             new_eta = road.update_speed(current_time, self.traffic_white_noise) # update the road's current speed
             src = road.source_node.id
             dest = road.destination_node.id

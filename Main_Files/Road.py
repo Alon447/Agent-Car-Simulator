@@ -32,10 +32,11 @@ class Road:
 
     adjacent_roads (list): A list of IDs of adjacent roads to this road.
     """
-    def __init__(self, id:int , source_node:Node, destination_node:Node, length: int, max_speed: int, type: str, activate_traffic_lights: bool, rain_intensity: int = 0):
+    def __init__(self, id:int , osm_id:int, source_node:Node, destination_node:Node, length: int, max_speed: int, type: str, activate_traffic_lights: bool, rain_intensity: int = 0):
 
         # Attributes
         self.id = id
+        self.osm_id = osm_id
         self.source_node = source_node  # class Node (id, osm_id, lat, lon, street_count, traffic_lights)
         self.destination_node = destination_node  # class Node (id, osm_id, lat, lon, street_count, traffic_lights)
         self.length = length
