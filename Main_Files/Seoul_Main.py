@@ -1,8 +1,6 @@
 import datetime
 import os
-
 import networkx as nx
-
 from Main_Files import Car
 import Simulation_manager
 import osmnx as ox
@@ -29,7 +27,7 @@ Rain_intensity = 0  # 0-3 (0 = no rain, 1 = light rain, 2 = moderate rain, 3 = h
 PLOT_RESULTS = True
 
 # Q-Learning parameters
-USE_ALREADY_GENERATED_Q_TABLE = True
+USE_ALREADY_GENERATED_Q_TABLE = False
 NUM_EPISODES = 2000
 
 cur = os.getcwd()
@@ -37,7 +35,6 @@ parent = os.path.dirname(cur)
 data = os.path.join(parent, "Graphs")
 path = data + "\\" + "real_seoul_graph" + ".graphml"
 graph = ox.load_graphml(path)
-
 
 # Access and print node attributes
 # for node, data in graph.nodes(data=True):
@@ -50,7 +47,7 @@ graph = ox.load_graphml(path)
 #     print(data.get('road_id'))  # Print all attributes for each edge
 
 SM = Simulation_manager.Simulation_manager("real_seoul_graph", TRAFFIC_LIGHTS, Rain_intensity, TRAFFIC_WHITE_NOISE,
-                                           PLOT_RESULTS, START_TIME1)
+                                           PLOT_RESULTS, START_TIME1, start_time = START_TIME1)
 # plt.figure(figsize=(8, 6))
 # pos = nx.spring_layout(graph)  # or use other layout algorithms like nx.circular_layout, nx.random_layout, etc.
 # nx.draw(graph, pos, with_labels=True, node_size=50, node_color='skyblue', edge_color='gray', font_size=8)
@@ -65,10 +62,10 @@ src1, dst1 = 719, 665
 src2, dst2 = 200, 300
 src3, dst3 = 300, 400
 cars.append(
-    Car.Car(1, src1, dst1, START_TIME1, RN, route_algorithm="q", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
+    Car.Car(1, src3, dst3, START_TIME1, RN, route_algorithm="q", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
+cars.append(
+    Car.Car(2, src3, dst3, START_TIME1, RN, route_algorithm="sp", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
 # cars.append(
-#     Car.Car(2, src2, dst2, START_TIME1, RN, route_algorithm="sp", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
-# cars.append(
-#     Car.Car(3, src3, dst3, START_TIME1, RN, route_algorithm="sp", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
+    # Car.Car(3, src3, dst3, START_TIME1, RN, route_algorithm="random", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
 SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS, num_episodes=3000, max_steps_per_episode=100)
 routes = SM.get_simulation_routes(cars, 0)

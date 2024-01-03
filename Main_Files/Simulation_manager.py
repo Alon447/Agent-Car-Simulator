@@ -402,9 +402,6 @@ class Simulation_manager:
                 Distance_travelled: int(car.distance_traveled),  # in meters, int
             }
 
-        # plt.pie([reached_destination.count(True), reached_destination.count(False)], labels = ['True', 'False'], autopct = '%1.1f%%')
-        # plt.title('Proportion of Simulation Results')
-        # plt.show()
         self.simulation_results.append({
             Simulation_number: simulation_number + 1,
             **simulation_results
@@ -424,7 +421,7 @@ class Simulation_manager:
         cars_ids = [car.id for car in cars]
         routes = []
         for carInd in cars_ids:
-            if self.simulation_results[simulation_number][carInd][Route] == None:
+            if self.simulation_results[simulation_number][carInd][Route] is None:
                 pass
             else:
                 routes.append(self.simulation_results[simulation_number][carInd][Route])

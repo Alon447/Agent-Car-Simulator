@@ -194,7 +194,7 @@ class CarManager:
                     cars.pop(car.id)
 
                     if car.car_in_destination:
-                        print("car", car.id, "finished his journey")
+                        print("car", car.id, "finished his journey after", car.total_travel_time)
                         self.cars_finished.append(car)
                         x, y = car.get_xy_destination()
                         self.add_update_to_dictionary(current_datetime, car.id, x, y, car.destination_node)
