@@ -107,17 +107,17 @@ class Simulation_manager:
                 copy_cars = cars
 
             # set up the simulation
-            start_learning_time = time.time()
+            # start_learning_time = time.time()
             self.start_q_learning_simulation(copy_cars, num_episodes, max_steps_per_episode, learning_rate, discount_factor, epsilon)
-            end_learning_time = time.time()
-            learning_time = end_learning_time - start_learning_time
+            # end_learning_time = time.time()
+            # learning_time = end_learning_time - start_learning_time
             self.set_up_simulation(copy_cars)
             self.start_simulation()
             self.end_simulation(i)
             # self.road_network.unblock_all_roads()
             self.write_simulation_results(copy_cars, i + simulation_number_added)
 
-        return learning_time
+        return
 
     def start_q_learning_simulation(self, copy_cars, num_episodes, max_steps_per_episode, learning_rate, discount_factor, epsilon):
         """
@@ -324,9 +324,7 @@ class Simulation_manager:
             data = json.load(infile)
 
         # round the minutes to the nearest 10
-
         minutes = int(datetime_obj.minute / 10) * 10
-        # time_key = datetime_obj.replace(minute=minutes).strftime("%H:%M")
         time_key = datetime_obj.replace(minute=minutes)
         day_data = data.get(str(self.day_int), {})
         self.road_network.set_roads_speeds_from_dict(day_data, time_key)

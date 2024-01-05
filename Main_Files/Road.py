@@ -32,7 +32,7 @@ class Road:
 
     adjacent_roads (list): A list of IDs of adjacent roads to this road.
     """
-    def __init__(self, id:int , osm_id:int, source_node:Node, destination_node:Node, length: int, max_speed: int, type: str, activate_traffic_lights: bool, rain_intensity: int = 0):
+    def __init__(self, id:int , osm_id, source_node:Node, destination_node:Node, length, max_speed: int, type: str, activate_traffic_lights: bool, rain_intensity: int = 0):
 
         # Attributes
         self.id = id
@@ -90,7 +90,7 @@ class Road:
 
     def update_speed(self, current_time: datetime, traffic_white_noise: bool = True):
         """
-        Update the current speed of the road based on the provided time and recalculate ETA.
+        Update the current speed of the road-based on the provided time and recalculate ETA.
 
         Args:
         current_time (str): The current time.
@@ -128,6 +128,19 @@ class Road:
         eta = self.calculate_time()
         return eta
 
+    def update_estimated_time(self, current_time: datetime, traffic_white_noise: bool = True):
+        """
+        this function replaces the update_speed function, it updates the estimated time of the road for the real seoul data
+        :param current_time:
+        :param traffic_white_noise:
+        :return:
+        """
+        self.estimated_time = self.eta_dict[current_time.strftime("%H:%M")]
+        # get the speed from the eta data and the length of the road
+        self.current_speed = int((self.length / 1000) / (self.estimated_time / 3600))
+        self.past_speeds[current_time.replace(second=0)] = self.current_speed
+        return self.estimated_time
+
     def update_road_speed_dict(self, new_speed: dict):
         """
         Update the road speed dictionary and recalculate ETA values.
@@ -142,6 +155,19 @@ class Road:
         self.update_eta_dict()
         return
 
+    def update_eta_dict_from_file(self, eta_data: dict):
+        """
+        Update the road speed dictionary and recalculate ETA values.
+
+        Args:
+        new_speed (dict): A dictionary containing times and corresponding road speeds.
+
+        Returns:
+        None
+        """
+        self.eta_dict = eta_data
+        # self.update_eta_dict()
+        return
     def update_eta_dict(self):
         """
         Update the ETA dictionary based on the current road speeds.
@@ -154,6 +180,20 @@ class Road:
             self.eta_dict[key] = new_val
         return
 
+    def update_speed_dict(self, new_speed: dict):
+        """
+        Update the road speed dictionary and recalculate ETA values.
+
+        Args:
+        new_speed (dict): A dictionary containing times and corresponding road speeds.
+
+        Returns:
+        None
+        """
+        for key, value in self.eta_dict.items():
+            new_val = self.calculate_eta(value)
+            self.eta_dict[key] = new_val
+        return
     def calculate_eta(self, speed: int):
         """
         Calculate the estimated time of arrival (ETA) based on the provided speed.
@@ -175,7 +215,16 @@ class Road:
                 total_time += random.randrange(0, 5, 1)
         return total_time
 
-    # Gets
+    def calculate_speed(self, time):
+        """
+        Calculate the speed based on the provided estimated time of arrival (ETA).
+
+        Args:
+        time (str): The current time.
+        Returns:
+        int: The speed of travel on the road in km/h.
+        """
+        return int((self.length / 1000) / (self.get_eta(time) / 3600))
 
     def get_eta(self, time: str):
         """
@@ -189,6 +238,17 @@ class Road:
         """
         return self.eta_dict[time]
 
+    def get_speed(self, time: str):
+        """
+        Get the speed for the specified time.
+
+        Args:
+        time (str): The time for which speed is requested.
+
+        Returns:
+        float: The speed in km/h.
+        """
+        return self.calculate_speed(time)
     def block(self):
         """
         Block the road.

@@ -12,9 +12,10 @@ class Q_Agent:
         self.dst = dst
         self.road_network = road_network
         self.node_list = self.road_network.node_connectivity_dict # list of lists representing the nodes connectivity in the road network.
+        self.multiply_weeks = False # A flag indicating whether to train the q agent on multiple weeks.
+        # Time
         self.start_time = start_time
-        self.simulation_time = start_time # The current simulation time.
-        self.end_time = None # The end time of the simulation.
+        self.simulation_time = start_time  # The current simulation time.
 
         # Q-learning parameters
         self.q_table = None # A list of lists representing the Q-table.
@@ -203,6 +204,10 @@ class Q_Agent:
         self.update_path()
         return self.action, self.next_road, self.next_state
 
+    def get_road_current_speed(self):
+        minutes = int(self.simulation_time.minute / 10) * 10
+        return self.next_road.get_speed(self.simulation_time.replace(minute=minutes).replace(second=0).replace(microsecond=0).strftime("%H:%M"))
+
     def calculate_reward(self, blocked_roads):
         """
         Calculate the reward based on the agent's progress and other factors.
@@ -241,23 +246,24 @@ class Q_Agent:
 
             # apply a small penalty for choosing a slow road
             max_speed_penalty = 0
-            if self.next_road.max_speed < 20:
-                max_speed_penalty = -0.75
-            elif self.next_road.max_speed < 40:
-                max_speed_penalty = -0.3
-            elif self.next_road.max_speed < 60:
-                max_speed_penalty = -0.1
+            # if self.next_road.max_speed < 20:
+            #     max_speed_penalty = -0.75
+            # elif self.next_road.max_speed < 40:
+            #     max_speed_penalty = -0.3
+            # elif self.next_road.max_speed < 60:
+            #     max_speed_penalty = -0.1
 
             # apply a small penalty for choosing a slow road
-            current_speed_penalty = 0
-            if self.next_road.current_speed < 20:
-                current_speed_penalty = -0.75
-            elif self.next_road.max_speed < 40:
-                current_speed_penalty = -0.3
-            elif self.next_road.max_speed < 60:
-                current_speed_penalty = -0.1
+            speed_penalty = 0
+            speed = self.get_road_current_speed()
+            if speed < 25 :
+                speed_penalty = -0.75
+            elif speed < 45:
+                speed_penalty = -0.3
+            elif speed < 65:
+                speed_penalty = -0.1
 
-            return -1 + distance_penalty + max_speed_penalty + current_speed_penalty
+            return -1 + distance_penalty + max_speed_penalty + speed_penalty
 
     def reset(self):
         """
@@ -279,7 +285,6 @@ class Q_Agent:
         self.all_training_times.append((self.simulation_time - self.start_time).total_seconds())
         self.path_roads.clear()
         self.path_nodes.clear()
-        # self.visited_nodes.clear()
         # Time
         self.simulation_time = self.start_time
         self.last_node_time = None

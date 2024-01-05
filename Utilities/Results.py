@@ -185,7 +185,7 @@ def plot_simulation_overview_seoul(past_result_json_name, RN):
     # plt.title('Graph Visualization')
     # plt.show()
 
-    # fig, ax = ox.plot_graph(RN.graph, figsize=(10, 10), show=False, close=False,bgcolor = 'white', node_color = 'grey', node_size = 0, edge_color = edge_colors)
+    fig, ax = ox.plot_graph(RN.graph, figsize=(10, 10), show=False, close=False,bgcolor = 'white', node_color = 'grey', node_size = 0, edge_color = edge_colors)
     for i,route in enumerate(routes):
         route_osm = node_route_to_osm_route(RN, route)
         color = colors[i%len(colors)]

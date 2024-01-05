@@ -11,7 +11,7 @@ from Utilities.Results import save_results_to_JSON, read_results_from_JSON, car_
 import GUI.Animate_Simulation as AS
 
 START_TIME1 = datetime.datetime(year=2023, month=10, day=4, hour=8, minute=0, second=0)
-START_TIME2 = datetime.datetime(year=2023, month=10, day=4, hour=14, minute=0, second=0)
+START_TIME2 = datetime.datetime(year=2023, month=10, day=4, hour=9, minute=0, second=0)
 
 # Constants for time intervals
 WEEK = 604800
@@ -58,15 +58,22 @@ RN = SM.road_network
 
 cars = []
 
-src1, dst1 = 719, 665
+src1, dst1 = get_random_src_dst(RN)#719, 665
 src2, dst2 = 200, 300
 src3, dst3 = 300, 400
+
 cars.append(
-    Car.Car(1, src3, dst3, START_TIME1, RN, route_algorithm="q", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
+    Car.Car(1, src2, dst2, START_TIME2, RN, route_algorithm="q", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
 cars.append(
-    Car.Car(2, src3, dst3, START_TIME1, RN, route_algorithm="sp", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
+    Car.Car(2, src2, dst2, START_TIME2, RN, route_algorithm="sp", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
 # cars.append(
     # Car.Car(3, src3, dst3, START_TIME1, RN, route_algorithm="random", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
+
+"""
+the speed data of seoul includes 7 different weeks of data,
+we use the last one (aka '6') to simulate the traffic in seoul in the simulator
+and we use the rest for the q learning algorithm
+"""
 SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS, num_episodes=3000, max_steps_per_episode=100)
 routes = SM.get_simulation_routes(cars, 0)
 ASS = AS.Animate_Simulation()
@@ -76,11 +83,11 @@ times = get_simulation_times(SM)
 
 print_simulation_results(SM)
 
-plot_simulation_overview_seoul(json_name, RN)
+# plot_simulation_overview_seoul(json_name, RN)
 # car_times_bar_chart(SM, 2)
 # car_times_bar_chart(SM, 1)
 # car_times_bar_chart(SM, 3)
 
 # Manage and display simulation results
 # Plot and display simulation results
-ASS.plot_simulation(SM, routes, cars)
+# ASS.plot_simulation(SM, routes, cars)

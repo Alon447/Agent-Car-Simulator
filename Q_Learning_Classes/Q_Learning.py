@@ -1,11 +1,12 @@
 import datetime
+import json
 import os
 import pickle
 from tqdm import tqdm
 
 from Main_Files.Road_Network import Road_Network
 from Q_Learning_Classes import Q_Agent
-from Utilities.Getters import get_specific_directory, get_starting_time_of_the_day
+from Utilities.Getters import get_specific_directory, get_starting_time_of_the_day, get_simulation_speeds_file_path
 from Utilities.Results import plot_results
 
 
@@ -34,6 +35,9 @@ class Q_Learning:
         self.road_network = road_network
         self.cars_list = cars
         self.agent_list = [] # list of agents
+        eta_file_path = get_simulation_speeds_file_path(self.road_network.graph, self.road_network.graph_name)
+        with open(eta_file_path, 'r') as infile:
+            self.eta_data = json.load(infile)
 
         # Q Learning Parameters
         self.learning_rate = learning_rate
@@ -97,8 +101,6 @@ Number of training episodes to 2000, maximum number of number of steps in each e
 
         blocked_roads = self.road_network.blocked_roads_dict
         for episode in tqdm(range(self.num_episodes), desc="Episodes", unit="episode"):
-            # Initialize parameters to evaluate the episode
-
             for step in range(self.max_steps_per_episode): # every car can take max_steps_per_episode steps
                 if self.check_all_agents_done():
                     # if all agents are done, then move to the next episode
@@ -127,8 +129,9 @@ Number of training episodes to 2000, maximum number of number of steps in each e
         print("*********************************************")
 
         # Plot mean rewards
-
         for agent in self.agent_list:
+            print(agent.all_training_paths_nodes[-1])
+
             if is_plot_results:
                 plot_results(agent.src, agent.dst, agent.all_training_paths_nodes, agent.all_training_times, agent.mean_rewards)
             self.save_q_table(agent, get_specific_directory("Q Tables Data"))

@@ -47,7 +47,7 @@ class CarManager:
         self.cars_nearest_update = []  # a list  of the cars that will determine time of the next update.
         self.cars_nearest_update_time = 0  # the time of the next update
         self.cars_blocked = []  # a list of the cars that are blocked in the simulation
-        self.max_time_for_car = datetime.timedelta(hours = 2)# the maximum time for car in the simulation
+        self.max_time_for_car = datetime.timedelta(hours = 4)# the maximum time for car in the simulation
         # End of the simulation
         self.cars_finished = []  # a list of the cars that have finished their journey and are waiting to be removed from the simulation
         self.cars_stuck = []  # a list of the cars that are stuck at the end of the simulation

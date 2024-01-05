@@ -30,6 +30,7 @@ class Road_Network:
 
         self.graph_name = graph_name
         self.graph,_ = Getters.get_graph(graph_name) # use graphml file
+        print("graph loaded")
         self.nx_graph = None # create_graph() will initialize this attribute
         """
         self.nx_graph attributes:
@@ -41,7 +42,7 @@ class Road_Network:
         self.roads_array = [] # list of all the roads in the graph
         self.nodes_array = [] # list of all the nodes in the graph
         self.old_to_new_node_id_dict = {} # key: old node id, value: new node id
-        self.roades_by_nodes = {} # key: tuple of (source node new id, destination node new id), value: the correlating road
+        self.roads_by_nodes = {} # key: tuple of (source node new id, destination node new id), value: the correlating road
 
         self.node_connectivity_dict = {} # node id to list of connected nodes ids
         self.blocked_roads_array = []
@@ -116,7 +117,7 @@ class Road_Network:
                 type = "highway"
                 new_road = Road.Road(id, osm_id, start_node, end_node, length, max_speed, type, self.activate_traffic_lights, self.rain_intensity)
                 self.roads_array.append(new_road)
-                self.roades_by_nodes[(start_node_id, end_node_id)] = new_road
+                self.roads_by_nodes[(start_node_id, end_node_id)] = new_road
                 start_node_id = start_node.id
                 if start_node_id in self.node_connectivity_dict and isinstance(self.node_connectivity_dict[start_node_id], list):
                     self.node_connectivity_dict[start_node_id].append(new_road.destination_node.id)
@@ -146,7 +147,7 @@ class Road_Network:
                 type = self.graph.edges[edge]['highway']
                 new_road = Road.Road(id, osm_id, start_node, end_node, length, max_speed, type, self.activate_traffic_lights, self.rain_intensity)
                 self.roads_array.append(new_road)
-                self.roades_by_nodes[(start_node_id, end_node_id)] = new_road
+                self.roads_by_nodes[(start_node_id, end_node_id)] = new_road
                 start_node_id = start_node.id
                 if start_node_id in self.node_connectivity_dict and isinstance(
                         self.node_connectivity_dict[start_node_id], list):
@@ -155,7 +156,7 @@ class Road_Network:
                     self.node_connectivity_dict[start_node_id] = [new_road.destination_node.id]
             # new_road = Road.Road(id, osm_id, start_node ,end_node, length, max_speed, type, self.activate_traffic_lights, self.rain_intensity)
             # self.roads_array.append(new_road)
-            # self.roades_by_nodes[(start_node_id,end_node_id)] = new_road
+            # self.roads_by_nodes[(start_node_id,end_node_id)] = new_road
 
             # update node_connectivity_dict
             # start_node_id = start_node.id
@@ -305,12 +306,16 @@ class Road_Network:
             if self.graph_name.startswith("real_seoul"):
                 road_id = road.osm_id
                 str_road_id = str(road_id)
-                road.update_road_speed_dict(roads_speeds['0'][str_road_id])
+                # road.update_road_speed_dict(roads_speeds['6'][str_road_id])
+                road.update_eta_dict_from_file(roads_speeds['6'][str_road_id])
+                # new_eta = road.update_speed(current_time, self.traffic_white_noise) # update the road's current speed
+                new_eta = road.eta_dict[f"{current_time.hour:02d}:{current_time.minute:02d}"]
             else:
                 road_id = road.id
                 str_road_id = str(road_id)
                 road.update_road_speed_dict(roads_speeds[str_road_id]) # update the road's speed dict
-            new_eta = road.update_speed(current_time, self.traffic_white_noise) # update the road's current speed
+                # new_eta = road.update_speed(current_time, self.traffic_white_noise) # update the road's current speed
+                new_eta = road.update_estimated_time(current_time, self.traffic_white_noise) # update the road's current speed
             src = road.source_node.id
             dest = road.destination_node.id
             self.nx_graph.edges[src, dest, 0]['current_speed'] = road.current_speed
@@ -328,7 +333,8 @@ class Road_Network:
         None
         """
         for road in self.roads_array:
-            new_eta = road.update_speed(current_time, self.traffic_white_noise)
+            # new_eta = road.update_speed(current_time, self.traffic_white_noise)
+            new_eta = road.update_estimated_time(current_time, self.traffic_white_noise)
             src = road.source_node.id
             dest = road.destination_node.id
             block = road.is_blocked
@@ -445,8 +451,8 @@ class Road_Network:
         Returns:
         Road object: Road between the source and destination nodes.
         """
-        if (src_id,dst_id) in self.roades_by_nodes.keys():
-            return self.roades_by_nodes[(src_id,dst_id)]
+        if (src_id,dst_id) in self.roads_by_nodes.keys():
+            return self.roads_by_nodes[(src_id, dst_id)]
         return None
 
     def get_shortest_path(self, src_id, dst_id):

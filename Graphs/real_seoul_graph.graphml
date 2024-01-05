@@ -1,9 +1,15 @@
 <?xml version='1.0' encoding='utf-8'?>
 <graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="d5" for="graph" attr.name="simplified" attr.type="string"/>
+  <key id="d4" for="graph" attr.name="crs" attr.type="string"/>
+  <key id="d3" for="graph" attr.name="created_with" attr.type="string"/>
   <key id="d2" for="edge" attr.name="road_id" attr.type="string" />
   <key id="d1" for="node" attr.name="long" attr.type="string" />
   <key id="d0" for="node" attr.name="lat" attr.type="string" />
   <graph edgedefault="directed">
+    <data key="d3">OSMnx 1.7.1</data>
+    <data key="d4">epsg:4326</data>
+    <data key="d5">True</data>
     <node id="1">
       <data key="d0">37.573</data>
       <data key="d1">127.128</data>
