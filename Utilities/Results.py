@@ -1,11 +1,14 @@
 from datetime import datetime
 import json
 import os
+
+import networkx as nx
 from matplotlib import pyplot as plt
 import matplotlib.patches as mpatches
 import osmnx as ox
 from Main_Files.Road_Network import Road_Network
 from Utilities.Getters import Time_taken, Reached_destination, Simulation_number, Route, Distance_travelled, node_route_to_osm_route, Source, Destination, Blocked_roads, Route_comparisons_results_directory, get_specific_directory
+import matplotlib.pyplot as plt
 
 
 def save_results_to_JSON(graph_name, results):
@@ -34,7 +37,9 @@ def read_results_from_JSON(graph_name):
     Returns:
     dict: Dictionary containing the loaded simulation results.
     """
-    with open(f'../Results/simulation_results_{graph_name}.json', 'r') as infile:
+    current_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
+    with open(f'../Results/simulation_results_{graph_name}_{current_time}.json', 'r') as infile:
         new_simulation_results = json.load(infile)
     return new_simulation_results
 
@@ -111,6 +116,76 @@ def plot_simulation_overview(past_result_json_name):
             route_labels.append(f"Route {key}")  # Add a label for the current route
     colors = ['red','blue','green', 'purple','orange']  # Add more colors as needed
     fig, ax = ox.plot_graph(RN.graph, figsize=(10, 10), show=False, close=False,bgcolor = 'white', node_color = 'grey', node_size = 0, edge_color = edge_colors)
+    for i,route in enumerate(routes):
+        route_osm = node_route_to_osm_route(RN, route)
+        color = colors[i%len(colors)]
+        ox.plot_graph_route(RN.graph, route_osm, route_color = color, route_linewidth = 2, node_size = 0,
+            bgcolor = 'white', show = False, close = False, labal = f"Route {i}", ax = ax)
+
+    plt.title('Past Result of Simulation')
+    for i in range(len(origins)):
+        orig_x, orig_y = origins[i]
+        dest_x, dest_y = destinations[i]
+        ax.scatter(orig_x, orig_y, color='black', s=50, label='Start')
+        ax.scatter(dest_x, dest_y, color='yellow', s=50, label='End')
+    ax.legend()
+
+    plt.show(block=True)
+    # plt.pause(2)
+    # plt.close()
+    return
+
+def plot_simulation_overview_seoul(past_result_json_name, RN):
+    """
+    This function plots the past result of the simulation.
+
+    :param past_result_json_name: The name of the JSON file containing the past result of the simulation.
+
+    :return: None
+    """
+    global ax, fig, origin_x, dest_x, origin_y, dest_y
+
+    substring_to_remove = "simulation_results_"
+    graph_name_with_extra = past_result_json_name.replace(substring_to_remove, "")
+    graph_name_parts = graph_name_with_extra.split('_')
+    graph_name = graph_name_parts[0]  # Get the first part as the base graph name
+    with open(f'../Results/{past_result_json_name}.json') as json_file:
+        past_result = json.load(json_file)
+
+    origins = []
+    destinations = []
+    route_labels = []  # List to store labels for each route
+    first_simulation = past_result[0]
+    routes = []
+    edge_colors = ['grey' for edge_id in range(len(RN.roads_array))]
+
+    for key in first_simulation.keys():
+        if key != Simulation_number: # Ignore the simulation number
+            # get the source and destination and the route of the car
+            car_results = first_simulation[key]
+            car_source = car_results[Source]
+            blocked_roads = car_results[Blocked_roads]
+            for road in blocked_roads:
+                edge_colors[road[0]] = 'black'
+            car_destination = car_results[Destination]
+            origin_x, origin_y = RN.get_xy_from_node_id(car_source)
+            origins.append((origin_x, origin_y))
+            dest_x, dest_y = RN.get_xy_from_node_id(car_destination)
+            destinations.append((dest_x, dest_y))
+            car_route = car_results[Route]
+            routes.append(car_route)
+            route_labels.append(f"Route {key}")  # Add a label for the current route
+    colors = ['red','blue','green', 'purple','orange']  # Add more colors as needed
+    # plt.figure(figsize = (10, 10))
+    # ax = plt.gca()
+    #
+    # # Draw the graph edges and nodes
+    # pos = nx.spring_layout(RN.graph)
+    # nx.draw(RN.graph, pos, with_labels = True, node_size = 50, edge_color = edge_colors, ax = ax)
+    # plt.title('Graph Visualization')
+    # plt.show()
+
+    # fig, ax = ox.plot_graph(RN.graph, figsize=(10, 10), show=False, close=False,bgcolor = 'white', node_color = 'grey', node_size = 0, edge_color = edge_colors)
     for i,route in enumerate(routes):
         route_osm = node_route_to_osm_route(RN, route)
         color = colors[i%len(colors)]

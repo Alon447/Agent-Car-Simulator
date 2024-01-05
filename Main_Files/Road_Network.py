@@ -102,10 +102,10 @@ class Road_Network:
         Returns:
         None
         """
-        for i,edge in enumerate(self.graph.edges(data=True)):
+        if self.graph_name.startswith("real_seoul"):
+            for i,edge in enumerate(self.graph.edges(data=True)):
             # make new road
-            id = i
-            if self.graph_name.startswith("real_seoul"):
+                id = i
                 osm_id = str(edge[2].get('road_id'))  # Convert road_id to string
                 start_node_id = edge[0] - 1
                 end_node_id = edge[1] - 1
@@ -114,8 +114,19 @@ class Road_Network:
                 length = self.calculate_length(start_node, end_node)
                 max_speed = 90
                 type = "highway"
+                new_road = Road.Road(id, osm_id, start_node, end_node, length, max_speed, type, self.activate_traffic_lights, self.rain_intensity)
+                self.roads_array.append(new_road)
+                self.roades_by_nodes[(start_node_id, end_node_id)] = new_road
+                start_node_id = start_node.id
+                if start_node_id in self.node_connectivity_dict and isinstance(self.node_connectivity_dict[start_node_id], list):
+                    self.node_connectivity_dict[start_node_id].append(new_road.destination_node.id)
+                else:
+                    self.node_connectivity_dict[start_node_id] = [new_road.destination_node.id]
 
-            else:
+        else:
+            for i, edge in enumerate(self.graph.edges):
+                id = i
+
                 osm_id = id
                 start_node_id = self.get_node_from_osm_id(edge[0]) # int
                 end_node_id = self.get_node_from_osm_id(edge[1]) # int
@@ -133,16 +144,25 @@ class Road_Network:
                     max_speed = Speeds.fix_speed(max_speed)
 
                 type = self.graph.edges[edge]['highway']
-            new_road = Road.Road(id, osm_id, start_node ,end_node, length, max_speed, type, self.activate_traffic_lights, self.rain_intensity)
-            self.roads_array.append(new_road)
-            self.roades_by_nodes[(start_node_id,end_node_id)] = new_road
+                new_road = Road.Road(id, osm_id, start_node, end_node, length, max_speed, type, self.activate_traffic_lights, self.rain_intensity)
+                self.roads_array.append(new_road)
+                self.roades_by_nodes[(start_node_id, end_node_id)] = new_road
+                start_node_id = start_node.id
+                if start_node_id in self.node_connectivity_dict and isinstance(
+                        self.node_connectivity_dict[start_node_id], list):
+                    self.node_connectivity_dict[start_node_id].append(new_road.destination_node.id)
+                else:
+                    self.node_connectivity_dict[start_node_id] = [new_road.destination_node.id]
+            # new_road = Road.Road(id, osm_id, start_node ,end_node, length, max_speed, type, self.activate_traffic_lights, self.rain_intensity)
+            # self.roads_array.append(new_road)
+            # self.roades_by_nodes[(start_node_id,end_node_id)] = new_road
 
             # update node_connectivity_dict
-            start_node_id = start_node.id
-            if start_node_id in self.node_connectivity_dict and isinstance(self.node_connectivity_dict[start_node_id], list):
-                self.node_connectivity_dict[start_node_id].append(new_road.destination_node.id)
-            else:
-                self.node_connectivity_dict[start_node_id] = [new_road.destination_node.id]
+            # start_node_id = start_node.id
+            # if start_node_id in self.node_connectivity_dict and isinstance(self.node_connectivity_dict[start_node_id], list):
+            #     self.node_connectivity_dict[start_node_id].append(new_road.destination_node.id)
+            # else:
+            #     self.node_connectivity_dict[start_node_id] = [new_road.destination_node.id]
         return
 
     def create_graph(self):
