@@ -178,6 +178,14 @@ def plot_simulation_overview_seoul(past_result_json_name, RN):
     colors = ['red','blue','green', 'purple','orange']  # Add more colors as needed
     # plt.figure(figsize = (10, 10))
     # ax = plt.gca()
+    # edges_of_interest = []
+    # for node in original_routes[0]:
+    #     edges_of_interest.extend((u, v, 0) for u, v in RN.graph.edges(node))
+    # # Draw the graph edges and nodes
+    # G = RN.graph.edge_subgraph(edges_of_interest)
+    #
+    # pos = nx.spring_layout(G )
+    # nx.draw(G , pos, with_labels = True, node_size = 50, edge_color = edge_colors, ax = ax)
     #
     # # Draw the graph edges and nodes
     # pos = nx.spring_layout(RN.graph)

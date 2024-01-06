@@ -78,8 +78,8 @@ class Road_Network:
             if self.graph_name.startswith("real_seoul"):
                 osm_id = id + 1
                 self.old_to_new_node_id_dict[osm_id] = id
-                x = float(self.graph.nodes[node].get('lat')) # צריך לבדוק את הנכונות ש- x=latitde ו- y=longitude
-                y = float(self.graph.nodes[node].get('long'))
+                x = float(self.graph.nodes[node].get('x')) # צריך לבדוק את הנכונות ש- x=latitde ו- y=longitude
+                y = float(self.graph.nodes[node].get('y'))
                 traffic_lights = False
                 street_count = 1
             else:
@@ -118,7 +118,7 @@ class Road_Network:
                 new_road = Road.Road(id, osm_id, start_node, end_node, length, max_speed, type, self.activate_traffic_lights, self.rain_intensity)
                 self.roads_array.append(new_road)
                 self.roads_by_nodes[(start_node_id, end_node_id)] = new_road
-                start_node_id = start_node.id
+                # start_node_id = start_node.id
                 if start_node_id in self.node_connectivity_dict and isinstance(self.node_connectivity_dict[start_node_id], list):
                     self.node_connectivity_dict[start_node_id].append(new_road.destination_node.id)
                 else:
@@ -148,7 +148,7 @@ class Road_Network:
                 new_road = Road.Road(id, osm_id, start_node, end_node, length, max_speed, type, self.activate_traffic_lights, self.rain_intensity)
                 self.roads_array.append(new_road)
                 self.roads_by_nodes[(start_node_id, end_node_id)] = new_road
-                start_node_id = start_node.id
+                # start_node_id = start_node.id
                 if start_node_id in self.node_connectivity_dict and isinstance(
                         self.node_connectivity_dict[start_node_id], list):
                     self.node_connectivity_dict[start_node_id].append(new_road.destination_node.id)
