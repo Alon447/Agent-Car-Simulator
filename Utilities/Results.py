@@ -135,7 +135,7 @@ def plot_simulation_overview(past_result_json_name):
     # plt.close()
     return
 
-def plot_simulation_overview_seoul(past_result_json_name, RN):
+def plot_simulation_overview_seoul(past_result_json_name, RN, original_routes):
     """
     This function plots the past result of the simulation.
 
@@ -184,16 +184,16 @@ def plot_simulation_overview_seoul(past_result_json_name, RN):
     # # Draw the graph edges and nodes
     # G = RN.graph.edge_subgraph(edges_of_interest)
     #
-    # pos = nx.spring_layout(G )
+    # pos = nx.spring_layout(G)
     # nx.draw(G , pos, with_labels = True, node_size = 50, edge_color = edge_colors, ax = ax)
     #
     # # Draw the graph edges and nodes
-    # pos = nx.spring_layout(RN.graph)
-    # nx.draw(RN.graph, pos, with_labels = True, node_size = 50, edge_color = edge_colors, ax = ax)
+    # pos = nx.spring_layout(G )
+    # nx.draw(G , pos, with_labels = True, node_size = 50, edge_color = edge_colors, ax = ax)
     # plt.title('Graph Visualization')
     # plt.show()
 
-    fig, ax = ox.plot_graph(RN.graph, figsize=(10, 10), show=False, close=False,bgcolor = 'white', node_color = 'grey', node_size = 0, edge_color = edge_colors)
+    fig, ax = ox.plot_graph(G , figsize=(10, 10), show=False, close=False,bgcolor = 'white', node_color = 'grey', node_size = 0, edge_color = edge_colors)
     for i,route in enumerate(routes):
         route_osm = node_route_to_osm_route(RN, route)
         color = colors[i%len(colors)]

@@ -322,12 +322,12 @@ class Simulation_manager:
         self.speeds_file_path = get_simulation_speeds_file_path(self.road_network.graph, self.graph_name)
         with open(self.speeds_file_path, 'r') as infile:
             data = json.load(infile)
+        # day_data = data.get(str(self.day_int), {})
 
         # round the minutes to the nearest 10
         minutes = int(datetime_obj.minute / 10) * 10
         time_key = datetime_obj.replace(minute=minutes)
-        day_data = data.get(str(self.day_int), {})
-        self.road_network.set_roads_speeds_from_dict(day_data, time_key)
+        self.road_network.set_roads_speeds_from_dict(data, self.day_int, time_key)
         return
 
     def update_road_blockage(self, road_id, start_time = None, end_time = None):

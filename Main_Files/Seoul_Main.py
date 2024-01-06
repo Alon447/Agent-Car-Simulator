@@ -10,8 +10,8 @@ from Utilities.Getters import get_random_src_dst
 from Utilities.Results import save_results_to_JSON, read_results_from_JSON, car_times_bar_chart, print_simulation_results, plot_simulation_overview, get_simulation_times, plot_simulation_overview_seoul
 import GUI.Animate_Simulation as AS
 
-START_TIME1 = datetime.datetime(year=2023, month=10, day=4, hour=8, minute=0, second=0)
-START_TIME2 = datetime.datetime(year=2023, month=10, day=4, hour=9, minute=0, second=0)
+START_TIME1 = datetime.datetime(year=2024, month=1, day=6, hour=8, minute=0, second=0)
+START_TIME2 = datetime.datetime(year=2024, month=1, day=7, hour=10, minute=0, second=0)
 
 # Constants for time intervals
 WEEK = 604800
@@ -47,7 +47,7 @@ graph = ox.load_graphml(path)
 #     print(data.get('road_id'))  # Print all attributes for each edge
 
 SM = Simulation_manager.Simulation_manager("real_seoul_graph", TRAFFIC_LIGHTS, Rain_intensity, TRAFFIC_WHITE_NOISE,
-                                           PLOT_RESULTS, START_TIME1, start_time = START_TIME1)
+                                           PLOT_RESULTS, start_time = START_TIME1)
 # plt.figure(figsize=(8, 6))
 # pos = nx.spring_layout(graph)  # or use other layout algorithms like nx.circular_layout, nx.random_layout, etc.
 # nx.draw(graph, pos, with_labels=True, node_size=50, node_color='skyblue', edge_color='gray', font_size=8)
@@ -63,9 +63,9 @@ src2, dst2 = 200, 300
 src3, dst3 = 300, 400
 
 cars.append(
-    Car.Car(1, src2, dst2, START_TIME2, RN, route_algorithm="q", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
+    Car.Car(1, src1, dst1, START_TIME1, RN, route_algorithm="q", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
 cars.append(
-    Car.Car(2, src2, dst2, START_TIME2, RN, route_algorithm="sp", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
+    Car.Car(2, src1, dst1, START_TIME1, RN, route_algorithm="sp", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
 # cars.append(
     # Car.Car(3, src3, dst3, START_TIME1, RN, route_algorithm="random", use_existing_q_table=USE_ALREADY_GENERATED_Q_TABLE))
 
@@ -83,7 +83,7 @@ times = get_simulation_times(SM)
 
 print_simulation_results(SM)
 
-# plot_simulation_overview_seoul(json_name, RN)
+# plot_simulation_overview_seoul(json_name, RN, routes)
 # car_times_bar_chart(SM, 2)
 # car_times_bar_chart(SM, 1)
 # car_times_bar_chart(SM, 3)

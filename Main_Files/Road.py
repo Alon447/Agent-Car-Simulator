@@ -166,8 +166,8 @@ class Road:
         None
         """
         self.eta_dict = eta_data
-        # self.update_eta_dict()
         return
+
     def update_eta_dict(self):
         """
         Update the ETA dictionary based on the current road speeds.
@@ -180,20 +180,20 @@ class Road:
             self.eta_dict[key] = new_val
         return
 
-    def update_speed_dict(self, new_speed: dict):
-        """
-        Update the road speed dictionary and recalculate ETA values.
-
-        Args:
-        new_speed (dict): A dictionary containing times and corresponding road speeds.
-
-        Returns:
-        None
-        """
-        for key, value in self.eta_dict.items():
-            new_val = self.calculate_eta(value)
-            self.eta_dict[key] = new_val
-        return
+    # def update_speed_dict(self, new_speed: dict):
+    #     """
+    #     Update the road speed dictionary and recalculate ETA values.
+    #
+    #     Args:
+    #     new_speed (dict): A dictionary containing times and corresponding road speeds.
+    #
+    #     Returns:
+    #     None
+    #     """
+    #     for key, value in self.eta_dict.items():
+    #         new_val = self.calculate_eta(value)
+    #         self.eta_dict[key] = new_val
+    #     return
     def calculate_eta(self, speed: int):
         """
         Calculate the estimated time of arrival (ETA) based on the provided speed.
@@ -236,7 +236,9 @@ class Road:
         Returns:
         float: The estimated time of arrival (ETA) in seconds.
         """
-        return self.eta_dict[time]
+        self.estimated_time = self.eta_dict[time]
+        self.current_speed = int((self.length / 1000) / (self.estimated_time / 3600))
+        return self.estimated_time
 
     def get_speed(self, time: str):
         """

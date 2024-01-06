@@ -35,9 +35,9 @@ class Q_Learning:
         self.road_network = road_network
         self.cars_list = cars
         self.agent_list = [] # list of agents
-        eta_file_path = get_simulation_speeds_file_path(self.road_network.graph, self.road_network.graph_name)
-        with open(eta_file_path, 'r') as infile:
-            self.eta_data = json.load(infile)
+        # eta_file_path = get_simulation_speeds_file_path(self.road_network.graph, self.road_network.graph_name)
+        # with open(eta_file_path, 'r') as infile:
+        #     self.eta_data = json.load(infile)
 
         # Q Learning Parameters
         self.learning_rate = learning_rate

@@ -291,7 +291,7 @@ class Road_Network:
         distance = earth_radius * c
         return round(1000 * distance, 2)
 
-    def set_roads_speeds_from_dict(self, roads_speeds:dict, current_time:datetime):
+    def set_roads_speeds_from_dict(self, data:dict, day, current_time:datetime):
         """
         Update road speeds based on the provided speeds dictionary and current time.
 
@@ -307,13 +307,15 @@ class Road_Network:
                 road_id = road.osm_id
                 str_road_id = str(road_id)
                 # road.update_road_speed_dict(roads_speeds['6'][str_road_id])
-                road.update_eta_dict_from_file(roads_speeds['6'][str_road_id])
+                dict_keys = list(data.keys())
+                last_key = dict_keys[-1]
+                road.update_eta_dict_from_file(data[last_key][str(day)][str_road_id])
                 # new_eta = road.update_speed(current_time, self.traffic_white_noise) # update the road's current speed
-                new_eta = road.eta_dict[f"{current_time.hour:02d}:{current_time.minute:02d}"]
+                new_eta = road.get_eta(f"{current_time.hour:02d}:{current_time.minute:02d}")
             else:
                 road_id = road.id
                 str_road_id = str(road_id)
-                road.update_road_speed_dict(roads_speeds[str_road_id]) # update the road's speed dict
+                road.update_road_speed_dict(data[str_road_id]) # update the road's speed dict
                 # new_eta = road.update_speed(current_time, self.traffic_white_noise) # update the road's current speed
                 new_eta = road.update_estimated_time(current_time, self.traffic_white_noise) # update the road's current speed
             src = road.source_node.id
