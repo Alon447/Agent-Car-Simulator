@@ -24,7 +24,7 @@ NUMBER_OF_SIMULATIONS = 1
 TRAFFIC_LIGHTS = False
 TRAFFIC_WHITE_NOISE = False
 Rain_intensity = 0  # 0-3 (0 = no rain, 1 = light rain, 2 = moderate rain, 3 = heavy rain)
-PLOT_RESULTS = True
+PLOT_RESULTS = False
 
 # Q-Learning parameters
 USE_ALREADY_GENERATED_Q_TABLE = False
@@ -74,16 +74,18 @@ the speed data of seoul includes 7 different weeks of data,
 we use the last one (aka '6') to simulate the traffic in seoul in the simulator
 and we use the rest for the q learning algorithm
 """
-SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS, num_episodes=3000, max_steps_per_episode=100)
-routes = SM.get_simulation_routes(cars, 0)
-ASS = AS.Animate_Simulation()
-json_name = save_results_to_JSON(SM.graph_name, SM.simulation_results)
-SM.simulation_results = read_results_from_JSON(SM.graph_name)
-times = get_simulation_times(SM)
+res = SM.run_multiple_simulations(START_TIME1, 2, num_episodes=3000, max_steps_per_episode=150)
+print(res)
+# SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS, num_episodes=3000, max_steps_per_episode=100)
+# routes = SM.get_simulation_routes(cars, 0)
+# ASS = AS.Animate_Simulation()
+# json_name = save_results_to_JSON(SM.graph_name, SM.simulation_results)
+# SM.simulation_results = read_results_from_JSON(SM.graph_name)
+# times = get_simulation_times(SM)
+#
+# print_simulation_results(SM)
 
-print_simulation_results(SM)
-
-plot_simulation_overview_seoul(json_name, RN,routes)
+# plot_simulation_overview_seoul(json_name, RN,routes)
 # car_times_bar_chart(SM, 2)
 # car_times_bar_chart(SM, 1)
 # car_times_bar_chart(SM, 3)
@@ -91,3 +93,6 @@ plot_simulation_overview_seoul(json_name, RN,routes)
 # Manage and display simulation results
 # Plot and display simulation results
 # ASS.plot_simulation(SM, routes, cars)
+
+
+

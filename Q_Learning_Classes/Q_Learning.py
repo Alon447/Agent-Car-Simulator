@@ -18,7 +18,7 @@ class Q_Learning:
     Most of the functions are defined in Q_Agent.py
     This is like a main class that runs the Q-learning algorithm for all the agents
     """
-    def __init__(self, road_network, cars, num_episodes = 2000, max_steps_per_episode = 100, learning_rate=0.1, discount_factor=0.9, epsilon=0.2):
+    def __init__(self, road_network, eta_data, cars, num_episodes = 2000, max_steps_per_episode = 100, learning_rate=0.1, discount_factor=0.9, epsilon=0.2):
         """
         Initialize the Q_Learning class.
 
@@ -34,10 +34,8 @@ class Q_Learning:
         # General
         self.road_network = road_network
         self.cars_list = cars
+        self.eta_data = eta_data
         self.agent_list = [] # list of agents
-        # eta_file_path = get_simulation_speeds_file_path(self.road_network.graph, self.road_network.graph_name)
-        # with open(eta_file_path, 'r') as infile:
-        #     self.eta_data = json.load(infile)
 
         # Q Learning Parameters
         self.learning_rate = learning_rate

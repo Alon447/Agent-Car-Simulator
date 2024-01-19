@@ -7,9 +7,7 @@ from Q_Learning_Classes import Q_Learning
 from Main_Files import Car_manager
 from Main_Files import Road_Network
 from Main_Files import Car
-from Utilities.Getters import time_delta_to_seconds, get_simulation_speeds_file_path, Source, Destination, \
-    Reached_destination, Routing_algorithm, Time_taken, Day_of_week, Start_time, End_time, Route, Roads_used, \
-    Distance_travelled, Simulation_number, Blocked_roads
+from Utilities.Getters import time_delta_to_seconds, get_simulation_speeds_file_path, Source, Destination, Reached_destination, Routing_algorithm, Time_taken, Day_of_week, Start_time, End_time, Route, Roads_used, Distance_travelled, Simulation_number, Blocked_roads, get_random_src_dst
 
 
 class Simulation_manager:
@@ -73,12 +71,42 @@ class Simulation_manager:
 
         # DATA
         self.speeds_file_path = None
-
+        self.eta_data = None
         # FUNCTIONS - read speeds
         self.read_road_speeds(self.simulation_datetime_start)
 
         # Flags
         self.is_plot_results = is_plot_results
+
+    def run_multiple_simulations(self, start_time, number_of_simulations = 1, num_episodes=2000, max_steps_per_episode=150, simulation_number_added = 0, learning_rate = 0.1, discount_factor = 0.9, epsilon = 0.2):
+        """
+        Run multiple simulations. generate source and destination with one q learning car and one shortest path car and comapres them.
+        :param number_of_simulations:
+        :param start_time:
+        :param num_episodes:
+        :param max_steps_per_episode:
+        :param simulation_number_added:
+        :param learning_rate:
+        :param discount_factor:
+        :param epsilon:
+        :return:
+        """
+        results = [0,0,0] # [q_learning, shortest_path, tie] - number of times each algorithm won
+        for i in range(number_of_simulations):
+            cars = []
+            src, dst = get_random_src_dst(self.road_network)
+            cars.append(Car.Car(1, src, dst, start_time, self.road_network, route_algorithm = "q", use_existing_q_table = False, ))
+            cars.append(Car.Car(2, src, dst, start_time, self.road_network, route_algorithm = "sp", use_existing_q_table = False))
+            res = self.run_full_simulation(cars, 1, num_episodes, max_steps_per_episode, simulation_number_added, learning_rate, discount_factor, epsilon)
+            print(res[1])
+            print(res[2])
+            if res[1]['Time_taken'] < res[2]['Time_taken']:
+                results[0] += 1
+            elif res[1]['Time_taken'] > res[2]['Time_taken']:
+                results[1] += 1
+            else:
+                results[2] += 1
+        return results
 
     def run_full_simulation(self, cars, number_of_simulations=1, num_episodes=2000, max_steps_per_episode=150, simulation_number_added = 0, learning_rate = 0.1, discount_factor = 0.9, epsilon = 0.2):
         """
@@ -105,19 +133,13 @@ class Simulation_manager:
                     copy_cars.append(new_car)
             else:
                 copy_cars = cars
-
             # set up the simulation
-            # start_learning_time = time.time()
             self.start_q_learning_simulation(copy_cars, num_episodes, max_steps_per_episode, learning_rate, discount_factor, epsilon)
-            # end_learning_time = time.time()
-            # learning_time = end_learning_time - start_learning_time
             self.set_up_simulation(copy_cars)
             self.start_simulation()
             self.end_simulation(i)
-            # self.road_network.unblock_all_roads()
-            self.write_simulation_results(copy_cars, i + simulation_number_added)
-
-        return
+            res = self.write_simulation_results(copy_cars, i + simulation_number_added)
+        return res
 
     def start_q_learning_simulation(self, copy_cars, num_episodes, max_steps_per_episode, learning_rate, discount_factor, epsilon):
         """
@@ -137,7 +159,7 @@ class Simulation_manager:
         for car in copy_cars:
             if car.route_algorithm_name == "q" and car.route.q_table is None:
                 q_learning_cars.append(car)
-        q_learn = Q_Learning.Q_Learning(self.road_network, cars = q_learning_cars, num_episodes= num_episodes, max_steps_per_episode = max_steps_per_episode, learning_rate=learning_rate, discount_factor=discount_factor, epsilon=epsilon)
+        q_learn = Q_Learning.Q_Learning(self.road_network, self.eta_data, cars = q_learning_cars, num_episodes= num_episodes, max_steps_per_episode = max_steps_per_episode, learning_rate=learning_rate, discount_factor=discount_factor, epsilon=epsilon)
         q_learn.train(self.simulation_datetime_start, is_plot_results = self.is_plot_results)
         return
 
@@ -321,13 +343,13 @@ class Simulation_manager:
         self.day_int = datetime_obj.weekday()
         self.speeds_file_path = get_simulation_speeds_file_path(self.road_network.graph, self.graph_name)
         with open(self.speeds_file_path, 'r') as infile:
-            data = json.load(infile)
+            self.eta_data = json.load(infile)
         # day_data = data.get(str(self.day_int), {})
 
         # round the minutes to the nearest 10
         minutes = int(datetime_obj.minute / 10) * 10
         time_key = datetime_obj.replace(minute=minutes)
-        self.road_network.set_roads_speeds_from_dict(data, self.day_int, time_key)
+        self.road_network.set_roads_speeds_from_dict(self.eta_data, self.day_int, time_key)
         return
 
     def update_road_blockage(self, road_id, start_time = None, end_time = None):
@@ -404,6 +426,7 @@ class Simulation_manager:
             Simulation_number: simulation_number + 1,
             **simulation_results
         })
+        return simulation_results
 
     def get_simulation_routes(self, cars: list, simulation_number: int):
         """
