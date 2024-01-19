@@ -176,24 +176,26 @@ def plot_simulation_overview_seoul(past_result_json_name, RN, original_routes):
             routes.append(car_route)
             route_labels.append(f"Route {key}")  # Add a label for the current route
     colors = ['red','blue','green', 'purple','orange']  # Add more colors as needed
-    # plt.figure(figsize = (10, 10))
-    # ax = plt.gca()
-    # edges_of_interest = []
-    # for node in original_routes[0]:
-    #     edges_of_interest.extend((u, v, 0) for u, v in RN.graph.edges(node))
-    # # Draw the graph edges and nodes
-    # G = RN.graph.edge_subgraph(edges_of_interest)
-    #
-    # pos = nx.spring_layout(G)
-    # nx.draw(G , pos, with_labels = True, node_size = 50, edge_color = edge_colors, ax = ax)
-    #
-    # # Draw the graph edges and nodes
-    # pos = nx.spring_layout(G )
-    # nx.draw(G , pos, with_labels = True, node_size = 50, edge_color = edge_colors, ax = ax)
-    # plt.title('Graph Visualization')
-    # plt.show()
+    plt.figure(figsize = (10, 10))
+    ax = plt.gca()
+    edges_of_interest = []
+    for i,node in enumerate(original_routes[0][:-1]):
+        u = node
+        v = original_routes[0][i+1]
+        edges_of_interest.append((u+1,v+1,0))
+    # Draw the graph edges and nodes
+    G = RN.graph.edge_subgraph(edges_of_interest)
 
-    fig, ax = ox.plot_graph(G , figsize=(10, 10), show=False, close=False,bgcolor = 'white', node_color = 'grey', node_size = 0, edge_color = edge_colors)
+    pos = nx.spring_layout(G )
+    nx.draw(G , pos, with_labels = True, node_size = 50, edge_color = edge_colors, ax = ax)
+
+    # Draw the graph edges and nodes
+    pos = nx.spring_layout(RN.graph)
+    nx.draw(G, pos, with_labels = True, node_size = 50, edge_color = edge_colors, ax = ax)
+    plt.title('Graph Visualization')
+    plt.show()
+
+    fig, ax = ox.plot_graph(RN.graph, figsize=(10, 10), show=False, close=False,bgcolor = 'white', node_color = 'grey', node_size = 0, edge_color = edge_colors)
     for i,route in enumerate(routes):
         route_osm = node_route_to_osm_route(RN, route)
         color = colors[i%len(colors)]

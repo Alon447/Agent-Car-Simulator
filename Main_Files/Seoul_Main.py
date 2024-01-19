@@ -83,7 +83,7 @@ times = get_simulation_times(SM)
 
 print_simulation_results(SM)
 
-# plot_simulation_overview_seoul(json_name, RN, routes)
+plot_simulation_overview_seoul(json_name, RN,routes)
 # car_times_bar_chart(SM, 2)
 # car_times_bar_chart(SM, 1)
 # car_times_bar_chart(SM, 3)
