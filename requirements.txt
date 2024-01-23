@@ -1,0 +1,12 @@
+osmnx==1.8.0
+matplotlib==3.7.1
+tkcalendar==1.6.1
+geopandas==0.12.2
+numpy==1.24.2
+shapely==2.0.1
+customtkinter==5.2.0
+PySimpleGUI==4.60.5
+pandas==1.5.3
+networkx==3.0
+fonttools==4.39.0
+tqdm==4.66.1

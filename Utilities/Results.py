@@ -186,9 +186,6 @@ def plot_simulation_overview_seoul(past_result_json_name, RN, original_routes):
     # Draw the graph edges and nodes
     G = RN.graph.edge_subgraph(edges_of_interest)
 
-    pos = nx.spring_layout(G )
-    nx.draw(G , pos, with_labels = True, node_size = 50, edge_color = edge_colors, ax = ax)
-
     # Draw the graph edges and nodes
     pos = nx.spring_layout(RN.graph)
     nx.draw(G, pos, with_labels = True, node_size = 50, edge_color = edge_colors, ax = ax)

@@ -79,10 +79,10 @@ print(res)
 # SM.run_full_simulation(cars, NUMBER_OF_SIMULATIONS, num_episodes=3000, max_steps_per_episode=100)
 # routes = SM.get_simulation_routes(cars, 0)
 # ASS = AS.Animate_Simulation()
-# json_name = save_results_to_JSON(SM.graph_name, SM.simulation_results)
+json_name = save_results_to_JSON(SM.graph_name, SM.simulation_results)
 # SM.simulation_results = read_results_from_JSON(SM.graph_name)
 # times = get_simulation_times(SM)
-#
+#k
 # print_simulation_results(SM)
 
 # plot_simulation_overview_seoul(json_name, RN,routes)
